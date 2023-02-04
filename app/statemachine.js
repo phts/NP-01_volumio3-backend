@@ -22,7 +22,6 @@ function CoreStateMachine (commandRouter) {
   this.volatileState = {};
   this.isVolatile = false;
   this.currentDisableVolumeControl = false;
-  this.previousTrackonPrev = false;
   this.lastSavedStateToString = '{}';
   /**
      * This field tells the system if it is currenty running in consume mode
@@ -1305,38 +1304,26 @@ CoreStateMachine.prototype.previous = function (promisedResponse) {
     } else if (this.currentStatus === 'play') {
       if (this.isConsume && this.consumeState.service != undefined && this.consumeState.service !== 'webradio') {
         var thisPlugin = this.commandRouter.getMusicPlugin(this.consumeState.service);
-        if (!this.previousTrackonPrev && typeof thisPlugin.seek === 'function') {
-          thisPlugin.seek(0);
-          this.currentSeek = 0;
-          this.startTimerForPreviousTrack();
+        if (typeof thisPlugin.previous === 'function') {
+          thisPlugin.previous();
         } else {
-          if (typeof thisPlugin.previous === 'function') {
-            thisPlugin.previous();
-          } else {
-            this.commandRouter.pushConsoleMessage('WARNING: No previous method for plugin ' + this.consumeState.service);
-          }
+          this.commandRouter.pushConsoleMessage('WARNING: No previous method for plugin ' + this.consumeState.service);
         }
       } else {
         var trackBlock = this.getTrack(this.currentPosition);
         var thisPlugin = this.commandRouter.pluginManager.getPlugin('music_service', trackBlock.service);
-        if (!this.previousTrackonPrev && typeof thisPlugin.seek === 'function') {
-          thisPlugin.seek(0);
-          this.currentSeek = 0;
-          this.startTimerForPreviousTrack();
-        } else {
-          if (this.currentRandom !== undefined && this.currentRandom === true) {
-            this.stop();
-            setTimeout(function () {
-              self.currentPosition = Math.floor(Math.random() * (self.playQueue.arrayQueue.length));
-              self.play();
-            }, 500);
-          } else if (this.currentPosition > 0) {
-            this.stop();
-            setTimeout(function () {
-              self.currentPosition--;
-              self.play();
-            }, 500);
-          }
+        if (this.currentRandom !== undefined && this.currentRandom === true) {
+          this.stop();
+          setTimeout(function () {
+            self.currentPosition = Math.floor(Math.random() * (self.playQueue.arrayQueue.length));
+            self.play();
+          }, 500);
+        } else if (this.currentPosition > 0) {
+          this.stop();
+          setTimeout(function () {
+            self.currentPosition--;
+            self.play();
+          }, 500);
         }
       }
     } else if (this.currentStatus === 'pause') {
@@ -1550,14 +1537,6 @@ CoreStateMachine.prototype.unSetVolatile = function () {
 
   this.volatileService = undefined;
   this.isVolatile = false;
-};
-
-CoreStateMachine.prototype.startTimerForPreviousTrack = function () {
-  this.previousTrackonPrev = true;
-
-  setTimeout(() => {
-    this.previousTrackonPrev = false;
-  }, 3000);
 };
 
 CoreStateMachine.prototype.reportCappedSamplerate = function (samplerate) {
