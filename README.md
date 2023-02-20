@@ -1,3 +1,13 @@
+# PHTS NP-01: Volumio 3 backend
+
+This is a modification of original [volumio3-backend] which is used by [PHTS NP-01].
+
+[volumio3-backend]: https://github.com/volumio/volumio3-backend
+[PHTS NP-01]: https://tsaryk.com/NP-01
+
+<details>
+<summary>README from original repo</summary>
+
 [![Open Source Love](https://badges.frapsoft.com/os/v2/open-source.png?v=103)](https://github.com/ellerbrock/open-source-badges/)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![Awesome](https://awesome.re/badge.svg)](https://github.com/thibmaek/awesome-raspberry-pi)
@@ -32,3 +42,5 @@ Volumio is made with several components, some of which are open-source. They are
 Developers are welcome! Check out the resources:
 
 * [Main documentation](https://developers.volumio.com)
+
+</details>
