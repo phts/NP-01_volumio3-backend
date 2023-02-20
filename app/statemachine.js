@@ -1301,7 +1301,7 @@ CoreStateMachine.prototype.previous = function (promisedResponse) {
         this.updateTrackBlock();
         return this.pushState();
       }
-    } else if (this.currentStatus === 'play') {
+    } else if (this.currentStatus === 'play' || this.currentStatus === 'pause') {
       if (this.isConsume && this.consumeState.service != undefined && this.consumeState.service !== 'webradio') {
         var thisPlugin = this.commandRouter.getMusicPlugin(this.consumeState.service);
         if (typeof thisPlugin.previous === 'function') {
@@ -1326,16 +1326,6 @@ CoreStateMachine.prototype.previous = function (promisedResponse) {
           }, 500);
         }
       }
-    } else if (this.currentStatus === 'pause') {
-      // Pause -> Previous transition
-      if (this.currentRandom !== undefined && this.currentRandom === true) {
-        this.currentPosition = this.randomQueue.prev();
-      } else if (this.currentPosition > 0) {
-        this.currentPosition--;
-      }
-      this.currentSeek = 0;
-      this.updateTrackBlock();
-      return this.serviceClearAddPlay();
     }
   }
 };
