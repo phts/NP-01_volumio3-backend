@@ -1324,6 +1324,11 @@ CoreStateMachine.prototype.previous = function (promisedResponse) {
             self.currentPosition--;
             self.play();
           }, 500);
+        } else if (this.currentPosition === 0) {
+          this.stop();
+          setTimeout(function () {
+            self.play();
+          }, 500);
         }
       }
     }
