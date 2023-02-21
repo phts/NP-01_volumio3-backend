@@ -64,8 +64,8 @@ function CoreCommandRouter (server) {
   this.platformspecific = new (require(__dirname + '/platformSpecific.js'))(this);
 
   // Wait for plugin startup to complete before playing the startup sound as the
-  // plugins may need to be fully active before sound can play properly 
-  pluginPromise.then(() => {	  
+  // plugins may need to be fully active before sound can play properly
+  pluginPromise.then(() => {
 	  this.pushConsoleMessage('BOOT COMPLETED');
 	  metrics.log('CommandRouter');
 	  this.setStartupVolume();
@@ -1117,7 +1117,8 @@ CoreCommandRouter.prototype.writePlayerControls = function (config) {
 
   var data = Object.assign({
     random: state.random,
-    repeat: state.repeat
+    repeat: state.repeat,
+    repeatSingle: state.repeatSingle
   }, config);
 
   fs.writeFile(pCtrlFile, JSON.stringify(data, null, 4), function (err) {
@@ -1556,21 +1557,14 @@ CoreCommandRouter.prototype.volumioRepeat = function (repeat, repeatSingle) {
 };
 
 CoreCommandRouter.prototype.repeatToggle = function () {
-  var self = this;
-
-  var state = self.stateMachine.getState();
-
-  if (state.repeat) {
-    var repeat = false;
-  } else {
-    var repeat = true;
-  }
-
+  const state = this.stateMachine.getState();
+  const repeat = !(state.repeat && state.repeatSingle);
+  const repeatSingle = state.repeat && !state.repeatSingle;
   this.writePlayerControls({
-    repeat: repeat
+    repeat,
+    repeatSingle
   });
-
-  return self.stateMachine.setRepeat(repeat, false);
+  return this.stateMachine.setRepeat(repeat, repeatSingle);
 };
 
 CoreCommandRouter.prototype.volumioConsume = function (data) {
@@ -2273,7 +2267,7 @@ CoreCommandRouter.prototype.refreshCachedPAddresses = function () {
 
 CoreCommandRouter.prototype.rebuildALSAConfiguration = function () {
   var self = this;
-	
+
   if (process.env.MODULAR_ALSA_PIPELINE === 'true') {
     var alsaPlugin = this.pluginManager.getPlugin('audio_interface', 'alsa_controller');
     return alsaPlugin.updateALSAConfigFile();
