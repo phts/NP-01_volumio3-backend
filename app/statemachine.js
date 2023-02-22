@@ -23,10 +23,6 @@ function CoreStateMachine (commandRouter) {
   this.isVolatile = false;
   this.currentDisableVolumeControl = false;
   this.lastSavedStateToString = '{}';
-  /**
-     * This field tells the system if it is currenty running in consume mode
-     * @type {boolean} true or false wether the system is in consume mode
-     */
   this.isConsume = false;
 
   /**
@@ -261,27 +257,6 @@ CoreStateMachine.prototype.clearQueue = function (sendEmptyState) {
   this.stop();
   return this.playQueue.clearPlayQueue(sendEmptyState);
 };
-
-// Volumio Stop Command
-/* CoreStateMachine.prototype.stop = function (promisedResponse) {
-	this.commandRouter.pushConsoleMessage('CoreStateMachine::stop');
-
-	if (this.currentStatus === 'play') {
-		// Play -> Stop transition
-		this.currentStatus = 'stop';
-		this.currentSeek = 0;
-		this.updateTrackBlock();
-		return this.serviceStop();
-
-	} else if (this.currentStatus === 'pause') {
-		// Pause -> Stop transition
-		this.currentStatus = 'stop';
-		this.currentSeek = 0;
-		this.updateTrackBlock();
-		return this.serviceStop();
-	}
-	else return libQ.resolve();
-}; */
 
 // Volumio Pause Command
 CoreStateMachine.prototype.pause = function (promisedResponse) {
@@ -599,11 +574,6 @@ CoreStateMachine.prototype.syncState = function (stateService, sService) {
     var trackBlock = this.getTrack(this.currentPosition);
   }
 
-  /**
-     *
-     *
-     *
-     */
   if (this.consumeUpdateService) {
     if (this.consumeUpdateService != sService) {
       this.commandRouter.pushConsoleMessage('CONSUME SERVICE: Received update from a service different from the one supposed to be playing music. Skipping notification. Current ' + this.consumeUpdateService + ' Received ' + sService);
@@ -769,20 +739,7 @@ CoreStateMachine.prototype.syncState = function (stateService, sService) {
       this.currentBitDepth = null;
       this.currentChannels = null;
       this.currentStatus = 'play';
-
       return;
-
-      /* if (this.currentPosition >= this.playQueue.arrayQueue.length) {
-			 this.commandRouter.logger.info("END OF QUEUE ");
-
-			 this.pushState().fail(this.pushError.bind(this));
-
-			 return this.stopPlaybackTimer();
-
-			 } else {
-			 this.play();
-			 this.pushState().fail(this.pushError.bind(this));
-			 } */
     } else if (this.currentStatus === 'pause') {
       this.currentStatus = 'play';
       if (this.isConsume) {
@@ -902,10 +859,6 @@ CoreStateMachine.prototype.syncState = function (stateService, sService) {
       this.commandRouter.pushConsoleMessage('No code');
     }
   } else if (stateService.status === 'pause') {
-    /**
-         * TODO: check if the section can be collapsed
-         */
-
     if (this.currentStatus === 'play') {
       if (this.isConsume) {
         this.consumeState.status = 'pause';
@@ -926,13 +879,6 @@ CoreStateMachine.prototype.syncState = function (stateService, sService) {
   }
 
   this.pushState().fail(this.pushError.bind(this));
-
-  /* else if (stateService.status === 'undefined') {
-	 stateService.status = 'stop';
-	 }
-
-	 return libQ.reject('Error: \"' + sService + '\" state \"' + stateService.status + '\" not recognized when Volumio state is \"' + self.currentStatus + '\"');
-	 */
 };
 
 CoreStateMachine.prototype.checkFavourites = function (state) {
@@ -976,10 +922,6 @@ CoreStateMachine.prototype.play = function (index) {
   var self = this;
 
   this.commandRouter.pushConsoleMessage('CoreStateMachine::play index ' + index || self.currentPosition);
-
-  // if (index) {
-  //	self.currentPosition=index;
-  // }
 
   return self.setConsumeUpdateService(undefined)
     .then(function () {
@@ -1029,8 +971,6 @@ CoreStateMachine.prototype.play = function (index) {
             this.commandRouter.pushConsoleMessage('WARNING: No resume method for plugin ' + trackBlock.service);
           }
         }
-
-        //self.commandRouter.pushToastMessage('success', self.commandRouter.getI18nString('COMMON.PLAY_TITLE'), self.commandRouter.getI18nString('COMMON.PLAY_TEXT') + trackBlock.name);
 
         return libQ.resolve();
       }
@@ -1157,7 +1097,6 @@ CoreStateMachine.prototype.next = function (promisedResponse) {
       this.commandRouter.pushConsoleMessage('WARNING: Cannot execute Action because no volatile plugin is defined');
     }
   } else {
-    // self.setConsumeUpdateService(undefined);
     if (this.isConsume && this.consumeState.service != undefined && this.consumeState.service !== 'webradio') {
       var thisPlugin = this.commandRouter.pluginManager.getPlugin('music_service', this.consumeState.service);
       if (typeof thisPlugin.next === 'function') {
@@ -1183,8 +1122,6 @@ CoreStateMachine.prototype.next = function (promisedResponse) {
 // Volumio Pause Command
 CoreStateMachine.prototype.pause = function (promisedResponse) {
   this.commandRouter.pushConsoleMessage('CoreStateMachine::pause');
-
-  // this.setConsumeUpdateService(undefined);
 
   if (this.currentStatus === 'play') {
     this.currentStatus = 'pause';
@@ -1262,9 +1199,6 @@ CoreStateMachine.prototype.serviceStop = function () {
     var trackBlock = this.getTrack(this.currentPosition);
     if (trackBlock && trackBlock.service) {
       return this.commandRouter.serviceStop(trackBlock.service);
-      // } else if (this.isUpnp) {
-      // var mpdPlugin = this.commandRouter.pluginManager.getPlugin('music_service', 'mpd');
-      // return mpdPlugin.stop();
     } else {
       var mpdPlugin = this.commandRouter.pluginManager.getPlugin('music_service', 'mpd');
       return mpdPlugin.stop();
@@ -1288,7 +1222,6 @@ CoreStateMachine.prototype.previous = function (promisedResponse) {
       this.commandRouter.pushConsoleMessage('WARNING: Cannot execute Action because no volatile plugin is defined');
     }
   } else {
-    // self.setConsumeUpdateService(undefined);
     this.commandRouter.pushConsoleMessage('CoreStateMachine::previous');
 
     if (this.currentStatus === 'stop') {
@@ -1468,25 +1401,8 @@ CoreStateMachine.prototype.moveQueueItem = function (from, to) {
 CoreStateMachine.prototype.setConsumeUpdateService = function (value, ignoremeta, upnp) {
   this.commandRouter.pushConsoleMessage('CoreStateMachine::setConsumeUpdateService ' + value);
 
-  var defer;
-
-  /* if(value==undefined && this.consumeUpdateService!==undefined)
-	 {
-	 // shall stop MPD
-	 var mpdPlugin = this.commandRouter.pluginManager.getPlugin('music_service', 'mpd');
-	 defer= mpdPlugin.stop();
-	 }
-	 else if(value!==undefined && this.consumeUpdateService==undefined)
-	 {
-	 defer= this.stopPlaybackTimer()
-	 .then(this.updateTrackBlock.bind(this))
-	 .then(this.serviceStop.bind(this));
-	 }
-	 else */
-  {
-    defer = libQ.defer();
-    defer.resolve({});
-  }
+  var defer = libQ.defer();
+  defer.resolve({});
 
   this.consumeUpdateService = value;
   this.isConsume = value != undefined;
@@ -1513,17 +1429,10 @@ CoreStateMachine.prototype.sanitizeUri = function (uri) {
 CoreStateMachine.prototype.setVolatile = function (data) {
   this.volatileService = data.service;
   this.isVolatile = true;
-
-  /**
-     * This function will be called on volatile stop
-     */
   this.volatileCallback = data.callback;
 };
 
 CoreStateMachine.prototype.unSetVolatile = function () {
-  /**
-     * This function will be called on volatile stop
-     */
   if (this.volatileCallback !== undefined) {
     this.logger.verbose('UNSET VOLATILE: Service: ' + this.volatileService);
     this.volatileCallback.call();
