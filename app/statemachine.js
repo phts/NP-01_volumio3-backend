@@ -1159,6 +1159,12 @@ CoreStateMachine.prototype.stop = function (promisedResponse) {
   var self = this;
   this.commandRouter.pushConsoleMessage('CoreStateMachine::stop');
 
+  if (this.isConsume && this.consumeState.service === 'tidal') {
+    this.commandRouter.getMusicPlugin(this.consumeState.service).seek(0);
+    this.currentSeek = 0;
+    return this.pause();
+  }
+
   if (this.isVolatile) {
     return this.serviceStop();
   } else {
