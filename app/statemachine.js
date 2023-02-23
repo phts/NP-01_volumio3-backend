@@ -1312,7 +1312,13 @@ CoreStateMachine.prototype.previous = function (promisedResponse) {
       } else {
         var trackBlock = this.getTrack(this.currentPosition);
         var thisPlugin = this.commandRouter.pluginManager.getPlugin('music_service', trackBlock.service);
-        if (this.currentRandom !== undefined && this.currentRandom === true) {
+        if ((this.currentSeek > 3000 || this.currentPosition === 0 && !this.currentRandom)
+            && typeof thisPlugin.seek === 'function') {
+          thisPlugin.seek(0);
+          this.currentSeek = 0;
+          return;
+        }
+        if (this.currentRandom) {
           this.stop();
           setTimeout(function () {
             self.currentPosition = Math.floor(Math.random() * (self.playQueue.arrayQueue.length));
