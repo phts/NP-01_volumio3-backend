@@ -1108,7 +1108,10 @@ CoreStateMachine.prototype.ffwdRew = function (millisecs) {
   var trackBlock = this.getTrack(this.currentPosition);
 
   var thisPlugin = this.commandRouter.pluginManager.getPlugin('music_service', trackBlock.service);
-  if (thisPlugin && thisPlugin.ffwdRew) { return thisPlugin.ffwdRew(millisecs); } else libQ.resolve();
+  if (thisPlugin && thisPlugin.ffwdRew) {
+    return thisPlugin.ffwdRew(millisecs);
+  }
+  return libQ.resolve();
 };
 
 CoreStateMachine.prototype.servicePause = function () {
