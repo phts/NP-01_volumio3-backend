@@ -255,17 +255,11 @@ ControllerMpd.prototype.getState = function () {
 
   var self = this;
   return self.sendMpdCommand('status', [])
-  /* .then(function(data) {
-	 return self.haltIfNewerUpdateRunning(data, timeCurrentUpdate);
-	 }) */
     .then(function (objState) {
       var collectedState = self.parseState(objState);
       // If there is a track listed as currently playing, get the track info
       if (collectedState.position !== null) {
         return self.sendMpdCommand('playlistinfo', [collectedState.position])
-        /* .then(function(data) {
-				 return self.haltIfNewerUpdateRunning(data, timeCurrentUpdate);
-				 }) */
           .then(function (objTrackInfo) {
             var trackinfo = self.parseTrackInfo(objTrackInfo);
             collectedState.isStreaming = trackinfo.isStreaming != undefined ? trackinfo.isStreaming : false;
@@ -273,7 +267,6 @@ ControllerMpd.prototype.getState = function () {
             collectedState.artist = trackinfo.artist;
             collectedState.album = trackinfo.album;
             collectedState.year = trackinfo.year;
-            // collectedState.albumart = trackinfo.albumart;
             collectedState.uri = trackinfo.uri;
             collectedState.trackType = trackinfo.trackType.split('?')[0];
             return collectedState;
@@ -340,7 +333,7 @@ ControllerMpd.prototype.sendMpdCommand = function (sCommand, arrayParameters) {
       }
       const stop=Date.now()
       self.logger.info("sendMpdCommand "+sCommand+" took "+(stop-start)+" milliseconds")
-            
+
       return libQ.resolve(respobject);
     });
 };
@@ -466,8 +459,6 @@ ControllerMpd.prototype.parsePlaylist = function (objQueue) {
 // Parse MPD's text status into a Volumio recognizable status object
 ControllerMpd.prototype.parseState = function (objState) {
   var self = this;
-  // console.log(objState);
-
   self.logger.verbose('ControllerMpd::parseState');
 
   // Pull track duration out of status message
@@ -601,7 +592,7 @@ ControllerMpd.prototype.onVolumioStart = function () {
   self.loadLibrarySettings();
   dsd_autovolume = self.config.get('dsd_autovolume', false);
   self.getPlaybackMode();
-  
+
   return self.mpdInit();
 };
 
@@ -965,7 +956,7 @@ ControllerMpd.prototype.createMPDFile = function (callback) {
 
       var mixerdev = '';
       var mixerstrings = '';
-      
+
       if (process.env.MODULAR_ALSA_PIPELINE === 'true') {
         var realDev = outdev;
         outdev = self.commandRouter.sharedVars.get('alsa.outputdevice');
@@ -978,7 +969,7 @@ ControllerMpd.prototype.createMPDFile = function (callback) {
             mixerdev = 'hw:' + realDev + ',0';
           }
         }
-      
+
       } else {
         if (outdev != 'softvolume') {
           var realDev = outdev;
@@ -1748,9 +1739,6 @@ ControllerMpd.prototype.updateQueue = function () {
     self.clientMpd.sendCommand(cmd(command, []), function (err, msg) {
       if (msg) {
         var lines = msg.split('\n');
-
-        // self.commandRouter.volumioClearQueue();
-
         var queue = [];
         for (var i = 0; i < lines.length; i++) {
           var line = lines[i];
@@ -1764,7 +1752,6 @@ ControllerMpd.prototype.updateQueue = function () {
             if (rawtitle) {
               var title = rawtitle;
             } else {
-              var path = line.slice(5).trimLeft();
               var name = path.split('/');
               var title = name.slice(-1)[0];
             }
@@ -1782,7 +1769,6 @@ ControllerMpd.prototype.updateQueue = function () {
             queue.push(queueItem);
           }
         }
-        // self.commandRouter.addQueueItems(queue);
       } else self.logger.error('updateQueue error: ' + err);
 
       defer.resolve({
@@ -3650,18 +3636,7 @@ ControllerMpd.prototype.listGenre = function (curUri) {
 };
 
 ControllerMpd.prototype.getMixerControls = function () {
-  var self = this;
-
-  var cards = self.commandRouter.executeOnPlugin('audio_interface', 'alsa_controller', 'getMixerControls', '1');
-
-  cards.then(function (data) {
-    // console.log(data);
-  })
-    .fail(function () {
-      // console.log(data);
-    });
-
-  // console.log(cards)
+  this.commandRouter.executeOnPlugin('audio_interface', 'alsa_controller', 'getMixerControls', '1');
 };
 
 ControllerMpd.prototype.getParentFolder = function (file) {
@@ -3740,8 +3715,6 @@ ControllerMpd.prototype.ffwdRew = function (millisecs) {
   } else {
     param = delta;
   }
-
-  // console.log("PARAM: "+param);
 
   self.clientMpd.sendCommand(cmd('seekcur', [param]), function (err, msg) {
     if (err) { defer.reject(new Error('Cannot seek ' + millisecs)); } else {
@@ -3945,5 +3918,3 @@ ControllerMpd.prototype.checkIfSoxCanBeMultithread = function () {
     }
 
 };
-
-

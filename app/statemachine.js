@@ -223,15 +223,11 @@ CoreStateMachine.prototype.getEmptyState = function () {
   };
 };
 
-// Get the current contents of the play queue
 CoreStateMachine.prototype.getQueue = function () {
   this.commandRouter.pushConsoleMessage('CoreStateMachine::getQueue');
   return this.playQueue.getQueue();
 };
 
-// Remove one item from the queue
-
-// Add array of items to queue
 CoreStateMachine.prototype.addQueueItems = function (arrayItems) {
   this.commandRouter.pushConsoleMessage('CoreStateMachine::addQueueItems');
 
@@ -246,7 +242,6 @@ CoreStateMachine.prototype.preLoadItemsStop = function () {
   this.playQueue.clearPreloadQueue();
 };
 
-// Add array of items to queue
 CoreStateMachine.prototype.clearQueue = function (sendEmptyState) {
   this.commandRouter.pushConsoleMessage('CoreStateMachine::ClearQueue');
 
@@ -258,8 +253,7 @@ CoreStateMachine.prototype.clearQueue = function (sendEmptyState) {
   return this.playQueue.clearPlayQueue(sendEmptyState);
 };
 
-// Volumio Pause Command
-CoreStateMachine.prototype.pause = function (promisedResponse) {
+CoreStateMachine.prototype.pause = function () {
   this.commandRouter.pushConsoleMessage('CoreStateMachine::pause');
 
   if (this.currentStatus === 'play') {
@@ -274,10 +268,6 @@ CoreStateMachine.prototype.pause = function (promisedResponse) {
   }
 };
 
-// Internal methods ---------------------------------------------------------------------------
-// These are 'this' aware, and may or may not return a promise
-
-// Update the currently active track block
 CoreStateMachine.prototype.updateTrackBlock = function () {
   this.commandRouter.pushConsoleMessage('CoreStateMachine::updateTrackBlock');
   this.currentTrackBlock = this.playQueue.getTrackBlock(this.currentPosition);
@@ -285,21 +275,18 @@ CoreStateMachine.prototype.updateTrackBlock = function () {
   return libQ.resolve();
 };
 
-// Perform a clear-add-play action on the current track block
 CoreStateMachine.prototype.serviceClearAddPlay = function () {
   this.commandRouter.pushConsoleMessage('CoreStateMachine::serviceClearAddPlay');
   var trackBlock = this.currentTrackBlock;
   return this.commandRouter.serviceClearAddPlayTracks(trackBlock.uris, trackBlock.service);
 };
 
-// Resume the current track block playback
 CoreStateMachine.prototype.serviceResume = function (trackBlock) {
   this.commandRouter.pushConsoleMessage('CoreStateMachine::serviceResume');
 
   return this.commandRouter.serviceResume(trackBlock.service);
 };
 
-// Reset the properties of the state machine
 CoreStateMachine.prototype.resetVolumioState = function () {
   var self = this;
 
@@ -332,8 +319,7 @@ CoreStateMachine.prototype.resetVolumioState = function () {
     });
 };
 
-// Start the timer to track playback time (counts in ms)
-CoreStateMachine.prototype.startPlaybackTimer = function (nStartTime) {
+CoreStateMachine.prototype.startPlaybackTimer = function () {
   this.commandRouter.pushConsoleMessage('CoreStateMachine::startPlaybackTimer');
 
   this.runPlaybackTimer = true;
@@ -353,7 +339,6 @@ CoreStateMachine.prototype.startPlaybackTimer = function (nStartTime) {
   return libQ.resolve();
 };
 
-// Stop playback timer
 CoreStateMachine.prototype.stopPlaybackTimer = function () {
   this.commandRouter.pushConsoleMessage('CoreStateMachine::stPlaybackTimer');
 
@@ -390,7 +375,6 @@ CoreStateMachine.prototype.getNextIndex = function () {
   return nextIndex;
 };
 
-// Stop playback timer
 CoreStateMachine.prototype.increasePlaybackTimer = function () {
   var self = this;
 
@@ -447,7 +431,6 @@ CoreStateMachine.prototype.increasePlaybackTimer = function () {
   }
 };
 
-// Update Volume Value
 CoreStateMachine.prototype.updateVolume = function (Volume) {
   this.currentVolume = Volume.vol;
   if (undefined != Volume.dbVolume)
@@ -457,7 +440,6 @@ CoreStateMachine.prototype.updateVolume = function (Volume) {
   this.pushState().fail(this.pushError.bind(this));
 };
 
-// Gets current Volume and Mute Status
 CoreStateMachine.prototype.getcurrentVolume = function () {
   var self = this;
   this.commandRouter.pushConsoleMessage('CoreStateMachine::getcurrentVolume');
@@ -474,7 +456,6 @@ CoreStateMachine.prototype.getcurrentVolume = function () {
   return libQ.resolve();
 };
 
-// Announce updated Volumio state
 CoreStateMachine.prototype.pushState = function (source) {
   this.commandRouter.pushConsoleMessage('CoreStateMachine::pushState');
   var self = this;
@@ -525,7 +506,6 @@ CoreStateMachine.prototype.pushEmptyState = function () {
   return promise.promise;
 };
 
-// Pass the error if we don't want to handle it
 CoreStateMachine.prototype.pushError = function (sReason) {
   this.commandRouter.pushConsoleMessage('CoreStateMachine::pushError');
   this.commandRouter.pushConsoleMessage(sReason);
@@ -909,15 +889,10 @@ CoreStateMachine.prototype.emitFavourites = function (msg) {
   return libQ.resolve(this.commandRouter.emitFavourites(msg));
 };
 
-// ------------------------- new play mechanism USED METHODS ------------------
-
 CoreStateMachine.prototype.getTrack = function (position) {
-  var track = this.playQueue.getTrack(position);
-
-  return track;
+  return this.playQueue.getTrack(position);
 };
 
-// Volumio Play Command
 CoreStateMachine.prototype.play = function (index) {
   var self = this;
 
@@ -977,7 +952,6 @@ CoreStateMachine.prototype.play = function (index) {
     });
 };
 
-// Volumio Volatile Play
 CoreStateMachine.prototype.volatilePlay = function () {
   var self = this;
   this.commandRouter.pushConsoleMessage('CoreStateMachine::volatilePlay');
@@ -994,7 +968,6 @@ CoreStateMachine.prototype.volatilePlay = function () {
   }
 };
 
-// Volumio Seek Command
 CoreStateMachine.prototype.seek = function (position) {
   var self = this;
   this.commandRouter.pushConsoleMessage('CoreStateMachine::seek');
@@ -1081,7 +1054,7 @@ CoreStateMachine.prototype.seek = function (position) {
   }
 };
 
-CoreStateMachine.prototype.next = function (promisedResponse) {
+CoreStateMachine.prototype.next = function () {
   var self = this;
   this.commandRouter.pushConsoleMessage('CoreStateMachine::next');
 
@@ -1119,8 +1092,7 @@ CoreStateMachine.prototype.next = function (promisedResponse) {
   }
 };
 
-// Volumio Pause Command
-CoreStateMachine.prototype.pause = function (promisedResponse) {
+CoreStateMachine.prototype.pause = function () {
   this.commandRouter.pushConsoleMessage('CoreStateMachine::pause');
 
   if (this.currentStatus === 'play') {
@@ -1139,7 +1111,6 @@ CoreStateMachine.prototype.ffwdRew = function (millisecs) {
   if (thisPlugin && thisPlugin.ffwdRew) { return thisPlugin.ffwdRew(millisecs); } else libQ.resolve();
 };
 
-// Pause the current track block playback
 CoreStateMachine.prototype.servicePause = function () {
   this.commandRouter.pushConsoleMessage('CoreStateMachine::servicePause');
   if (this.isVolatile) {
@@ -1154,8 +1125,7 @@ CoreStateMachine.prototype.servicePause = function () {
   }
 };
 
-// Volumio Stop Command
-CoreStateMachine.prototype.stop = function (promisedResponse) {
+CoreStateMachine.prototype.stop = function () {
   var self = this;
   this.commandRouter.pushConsoleMessage('CoreStateMachine::stop');
 
@@ -1172,19 +1142,15 @@ CoreStateMachine.prototype.stop = function (promisedResponse) {
     self.unSetVolatile();
 
     if (this.currentStatus === 'play') {
-      // Play -> Stop transition
       this.currentStatus = 'stop';
       this.currentSeek = 0;
-
       this.stopPlaybackTimer();
       this.updateTrackBlock();
       this.pushState().fail(this.pushError.bind(this));
       return this.serviceStop();
     } else if (this.currentStatus === 'pause') {
-      // Pause -> Stop transition
       this.currentStatus = 'stop';
       this.currentSeek = 0;
-
       this.updateTrackBlock();
       this.stopPlaybackTimer();
       this.pushState().fail(this.pushError.bind(this));
@@ -1195,7 +1161,6 @@ CoreStateMachine.prototype.stop = function (promisedResponse) {
   }
 };
 
-// Stop the current track block playback
 CoreStateMachine.prototype.serviceStop = function () {
   this.commandRouter.pushConsoleMessage('CoreStateMachine::serviceStop');
 
@@ -1212,8 +1177,7 @@ CoreStateMachine.prototype.serviceStop = function () {
   }
 };
 
-// Volumio Previous Command
-CoreStateMachine.prototype.previous = function (promisedResponse) {
+CoreStateMachine.prototype.previous = function () {
   var self = this;
 
   if (this.isVolatile) {

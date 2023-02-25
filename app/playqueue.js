@@ -112,16 +112,16 @@ CorePlayQueue.prototype.removeQueueItem = function (nIndex) {
 };
 
 CorePlayQueue.prototype.explodeUriFromCache = function (service, uri) {
-  var self = this;  
+  var self = this;
   var defer = libQ.defer();
   var value = self.cache.get(uri);
- 
+
   if (value && Array.isArray(value)) {
     self.commandRouter.logger.info('Using cached record of: ' + uri);
     return value;
-  } else { 
+  } else {
     self.commandRouter.explodeUriFromService(service, uri)
-    .then(result => {      
+    .then(result => {
       self.cache.set(uri, result, 3600);
       defer.resolve(result);
     }).fail((error)=>{
@@ -129,7 +129,7 @@ CorePlayQueue.prototype.explodeUriFromCache = function (service, uri) {
       defer.resolve();
     });
     return defer.promise;
-  } 
+  }
 }
 
 CorePlayQueue.prototype.preLoadItems = function (items) {
@@ -138,7 +138,7 @@ CorePlayQueue.prototype.preLoadItems = function (items) {
   this.clearPreloadQueue();
   items.slice(0, 100).forEach(item => {
     if (item.uri != undefined && item.type === "song") {
-      var value = self.cache.get(item.uri);    
+      var value = self.cache.get(item.uri);
       if ( value == undefined ){
         try {
           self.commandRouter.logger.info('Preloading ' + item.type + ': ' + item.uri);
@@ -149,7 +149,7 @@ CorePlayQueue.prototype.preLoadItems = function (items) {
           self.commandRouter.logger.error("Preload failed for uri: " + item.uri + ": " + error);
         }
       }
-    }      
+    }
   });
 }
 
@@ -194,33 +194,20 @@ CorePlayQueue.prototype.explodeUri = function (item) {
 CorePlayQueue.prototype.addQueueItems = function (arrayItems) {
   var self = this;
   var defer = libQ.defer();
-
   this.commandRouter.pushConsoleMessage('CorePlayQueue::addQueueItems');
-
   self.clearPreloadQueue();
-
-  // self.commandRouter.logger.info(arrayItems);
-
-  var array = [].concat(arrayItems);
-
   var firstItemIndex = this.arrayQueue.length;
-  // self.commandRouter.logger.info("First index is "+firstItemIndex);
-
-  // We need to ask the service if the uri corresponds to something bigger, like a playlist
-  var promiseArray = [];  
-
+  var promiseArray = [];
   var items = [];
   if (!Array.isArray(arrayItems))
     items = [].concat(arrayItems);
   else
     items = arrayItems;
 
-
-
-  for (const item of items) {    
+  for (const item of items) {
     if (item.uri != undefined) {
       self.commandRouter.logger.info('Adding Item to queue: ' + item.uri);
-      promiseArray.push(self.explodeUri(item));     
+      promiseArray.push(self.explodeUri(item));
     }
   }
 
@@ -232,11 +219,9 @@ CorePlayQueue.prototype.addQueueItems = function (arrayItems) {
           if (content[j].samplerate === undefined) {
             content[j].samplerate = self.defaultSampleRate;
           }
-
           if (content[j].bitdepth === undefined) {
             content[j].bitdepth = self.defaultBitdepth;
           }
-
           if (content[j].channels === undefined) {
             content[j].channels = self.defaultChannels;
           }
@@ -245,8 +230,6 @@ CorePlayQueue.prototype.addQueueItems = function (arrayItems) {
       }
 
       if (self.arrayQueue.length > 0 && self.arrayQueue.length >= contentArray.length) {
-          // if(content[j].uri!==self.arrayQueue[self.arrayQueue.length-1].uri)
-
           var queueLastElementsObj = self.arrayQueue.slice(Math.max(self.arrayQueue.length - contentArray.length, 0));
           var addQueueElementsObj = contentArray;
           // If the array we are adding to queue is equal to the last elements of the queue, we don't add it and send index as first item of array we want to add

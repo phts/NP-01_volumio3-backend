@@ -301,8 +301,6 @@ CoreCommandRouter.prototype.volumioImportServicePlaylists = function () {
 // Volumio Search
 CoreCommandRouter.prototype.volumioSearch = function (data) {
   this.pushConsoleMessage('CoreCommandRouter::Search ' + data);
-  var asd = this.musicLibrary.search(data);
-
   return this.musicLibrary.search(data);
 };
 
@@ -1702,14 +1700,11 @@ CoreCommandRouter.prototype.i18nJson = function (dictionaryFile, defaultDictiona
       var dictionary = documents[0];
       var defaultDictionary = documents[1];
       var jsonFile = documents[2];
-
       self.translateKeys(jsonFile, dictionary, defaultDictionary);
-
       methodDefer.resolve(jsonFile);
     })
     .fail(function (err) {
       self.logger.info('ERROR LOADING JSON ' + err);
-
       methodDefer.reject(new Error());
     });
 
