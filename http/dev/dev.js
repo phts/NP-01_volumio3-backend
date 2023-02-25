@@ -1,7 +1,6 @@
 var socket = io();
 var playerState = {};
 var timeLastStateUpdate = 0;
-var timerPlayback = null;
 var libraryHistory = new Array();
 var playlistHistory = new Array();
 var nLibraryHistoryPosition = 0;
@@ -53,11 +52,6 @@ socket.on('pushState', function (state) {
   playerState = state;
   timeLastStateUpdate = Date.now();
   updatePlayerStateDisplay();
-
-  if (state.status === 'play') {
-    startPlaybackTimer(state.seek);
-  } else {
-  }
 });
 
 socket.on('pushQueue', function (arrayQueue) {
@@ -123,19 +117,6 @@ function updatePlayerStateDisplay () {
 
   var nodeText = document.createTextNode(JSON.stringify(playerState));
   document.getElementById('playerstate').appendChild(nodeText);
-}
-
-function startPlaybackTimer (nStartTime) {
-  window.clearInterval(timerPlayback);
-
-  timerPlayback = window.setInterval(function () {
-    playerState.seek = nStartTime + Date.now() - timeLastStateUpdate;
-    updatePlayerStateDisplay();
-  }, 500);
-}
-
-function stopPlaybackTimer () {
-  window.clearInterval(timerPlayback);
 }
 
 function clearPlayerStateDisplay () {
