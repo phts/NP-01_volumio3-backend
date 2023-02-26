@@ -14,7 +14,6 @@ document.getElementById('button-plugintestfalse').onclick = function () { socket
 document.getElementById('button-sshenable').onclick = function () { socket.emit('callMethod', {endpoint: 'system_controller/system', method: 'enableSSH', data: 'true'}); };
 document.getElementById('button-sshdisable').onclick = function () { socket.emit('callMethod', {endpoint: 'system_controller/system', method: 'enableSSH', data: 'false'}); };
 document.getElementById('button-livelog-enable').onclick = function () { socket.emit('callMethod', {endpoint: 'system_controller/system', method: 'enableLiveLog', data: 'true'}); };
-document.getElementById('button-livelog-disable').onclick = function () { socket.emit('callMethod', {endpoint: 'system_controller/system', method: 'enableLiveLog', data: 'false'}); };
 document.getElementById('button-clearconsole').onclick = function() { clearConsole()};
 
 // Create listeners for websocket events--------------------------------
