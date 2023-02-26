@@ -1107,60 +1107,6 @@ CoreCommandRouter.prototype.getUIConfigOnPlugin = function (type, name, data) {
   return defer.promise;
 };
 
-CoreCommandRouter.prototype.writePlayerControls = function (config) {
-  var self = this;
-  var pCtrlFile = '/data/playerstate/playback-controls.json';
-
-  this.pushConsoleMessage('CoreCommandRouter::writePlayerControls');
-
-  var state = self.stateMachine.getState();
-
-  var data = Object.assign({
-    random: state.random,
-    repeat: state.repeat,
-    repeatSingle: state.repeatSingle
-  }, config);
-
-  fs.writeFile(pCtrlFile, JSON.stringify(data, null, 4), function (err) {
-    if (err) self.pushConsoleMessage('Failed setting player state in CoreCommandRouter::initPlayerState');
-  });
-};
-
-CoreCommandRouter.prototype.initPlayerControls = function () {
-  var pCtrlFile = '/data/playerstate/playback-controls.json';
-  var self = this;
-
-  this.pushConsoleMessage('CoreCommandRouter::initPlayerControls');
-
-  function handleError () {
-    self.pushConsoleMessage('Failed setting player state in CoreCommandRouter::initPlayerControls');
-  }
-
-  fs.ensureFile(pCtrlFile, function (err) {
-    if (err) handleError();
-
-    fs.readFile(pCtrlFile, function (err, data) {
-      if (err) handleError();
-
-      try {
-        var config = JSON.parse(data.toString());
-        self.stateMachine.setRepeat(config.repeat);
-        self.stateMachine.setRandom(config.random);
-      } catch (e) {
-        var state = self.stateMachine.getState();
-        var config = {
-          random: state.random,
-          repeat: state.repeat
-        };
-
-        fs.writeFile(pCtrlFile, JSON.stringify(config, null, 4), function (err) {
-          if (err) handleError();
-        });
-      }
-    });
-  });
-};
-
 /**
  * This method shall be used to push debug messages
  * @param sMessage The debug message to push
@@ -1520,11 +1466,6 @@ CoreCommandRouter.prototype.disableAndStopPlugin = function (category, name) {
 
 CoreCommandRouter.prototype.volumioRandom = function (data) {
   this.pushConsoleMessage('CoreCommandRouter::volumioRandom');
-
-  this.writePlayerControls({
-    random: data
-  });
-
   return this.stateMachine.setRandom(data);
 };
 
@@ -1538,21 +1479,11 @@ CoreCommandRouter.prototype.randomToggle = function () {
   } else {
     var random = true;
   }
-
-  this.writePlayerControls({
-    random: random
-  });
-
   return self.stateMachine.setRandom(random);
 };
 
 CoreCommandRouter.prototype.volumioRepeat = function (repeat, repeatSingle) {
   this.pushConsoleMessage('CoreCommandRouter::volumioRandom');
-
-  this.writePlayerControls({
-    repeat: repeat
-  });
-
   return this.stateMachine.setRepeat(repeat, repeatSingle);
 };
 
@@ -1560,10 +1491,6 @@ CoreCommandRouter.prototype.repeatToggle = function () {
   const state = this.stateMachine.getState();
   const repeat = !(state.repeat && state.repeatSingle);
   const repeatSingle = state.repeat && !state.repeatSingle;
-  this.writePlayerControls({
-    repeat,
-    repeatSingle
-  });
   return this.stateMachine.setRepeat(repeat, repeatSingle);
 };
 
