@@ -249,8 +249,9 @@ CoreStateMachine.prototype.clearQueue = function (sendEmptyState) {
     sendEmptyState = true;
   }
 
-  this.stop();
-  return this.playQueue.clearPlayQueue(sendEmptyState);
+  return this.stop().then(() => {
+    return this.playQueue.clearPlayQueue(sendEmptyState);
+  });
 };
 
 CoreStateMachine.prototype.pause = function () {
@@ -1126,6 +1127,7 @@ CoreStateMachine.prototype.servicePause = function () {
       this.commandRouter.pushConsoleMessage('Error: no service or no trackblock to pause');
     }
   }
+  return libQ.resolve();
 };
 
 CoreStateMachine.prototype.stop = function () {
@@ -1158,10 +1160,9 @@ CoreStateMachine.prototype.stop = function () {
       this.stopPlaybackTimer();
       this.pushState().fail(this.pushError.bind(this));
       return this.serviceStop();
-    } else {
-      return libQ.resolve();
     }
   }
+  return libQ.resolve();
 };
 
 CoreStateMachine.prototype.serviceStop = function () {

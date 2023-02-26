@@ -334,7 +334,8 @@ CoreCommandRouter.prototype.volumioPushQueue = function (queue) {
   return libQ.all(
     libFast.map(this.pluginManager.getPluginNames('user_interface'), function (sInterface) {
       var thisInterface = self.pluginManager.getPlugin('user_interface', sInterface);
-      if (typeof thisInterface.pushQueue === 'function') { return thisInterface.pushQueue(queue); }
+      if (typeof thisInterface.pushQueue === 'function') { thisInterface.pushQueue(queue); }
+      return libQ.resolve();
     })
   );
 };
@@ -379,6 +380,7 @@ CoreCommandRouter.prototype.servicePause = function (sService) {
   } else {
     this.logger.error('WARNING: No pause method for service ' + sService);
   }
+  return libQ.resolve();
 };
 
 // MPD Resume
@@ -476,35 +478,35 @@ CoreCommandRouter.prototype.replaceAndPlay = function (data) {
 
   this.pushConsoleMessage('CoreCommandRouter::volumioReplaceandPlayItems');
 
-  this.stateMachine.clearQueue(false);
-
-  if (data.uri != undefined) {
-    	if (data.uri.indexOf('playlists/') >= 0 && data.uri.indexOf('://') == -1) {
-      this.playPlaylist(data.title);
-      defer.resolve();
-    } else {
-      this.stateMachine.addQueueItems(data)
+  this.stateMachine.clearQueue(false).then(() => {
+    if (data.uri != undefined) {
+        if (data.uri.indexOf('playlists/') >= 0 && data.uri.indexOf('://') == -1) {
+        this.playPlaylist(data.title);
+        defer.resolve();
+      } else {
+        this.stateMachine.addQueueItems(data)
+          .then((e) => {
+            this.volumioPlay(e.firstItemIndex);
+                defer.resolve();
+            });
+      }
+    } else if (data.list && data.index !== undefined) {
+      this.stateMachine.addQueueItems(data.list)
+        .then(() => {
+          this.volumioPlay(data.index);
+              defer.resolve();
+        });
+    } else if (data.item != undefined && data.item.uri != undefined) {
+      this.stateMachine.addQueueItems(data.item)
         .then((e) => {
           this.volumioPlay(e.firstItemIndex);
-            	defer.resolve();
-        	});
+              defer.resolve();
+        });
+    } else {
+        self.logger.error('Could not Replace and Play Item');
+      defer.reject('Could not Replace and Play Item');
     }
-  } else if (data.list && data.index !== undefined) {
-    this.stateMachine.addQueueItems(data.list)
-      .then(() => {
-        this.volumioPlay(data.index);
-        		defer.resolve();
-      });
-  } else if (data.item != undefined && data.item.uri != undefined) {
-    this.stateMachine.addQueueItems(data.item)
-      .then((e) => {
-        this.volumioPlay(e.firstItemIndex);
-        		defer.resolve();
-      });
-  } else {
-    	self.logger.error('Could not Replace and Play Item');
-    defer.reject('Could not Replace and Play Item');
-  }
+  });
 
   return defer.promise;
 };
