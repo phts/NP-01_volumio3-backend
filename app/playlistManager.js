@@ -160,7 +160,7 @@ PlaylistManager.prototype.enqueue = function (name) {
           }
 
           self.commandRouter.addQueueItems(array).then(() => {
-            defer.resolve();
+            defer.resolve({amount: array.length});
           }).fail((e) => {
             defer.resolve({success: false, reason: e});
           });
