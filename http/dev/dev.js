@@ -13,13 +13,12 @@ document.getElementById('button-plugintesttrue').onclick = function () { socket.
 document.getElementById('button-plugintestfalse').onclick = function () { socket.emit('callMethod', {endpoint: 'system_controller/system', method: 'setTestPlugins', data: 'false'}); };
 document.getElementById('button-sshenable').onclick = function () { socket.emit('callMethod', {endpoint: 'system_controller/system', method: 'enableSSH', data: 'true'}); };
 document.getElementById('button-sshdisable').onclick = function () { socket.emit('callMethod', {endpoint: 'system_controller/system', method: 'enableSSH', data: 'false'}); };
-document.getElementById('button-livelog-enable').onclick = function () { socket.emit('callMethod', {endpoint: 'system_controller/system', method: 'enableLiveLog', data: 'true'}); };
 document.getElementById('button-clearconsole').onclick = function() { clearConsole()};
 
 // Create listeners for websocket events--------------------------------
 socket.on('connect', function () {
   enableControls();
-  // updateLibraryHistoryButtons();
+  socket.emit('callMethod', {endpoint: 'system_controller/system', method: 'enableLiveLog', data: 'true'});
 
   // Get the state upon load
   emitEvent('getState', '');
@@ -29,11 +28,6 @@ socket.on('connect', function () {
 
   // Get the HW UUID
   socket.emit('getDeviceHWUUID', '');
-
-  // Request the music library root
-  // emitEvent('getLibraryFilters', 'root');
-
-  // emitEvent('getPlaylistIndex', 'root');
 });
 
 socket.on('disconnect', function () {
@@ -42,8 +36,6 @@ socket.on('disconnect', function () {
   playlistHistory = new Array();
   nPlaylistHistoryPosition = 0;
   clearPlayQueue();
-  // clearBrowseView();
-  // clearPlaylistView();
   clearPlayerStateDisplay();
 });
 
@@ -90,9 +82,6 @@ socket.on('LLogDone',data => {
 function clearConsole () {
   var nodeConsole = document.getElementById('console');
   nodeConsole.innerHTML = '';
-  // while (nodeConsole.firstChild) {
-  //   nodeConsole.removeChild(nodeConsole.firstChild);
-  // }
 }
 
 function enableControls () {
