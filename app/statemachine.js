@@ -250,6 +250,9 @@ CoreStateMachine.prototype.clearQueue = function (sendEmptyState) {
   }
 
   return this.stop().then(() => {
+    this.currentRandom = false;
+    this.currentRepeat = false;
+    this.currentRepeatSingleSong = false;
     return this.playQueue.clearPlayQueue(sendEmptyState);
   });
 };
