@@ -1058,14 +1058,13 @@ CoreStateMachine.prototype.seek = function (position) {
 };
 
 CoreStateMachine.prototype.next = function () {
-  var self = this;
   this.commandRouter.pushConsoleMessage('CoreStateMachine::next');
 
   if (this.isVolatile) {
     if (this.volatileService) {
       var volatilePlugin = this.commandRouter.pluginManager.getPlugin('music_service', this.volatileService);
       if (volatilePlugin && typeof volatilePlugin.next === 'function') {
-        volatilePlugin.next();
+        return volatilePlugin.next();
       } else {
         this.commandRouter.pushConsoleMessage('WARNING: No next method for plugin ' + this.volatileService);
       }
@@ -1073,25 +1072,32 @@ CoreStateMachine.prototype.next = function () {
       this.commandRouter.pushConsoleMessage('WARNING: Cannot execute Action because no volatile plugin is defined');
     }
   } else {
-    if (this.isConsume && this.consumeState.service != undefined && this.consumeState.service !== 'webradio') {
-      var thisPlugin = this.commandRouter.pluginManager.getPlugin('music_service', this.consumeState.service);
+    if (this.isConsume && this.consumeState.service && this.consumeState.service !== 'webradio') {
+      let service = this.consumeState.service;
+      if (this.currentStatus === 'pause' && this.consumeState.service === 'mpd' && this.consumeState.trackType === 'tidal') {
+        // if pause on tidal track, then consumeState.service==='mpd', so next does not work
+        service = this.consumeState.trackType;
+      }
+      var thisPlugin = this.commandRouter.getMusicPlugin(service);
+      this.commandRouter.pushConsoleMessage(thisPlugin.next.toString());
       if (typeof thisPlugin.next === 'function') {
-        thisPlugin.next();
+        return thisPlugin.next();
       } else {
         this.commandRouter.pushConsoleMessage('WARNING: No next method for plugin ' + this.consumeState.service);
       }
     } else if (this.isUpnp) {
       this.logger.verbose('UPNP Next');
     } else {
-      this.stop()
-        .then(function () {
-          self.currentPosition = self.getNextIndex();
-
+      this.commandRouter.pushConsoleMessage('else');
+      return this.stop()
+        .then(() => {
+          this.currentPosition = this.getNextIndex();
           return libQ.resolve();
         })
-        .then(self.play.bind(self))
-        .then(self.updateTrackBlock.bind(self));
+        .then(this.play.bind(this))
+        .then(this.updateTrackBlock.bind(this));
     }
+    return libQ.resolve();
   }
 };
 
@@ -1211,8 +1217,13 @@ CoreStateMachine.prototype.previous = function () {
         return this.pushState();
       }
     } else if (this.currentStatus === 'play' || this.currentStatus === 'pause') {
-      if (this.isConsume && this.consumeState.service != undefined && this.consumeState.service !== 'webradio') {
-        var thisPlugin = this.commandRouter.getMusicPlugin(this.consumeState.service);
+      if (this.isConsume && this.consumeState.service && this.consumeState.service !== 'webradio') {
+        let service = this.consumeState.service;
+        if (this.currentStatus === 'pause' && this.consumeState.service === 'mpd' && this.consumeState.trackType === 'tidal') {
+          // if pause on tidal track, then consumeState.service==='mpd', so prev does not work
+          service = this.consumeState.trackType;
+        }
+        var thisPlugin = this.commandRouter.getMusicPlugin(service);
         if (typeof thisPlugin.previous === 'function') {
           thisPlugin.previous();
         } else {
