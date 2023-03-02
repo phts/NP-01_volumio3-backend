@@ -18,7 +18,6 @@ var commandArray = [
   'cat /data/configuration/plugins.json',
   'cat /etc/mpd.conf',
   'volumio endpointstest',
-  'cat /data/updatesHistoryFile',
   'sudo journalctl -p 7'
 ];
 
