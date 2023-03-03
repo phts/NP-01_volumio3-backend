@@ -1190,8 +1190,6 @@ CoreStateMachine.prototype.serviceStop = function () {
 };
 
 CoreStateMachine.prototype.previous = function () {
-  var self = this;
-
   if (this.isVolatile) {
     if (this.volatileService) {
       var volatilePlugin = this.commandRouter.pluginManager.getPlugin('music_service', this.volatileService);
@@ -1209,7 +1207,7 @@ CoreStateMachine.prototype.previous = function () {
     if (this.currentStatus === 'stop') {
       // Stop -> Previous transition
       if (this.currentRandom !== undefined && this.currentRandom === true) {
-        this.currentPosition = self.randomQueue.prev();
+        this.currentPosition = this.randomQueue.prev();
         return this.updateTrackBlock().then(this.serviceClearAddPlay.bind(this));
       } else if (this.currentPosition > 0) {
         this.currentPosition--;
@@ -1240,20 +1238,20 @@ CoreStateMachine.prototype.previous = function () {
         }
         if (this.currentRandom) {
           this.stop();
-          setTimeout(function () {
-            self.currentPosition = Math.floor(Math.random() * (self.playQueue.arrayQueue.length));
-            self.play();
+          setTimeout(() => {
+            this.currentPosition = Math.floor(Math.random() * (this.playQueue.arrayQueue.length));
+            this.play();
           }, 500);
         } else if (this.currentPosition > 0) {
           this.stop();
-          setTimeout(function () {
-            self.currentPosition--;
-            self.play();
+          setTimeout(() => {
+            this.currentPosition--;
+            this.play();
           }, 500);
         } else if (this.currentPosition === 0) {
           this.stop();
-          setTimeout(function () {
-            self.play();
+          setTimeout(() => {
+            this.play();
           }, 500);
         }
       }
