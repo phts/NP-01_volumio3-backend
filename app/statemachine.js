@@ -47,6 +47,8 @@ function CoreStateMachine (commandRouter) {
   this.randomQueue = new RandomQueue(this);
   this.playQueue = new (require('./playqueue.js'))(commandRouter, this);
   this.resetVolumioState();
+  this.debounceTimer = null;
+  this.debouncing = false;
 }
 
 // Public Methods ---------------------------------------------------------------------------------------
@@ -1057,8 +1059,15 @@ CoreStateMachine.prototype.seek = function (position) {
   }
 };
 
-CoreStateMachine.prototype.next = function () {
+CoreStateMachine.prototype.next = function (fromUser) {
   this.commandRouter.pushConsoleMessage('CoreStateMachine::next');
+  if (fromUser) {
+    if (this.debouncing) {
+      this.commandRouter.pushConsoleMessage('CoreStateMachine::next: still debouncing, exit');
+      return libQ.resolve();
+    }
+    this.startDebouncing();
+  }
 
   if (this.isVolatile) {
     if (this.volatileService) {
@@ -1189,7 +1198,16 @@ CoreStateMachine.prototype.serviceStop = function () {
   }
 };
 
-CoreStateMachine.prototype.previous = function () {
+CoreStateMachine.prototype.previous = function (fromUser) {
+  this.commandRouter.pushConsoleMessage('CoreStateMachine::previous');
+  if (fromUser) {
+    if (this.debouncing) {
+      this.commandRouter.pushConsoleMessage('CoreStateMachine::previous: still debouncing, exit');
+      return libQ.resolve();
+    }
+    this.startDebouncing();
+  }
+
   if (this.isVolatile) {
     if (this.volatileService) {
       var volatilePlugin = this.commandRouter.pluginManager.getPlugin('music_service', this.volatileService);
@@ -1202,8 +1220,6 @@ CoreStateMachine.prototype.previous = function () {
       this.commandRouter.pushConsoleMessage('WARNING: Cannot execute Action because no volatile plugin is defined');
     }
   } else {
-    this.commandRouter.pushConsoleMessage('CoreStateMachine::previous');
-
     if (this.currentStatus === 'stop') {
       // Stop -> Previous transition
       if (this.currentRandom !== undefined && this.currentRandom === true) {
@@ -1447,3 +1463,11 @@ CoreStateMachine.prototype.reportCappedSamplerate = function (samplerate) {
     return samplerate;
   }
 };
+
+CoreStateMachine.prototype.startDebouncing = function () {
+  clearTimeout(this.debounceTimer);
+  this.debouncing = true;
+  this.debounceTimer = setTimeout(() => {
+    this.debouncing = false;
+  }, 1500);
+}
