@@ -2,9 +2,8 @@
 LOGDUMP="/var/tmp/logondemand"
 export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
-
 doc() {
-echo "
+  echo "
 Usage : volumio <argument1> <argument2>
 
 [[PLAYBACK STATUS]]
@@ -76,212 +75,212 @@ endpointstest                      Check availability of remote ancillary cloud 
 #VOLUMIO SERVICE CONTROLS
 
 vstart() {
-sudo systemctl start volumio.service
+  sudo systemctl start volumio.service
 }
 
 vstop() {
-sudo systemctl stop volumio.service
+  sudo systemctl stop volumio.service
 }
 
 #VOLUMIO DEVELOPMENT
 
 pull() {
-cd /
-echo "Stopping Volumio"
-vstop
-sudo /volumio/app/plugins/system_controller/volumio_command_line_client/commands/pull.sh "$@"
+  cd /
+  echo "Stopping Volumio"
+  vstop
+  sudo /volumio/app/plugins/system_controller/volumio_command_line_client/commands/pull.sh "$@"
 
-echo "Pull completed, restarting Volumio"
-vstart
-echo "Done"
+  echo "Pull completed, restarting Volumio"
+  vstart
+  echo "Done"
 }
 
 dev() {
-/volumio/app/plugins/system_controller/volumio_command_line_client/commands/devmode.sh
+  /volumio/app/plugins/system_controller/volumio_command_line_client/commands/devmode.sh
 }
 
 kernelsource() {
-sudo /volumio/app/plugins/system_controller/volumio_command_line_client/commands/kernelsource.sh
+  sudo /volumio/app/plugins/system_controller/volumio_command_line_client/commands/kernelsource.sh
 }
 
 internet() {
-/volumio/app/plugins/system_controller/volumio_command_line_client/commands/internet.sh "$@"
+  /volumio/app/plugins/system_controller/volumio_command_line_client/commands/internet.sh "$@"
 }
 
 endpointstest() {
-node /volumio/utils/tests/checkRemoteEndpoints.js
+  node /volumio/utils/tests/checkRemoteEndpoints.js
 }
 
-
 init-edit() {
-sudo /bin/sh /volumio/app/plugins/system_controller/volumio_command_line_client/commands/init-edit.sh -f $1
+  sudo /bin/sh /volumio/app/plugins/system_controller/volumio_command_line_client/commands/init-edit.sh -f $1
 }
 
 case "$1" in
-        play)
-            /usr/bin/curl "http://127.0.0.1:3000/api/v1/commands/?cmd=play"
-            ;;
-        toggle)
-            /usr/bin/curl "http://127.0.0.1:3000/api/v1/commands/?cmd=toggle"
-            ;;
-        pause)
-            /usr/bin/curl "http://127.0.0.1:3000/api/v1/commands/?cmd=pause"
-            ;;
-        next)
-            /usr/bin/curl "http://127.0.0.1:3000/api/v1/commands/?cmd=next"
-            ;;
-        previous)
-            /usr/bin/curl "http://127.0.0.1:3000/api/v1/commands/?cmd=prev"
-            ;;
-        stop)
-            /usr/bin/curl "http://127.0.0.1:3000/api/v1/commands/?cmd=stop"
-            ;;
-        clear)
-            /usr/bin/curl "http://127.0.0.1:3000/api/v1/commands/?cmd=clearQueue"
-            ;;
-        seek)
-            if [ "$2" != "" ]; then
-                /usr/bin/curl "http://127.0.0.1:3000/api/v1/commands/?cmd=seek&position=$2"
-            else
-               /usr/bin/curl -sS "http://127.0.0.1:3000/api/v1/getstate" | /usr/bin/jq -r '.seek'
-            fi
-            ;;
-        repeat)
-            if [ "$2" != "" ]; then
-                /usr/bin/curl "http://127.0.0.1:3000/api/v1/commands/?cmd=repeat&value=$2"
-            else
-               /usr/bin/curl "http://127.0.0.1:3000/api/v1/commands/?cmd=repeat"
-            fi
-            ;;
-        random)
-            if [ "$2" != "" ]; then
-                /usr/bin/curl "http://127.0.0.1:3000/api/v1/commands/?cmd=random&value=$2"
-            else
-               /usr/bin/curl "http://127.0.0.1:3000/api/v1/commands/?cmd=random"
-            fi
-            ;;
-        startairplayplayback)
-           /usr/bin/curl "http://127.0.0.1:3000/api/v1/commands/?cmd=startAirplayPlayback"
-        ;;
-        stopairplayplayback)
-           /usr/bin/curl "http://127.0.0.1:3000/api/v1/commands/?cmd=stopAirplayPlayback"
-        ;;
-        airplayactive)
-           /usr/bin/curl "http://127.0.0.1:3000/api/v1/commands/?cmd=airplayActive"
-        ;;
-        airplayinactive)
-           /usr/bin/curl "http://127.0.0.1:3000/api/v1/commands/?cmd=airplayInactive"
-        ;;
-        usbattach)
-           /usr/bin/curl "http://127.0.0.1:3000/api/v1/commands/?cmd=usbAudioAttach"
-        ;;
-        usbdetach)
-           /usr/bin/curl "http://127.0.0.1:3000/api/v1/commands/?cmd=usbAudioDetach"
-        ;;
-        scanaudioinputs)
-           /usr/bin/curl "http://127.0.0.1:3000/api/pluginEndpoint?endpoint=scanAudioInputs"
-        ;;
-        vstart)
-            vstart
-            ;;
+play)
+  /usr/bin/curl "http://127.0.0.1:3000/api/v1/commands/?cmd=play"
+  ;;
+toggle)
+  /usr/bin/curl "http://127.0.0.1:3000/api/v1/commands/?cmd=toggle"
+  ;;
+pause)
+  /usr/bin/curl "http://127.0.0.1:3000/api/v1/commands/?cmd=pause"
+  ;;
+next)
+  /usr/bin/curl "http://127.0.0.1:3000/api/v1/commands/?cmd=next"
+  ;;
+previous)
+  /usr/bin/curl "http://127.0.0.1:3000/api/v1/commands/?cmd=prev"
+  ;;
+stop)
+  /usr/bin/curl "http://127.0.0.1:3000/api/v1/commands/?cmd=stop"
+  ;;
+clear)
+  /usr/bin/curl "http://127.0.0.1:3000/api/v1/commands/?cmd=clearQueue"
+  ;;
+seek)
+  if [ "$2" != "" ]; then
+    /usr/bin/curl "http://127.0.0.1:3000/api/v1/commands/?cmd=seek&position=$2"
+  else
+    /usr/bin/curl -sS "http://127.0.0.1:3000/api/v1/getstate" | /usr/bin/jq -r '.seek'
+  fi
+  ;;
+repeat)
+  if [ "$2" != "" ]; then
+    /usr/bin/curl "http://127.0.0.1:3000/api/v1/commands/?cmd=repeat&value=$2"
+  else
+    /usr/bin/curl "http://127.0.0.1:3000/api/v1/commands/?cmd=repeat"
+  fi
+  ;;
+random)
+  if [ "$2" != "" ]; then
+    /usr/bin/curl "http://127.0.0.1:3000/api/v1/commands/?cmd=random&value=$2"
+  else
+    /usr/bin/curl "http://127.0.0.1:3000/api/v1/commands/?cmd=random"
+  fi
+  ;;
+startairplayplayback)
+  /usr/bin/curl "http://127.0.0.1:3000/api/v1/commands/?cmd=startAirplayPlayback"
+  ;;
+stopairplayplayback)
+  /usr/bin/curl "http://127.0.0.1:3000/api/v1/commands/?cmd=stopAirplayPlayback"
+  ;;
+airplayactive)
+  /usr/bin/curl "http://127.0.0.1:3000/api/v1/commands/?cmd=airplayActive"
+  ;;
+airplayinactive)
+  /usr/bin/curl "http://127.0.0.1:3000/api/v1/commands/?cmd=airplayInactive"
+  ;;
+usbattach)
+  /usr/bin/curl "http://127.0.0.1:3000/api/v1/commands/?cmd=usbAudioAttach"
+  ;;
+usbdetach)
+  /usr/bin/curl "http://127.0.0.1:3000/api/v1/commands/?cmd=usbAudioDetach"
+  ;;
+scanaudioinputs)
+  /usr/bin/curl "http://127.0.0.1:3000/api/pluginEndpoint?endpoint=scanAudioInputs"
+  ;;
+vstart)
+  vstart
+  ;;
 
-        vstop)
-            vstop
-            ;;
+vstop)
+  vstop
+  ;;
 
-        vrestart)
-            vstop
-            vstart
-            ;;
+vrestart)
+  vstop
+  vstart
+  ;;
 
-        status)
-            /usr/bin/curl -sS "http://127.0.0.1:3000/api/v1/getstate" | /usr/bin/jq -r '.'
-            ;;
-        volume)
-            if [ "$2" != "" ]; then
-               /usr/bin/curl "http://127.0.0.1:3000/api/v1/commands/?cmd=volume&volume=$2"
-            else
-               /usr/bin/curl -sS "http://127.0.0.1:3000/api/v1/getstate" | /usr/bin/jq -r '.volume'
-            fi
-            ;;
-	    pull)
-            pull "$2" "$3" "$4"
-            ;;
-        dev)
-        	dev
-            ;;
-	    kernelsource)
-	        kernelsource
-            ;;
-      internet)
-          internet "$@"
-            ;;
-	    endpointstest)
-	         endpointstest
-	         ;;
-	    logdump)
-	        /usr/bin/node /volumio/logsubmit.js "$2" nosubmit
-            ;;
-	    init-edit)
-		init-edit $2
-	    ;;
-	    plugin)
-            if [ "$2" != "" ]; then
-                if [ "$2" == "init" ]; then
-                    echo ""
-                    echo "Welcome to the Volumio Plugin Creator!"
-                    echo "You have to decide which category your plugin belongs to, \
+status)
+  /usr/bin/curl -sS "http://127.0.0.1:3000/api/v1/getstate" | /usr/bin/jq -r '.'
+  ;;
+volume)
+  if [ "$2" != "" ]; then
+    /usr/bin/curl "http://127.0.0.1:3000/api/v1/commands/?cmd=volume&volume=$2"
+  else
+    /usr/bin/curl -sS "http://127.0.0.1:3000/api/v1/getstate" | /usr/bin/jq -r '.volume'
+  fi
+  ;;
+pull)
+  pull "$2" "$3" "$4"
+  ;;
+dev)
+  dev
+  ;;
+kernelsource)
+  kernelsource
+  ;;
+internet)
+  internet "$@"
+  ;;
+endpointstest)
+  endpointstest
+  ;;
+logdump)
+  /usr/bin/node /volumio/logsubmit.js "$2" nosubmit
+  ;;
+init-edit)
+  init-edit $2
+  ;;
+plugin)
+  if [ "$2" != "" ]; then
+    if [ "$2" == "init" ]; then
+      echo ""
+      echo "Welcome to the Volumio Plugin Creator!"
+      echo "You have to decide which category your plugin belongs to, \
 then you have to select a name for it, leave us the rest ;)"
-                    echo "Warning: make meaningful choices, you cannot change them later!"
-                    echo ""
-                elif [ "$2" == "refresh" ]; then
-                    echo ""
-                    echo "This command will copy all your plugin's file in the \
+      echo "Warning: make meaningful choices, you cannot change them later!"
+      echo ""
+    elif [ "$2" == "refresh" ]; then
+      echo ""
+      echo "This command will copy all your plugin's file in the \
 correspondent folder in data"
-                    echo ""
-                elif [ "$2" == "package" ]; then
-                    echo ""
-                    echo "This command will create a package with your plugin"
-                    echo ""
-                elif [ "$2" == "submit" ]; then
-                    echo ""
-                    echo "This command will submit a plugin for publishing in the plugins store. Newly submitted plugins will be verified by the volumio team. After verification the plugin will be publically available on the beta channel. When the plugin is properly tested in the beta channel, it will be promoted to the stable channel, available to download by everyone. Every subsequent version of the plugin will alo be put in the beta channel, and will be promoted to the stable channel after testing. "
-                    echo ""
-                elif [ "$2" == "install" ]; then
-                    echo ""
-                    echo "This command will install the plugin on your device"
-                    echo ""
-                elif [ "$2" == "update" ]; then
-                    echo ""
-                    echo "This command will update the plugin on your device"
-                    echo ""
-                elif [ "$2" == "list" ]; then
-                    echo ""
-                    echo "This command will list installed plugins on your device"
-                    echo ""
-                fi
-               /usr/bin/node /volumio/pluginhelper.js "$2"
-            else
-                echo ""
-                echo "---- VOLUMIO PLUGIN HELPER ----"
-                echo ""
-                echo "This utility helps you creating new plugins for Volumio."
-                echo "Options:"
-                echo "init      creates a new plugin"
-                echo "refresh   copies the plugin in the system"
-                echo "package   compresses the plugin"
-                echo "submit    submits the plugin to the plugins store"
-                echo "install   installs the plugin locally"
-                echo "update    updates the plugin"
-                echo "list      list installed plugins"
-                echo ""
-            fi
-            ;;
-            updater)
-                /usr/bin/node /volumio/update-helper.js "$@"
-            ;;
-        *)
-            doc
-            exit 1
+      echo ""
+    elif [ "$2" == "package" ]; then
+      echo ""
+      echo "This command will create a package with your plugin"
+      echo ""
+    elif [ "$2" == "submit" ]; then
+      echo ""
+      echo "This command will submit a plugin for publishing in the plugins store. Newly submitted plugins will be verified by the volumio team. After verification the plugin will be publically available on the beta channel. When the plugin is properly tested in the beta channel, it will be promoted to the stable channel, available to download by everyone. Every subsequent version of the plugin will alo be put in the beta channel, and will be promoted to the stable channel after testing. "
+      echo ""
+    elif [ "$2" == "install" ]; then
+      echo ""
+      echo "This command will install the plugin on your device"
+      echo ""
+    elif [ "$2" == "update" ]; then
+      echo ""
+      echo "This command will update the plugin on your device"
+      echo ""
+    elif [ "$2" == "list" ]; then
+      echo ""
+      echo "This command will list installed plugins on your device"
+      echo ""
+    fi
+    /usr/bin/node /volumio/pluginhelper.js "$2"
+  else
+    echo ""
+    echo "---- VOLUMIO PLUGIN HELPER ----"
+    echo ""
+    echo "This utility helps you creating new plugins for Volumio."
+    echo "Options:"
+    echo "init      creates a new plugin"
+    echo "refresh   copies the plugin in the system"
+    echo "package   compresses the plugin"
+    echo "submit    submits the plugin to the plugins store"
+    echo "install   installs the plugin locally"
+    echo "update    updates the plugin"
+    echo "list      list installed plugins"
+    echo ""
+  fi
+  ;;
+updater)
+  /usr/bin/node /volumio/update-helper.js "$@"
+  ;;
+*)
+  doc
+  exit 1
+  ;;
 
 esac

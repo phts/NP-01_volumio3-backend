@@ -10,14 +10,12 @@ var vconf = require('v-conf');
 
 // Define the CoreCommandRouter class
 module.exports = CoreCommandRouter;
-function CoreCommandRouter (server) {
+function CoreCommandRouter(server) {
   metrics.time('CommandRouter');
 
   this.logger = winston.createLogger({
     format: winston.format.simple(),
-    transports: [
-      new (winston.transports.Console)({level: 'verbose'})
-    ]
+    transports: [new winston.transports.Console({ level: 'verbose' })],
   });
 
   this.callbacks = [];
@@ -66,11 +64,11 @@ function CoreCommandRouter (server) {
   // Wait for plugin startup to complete before playing the startup sound as the
   // plugins may need to be fully active before sound can play properly
   pluginPromise.then(() => {
-	  this.pushConsoleMessage('BOOT COMPLETED');
-	  metrics.log('CommandRouter');
-	  this.setStartupVolume();
-	  this.startupSound();
-	  this.closeModals();
+    this.pushConsoleMessage('BOOT COMPLETED');
+    metrics.log('CommandRouter');
+    this.setStartupVolume();
+    this.startupSound();
+    this.closeModals();
   });
 }
 
@@ -131,7 +129,7 @@ CoreCommandRouter.prototype.volumiosetvolume = function (VolumeInteger) {
 
   var volSet = this.volumeControl.alsavolume(VolumeInteger);
   volSet.then(function (result) {
-		 return self.volumioupdatevolume(result);
+    return self.volumioupdatevolume(result);
   });
 };
 
@@ -187,7 +185,7 @@ CoreCommandRouter.prototype.writeVolumeStatusFiles = function (vol) {
 CoreCommandRouter.prototype.executeWriteVolumeStatusFiles = function (value) {
   fs.writeFile('/tmp/volume', value.toString(), function (err) {
     if (err) {
-        	this.logger.error('Could not save Volume value to status file: ' + err);
+      this.logger.error('Could not save Volume value to status file: ' + err);
     }
   });
 };
@@ -314,7 +312,9 @@ CoreCommandRouter.prototype.volumioPushState = function (state) {
   var res = libQ.all(
     libFast.map(this.pluginManager.getPluginNames('user_interface'), function (sInterface) {
       var thisInterface = self.pluginManager.getPlugin('user_interface', sInterface);
-      if (typeof thisInterface.pushState === 'function') { return thisInterface.pushState(state); }
+      if (typeof thisInterface.pushState === 'function') {
+        return thisInterface.pushState(state);
+      }
     })
   );
   self.callCallback('volumioPushState', state);
@@ -334,7 +334,9 @@ CoreCommandRouter.prototype.volumioPushQueue = function (queue) {
   return libQ.all(
     libFast.map(this.pluginManager.getPluginNames('user_interface'), function (sInterface) {
       var thisInterface = self.pluginManager.getPlugin('user_interface', sInterface);
-      if (typeof thisInterface.pushQueue === 'function') { thisInterface.pushQueue(queue); }
+      if (typeof thisInterface.pushQueue === 'function') {
+        thisInterface.pushQueue(queue);
+      }
       return libQ.resolve();
     })
   );
@@ -445,21 +447,20 @@ CoreCommandRouter.prototype.preLoadItems = function (items) {
   try {
     this.stateMachine.preLoadItems(items);
   } catch (error) {
-    this.logger.error("Preload failed: " + error);
+    this.logger.error('Preload failed: ' + error);
   }
 };
 
 CoreCommandRouter.prototype.preLoadItemsStop = function () {
-    this.stateMachine.preLoadItemsStop();
+  this.stateMachine.preLoadItemsStop();
 };
 
 CoreCommandRouter.prototype.addPlay = function (data) {
-    var self = this;
+  var self = this;
 
-    self.addQueueItems(data)
-        .then(function (e) {
-            return self.volumioPlay(e.firstItemIndex);
-        });
+  self.addQueueItems(data).then(function (e) {
+    return self.volumioPlay(e.firstItemIndex);
+  });
 };
 
 CoreCommandRouter.prototype.playItemsList = function (data) {
@@ -480,30 +481,27 @@ CoreCommandRouter.prototype.replaceAndPlay = function (data) {
 
   this.stateMachine.clearQueue(false).then(() => {
     if (data.uri != undefined) {
-        if (data.uri.indexOf('playlists/') >= 0 && data.uri.indexOf('://') == -1) {
+      if (data.uri.indexOf('playlists/') >= 0 && data.uri.indexOf('://') == -1) {
         this.playPlaylist(data.title);
         defer.resolve();
       } else {
-        this.stateMachine.addQueueItems(data)
-          .then((e) => {
-            this.volumioPlay(e.firstItemIndex);
-                defer.resolve();
-            });
+        this.stateMachine.addQueueItems(data).then((e) => {
+          this.volumioPlay(e.firstItemIndex);
+          defer.resolve();
+        });
       }
     } else if (data.list && data.index !== undefined) {
-      this.stateMachine.addQueueItems(data.list)
-        .then(() => {
-          this.volumioPlay(data.index);
-              defer.resolve();
-        });
+      this.stateMachine.addQueueItems(data.list).then(() => {
+        this.volumioPlay(data.index);
+        defer.resolve();
+      });
     } else if (data.item != undefined && data.item.uri != undefined) {
-      this.stateMachine.addQueueItems(data.item)
-        .then((e) => {
-          this.volumioPlay(e.firstItemIndex);
-              defer.resolve();
-        });
+      this.stateMachine.addQueueItems(data.item).then((e) => {
+        this.volumioPlay(e.firstItemIndex);
+        defer.resolve();
+      });
     } else {
-        self.logger.error('Could not Replace and Play Item');
+      self.logger.error('Could not Replace and Play Item');
       defer.reject('Could not Replace and Play Item');
     }
   });
@@ -556,10 +554,18 @@ CoreCommandRouter.prototype.getId = function () {
   var name = file.playerName.value;
   var uuid = file.uuid.value;
   var date = new Date();
-  var time = date.getDate() + '/' + date.getMonth() + '/' + date.getFullYear() + ' - ' +
-			date.getHours() + ':' + date.getMinutes();
+  var time =
+    date.getDate() +
+    '/' +
+    date.getMonth() +
+    '/' +
+    date.getFullYear() +
+    ' - ' +
+    date.getHours() +
+    ':' +
+    date.getMinutes();
 
-  return {'name': name, 'uuid': uuid, 'time': time};
+  return { name: name, uuid: uuid, time: time };
 };
 
 /**
@@ -572,9 +578,9 @@ CoreCommandRouter.prototype.getPlugConf = function (category, plugin) {
   var cName = category;
   var name = plugin;
   try {
-    var config = fs.readJsonSync(('/data/configuration/' + cName + '/' +
-			name + '/' + 'config.json'), 'utf-8',
-    {throws: false});
+    var config = fs.readJsonSync('/data/configuration/' + cName + '/' + name + '/' + 'config.json', 'utf-8', {
+      throws: false,
+    });
   } catch (e) {
     var config = '';
   }
@@ -595,7 +601,7 @@ CoreCommandRouter.prototype.catPluginsConf = function (category, array) {
     var name = plugins[j].name;
     var status = plugins[j].enabled;
     var config = self.getPlugConf(category, name);
-    plugConf.push({name, status, config});
+    plugConf.push({ name, status, config });
   }
   return plugConf;
 };
@@ -612,7 +618,7 @@ CoreCommandRouter.prototype.getPluginsConf = function () {
     var cName = paths[i].cName;
     var plugins = paths[i].catPlugin;
     var plugConf = self.catPluginsConf(cName, plugins);
-    confs.push({cName, plugConf});
+    confs.push({ cName, plugConf });
   }
 
   var identification = self.getId();
@@ -693,7 +699,7 @@ CoreCommandRouter.prototype.usefulBackupConfs = function (currArray, backArray) 
   if (backNum > 0) {
     self.installBackupPlugins(catName, backPlugins);
   }
-  return {'cName': catName, 'plugConf': existingPlug};
+  return { cName: catName, plugConf: existingPlug };
 };
 
 /**
@@ -707,8 +713,8 @@ CoreCommandRouter.prototype.writeConfs = function (data) {
   for (var i = 0; i < usefulConfs.length; i++) {
     for (var j = 0; j < usefulConfs[i].plugConf.length; j++) {
       if (usefulConfs[i].plugConf[j].config != '') {
-        var path = '/data/configuration/' + usefulConfs[i].cName + '/' +
-					usefulConfs[i].plugConf[j].name + '/config.json';
+        var path =
+          '/data/configuration/' + usefulConfs[i].cName + '/' + usefulConfs[i].plugConf[j].name + '/config.json';
         fs.outputJsonSync(path, usefulConfs[i].plugConf[j].config);
       }
     }
@@ -724,7 +730,11 @@ CoreCommandRouter.prototype.writeConfs = function (data) {
 CoreCommandRouter.prototype.min = function (a, b) {
   var self = this;
 
-  if (a < b) { return a; } else { return b; }
+  if (a < b) {
+    return a;
+  } else {
+    return b;
+  }
 };
 
 /**
@@ -758,7 +768,7 @@ CoreCommandRouter.prototype.installBackupPlugins = function (name, array) {
           self.pluginManager.installPlugin(plug[k].url);
         }
       }
-      self.writeConfs([{'cName': name, 'plugConf': array}]);
+      self.writeConfs([{ cName: name, plugConf: array }]);
     }
   });
 };
@@ -779,12 +789,11 @@ CoreCommandRouter.prototype.loadBackup = function (request) {
 
   if (request.type == 'playlist') {
     var identification = self.getId();
-    data = {'id': identification, 'backup': self.loadPlaylistsBackup()};
+    data = { id: identification, backup: self.loadPlaylistsBackup() };
     defer.resolve(data);
-  } else if (request.type == 'radio-favourites' || request.type == 'favourites' ||
-	request.type == 'my-web-radio') {
+  } else if (request.type == 'radio-favourites' || request.type == 'favourites' || request.type == 'my-web-radio') {
     var identification = self.getId();
-    data = {'id': identification, 'backup': self.loadFavBackup(request.type)};
+    data = { id: identification, backup: self.loadFavBackup(request.type) };
     defer.resolve(data);
   } else {
     self.logger.info('Backup: request not accepted, unexisting category');
@@ -808,8 +817,8 @@ CoreCommandRouter.prototype.loadPlaylistsBackup = function () {
   for (var i = 0; i < playlists.length; i++) {
     var name = playlists[i];
     var path = self.playListManager.playlistFolder + name;
-    var songs = fs.readJsonSync(path, {throws: false});
-    data.push({'name': name, 'content': songs});
+    var songs = fs.readJsonSync(path, { throws: false });
+    data.push({ name: name, content: songs });
   }
 
   return data;
@@ -827,7 +836,7 @@ CoreCommandRouter.prototype.loadFavBackup = function (type) {
   var data = [];
 
   try {
-    data = fs.readJsonSync(path + type, {throws: false});
+    data = fs.readJsonSync(path + type, { throws: false });
   } catch (e) {
     self.logger.info('No ' + type + ' in favourites folder');
   }
@@ -857,7 +866,7 @@ CoreCommandRouter.prototype.writeFavouritesBackup = function () {
   var radio = self.loadFavBackup('radio-favourites');
   var myRadio = self.loadFavBackup('my-web-radio');
 
-  var favourites = {'songs': data, 'radios': radio, 'myRadios': myRadio};
+  var favourites = { songs: data, radios: radio, myRadios: myRadio };
 
   var file = '/data/configuration/favourites';
   fs.outputJsonSync(file, favourites);
@@ -873,7 +882,7 @@ CoreCommandRouter.prototype.restorePlaylistBackup = function () {
   var isbackup = check[0];
 
   if (isbackup) {
-    self.restorePlaylist({'type': 'playlist', 'backup': backup});
+    self.restorePlaylist({ type: 'playlist', backup: backup });
   }
 };
 
@@ -892,7 +901,7 @@ CoreCommandRouter.prototype.restoreFavouritesBackup = function (type) {
     var kind = self.checkFavouritesType(type, backup[1]);
     var file = kind[0];
     var data = kind[1];
-    self.restorePlaylist({'type': type, 'path': file, 'backup': data});
+    self.restorePlaylist({ type: type, path: file, backup: data });
   }
 };
 
@@ -913,8 +922,7 @@ CoreCommandRouter.prototype.restorePlaylist = function (req) {
       var songs = backup[i].content;
       fs.outputJsonSync(path + name, songs);
     }
-  } else if (req.type == 'favourites' || req.type == 'radio-favourites' ||
-		req.type == 'my-web-radio') {
+  } else if (req.type == 'favourites' || req.type == 'radio-favourites' || req.type == 'my-web-radio') {
     path = self.playListManager.favouritesPlaylistFolder + req.type;
     try {
       var fav = fs.readJsonSync(path);
@@ -924,11 +932,19 @@ CoreCommandRouter.prototype.restorePlaylist = function (req) {
     }
     self.logger.info('Backup: restoring ' + req.type + '!');
     fs.outputJsonSync(path, backup);
-  } else { self.logger.info('Backup: impossible to restore data'); }
+  } else {
+    self.logger.info('Backup: impossible to restore data');
+  }
 };
 
 CoreCommandRouter.prototype.getPath = function (type) {
-  if (type == 'songs') { return 'favourites'; } else if (type == 'radios') { return 'radio-favourites'; } else if (type == 'myRadios') { return 'my-web-radio'; }
+  if (type == 'songs') {
+    return 'favourites';
+  } else if (type == 'radios') {
+    return 'radio-favourites';
+  } else if (type == 'myRadios') {
+    return 'my-web-radio';
+  }
   return '';
 };
 
@@ -974,7 +990,9 @@ CoreCommandRouter.prototype.checkFavouritesType = function (type, backup) {
   } else if (type == 'myRadios') {
     data = backup.myRadios;
     file = 'my-web-radio';
-  } else { self.logger.info('Error: category non existent'); }
+  } else {
+    self.logger.info('Error: category non existent');
+  }
 
   return [file, data];
 };
@@ -1070,7 +1088,9 @@ CoreCommandRouter.prototype.executeOnPlugin = function (type, name, method, data
     if (thisPlugin[method]) {
       return thisPlugin[method](data);
     } else {
-      this.pushConsoleMessage('Error : CoreCommandRouter::executeOnPlugin: No method [' + method + '] in plugin ' + name);
+      this.pushConsoleMessage(
+        'Error : CoreCommandRouter::executeOnPlugin: No method [' + method + '] in plugin ' + name
+      );
     }
   } else return undefined;
 };
@@ -1078,18 +1098,20 @@ CoreCommandRouter.prototype.executeOnPlugin = function (type, name, method, data
 CoreCommandRouter.prototype.getUIConfigOnPlugin = function (type, name, data) {
   var self = this;
   this.pushConsoleMessage('CoreCommandRouter::getUIConfigOnPlugin');
-  var noConf = {'page': {'label': self.getI18nString('PLUGINS.NO_CONFIGURATION_AVAILABLE')}, 'sections': []};
+  var noConf = { page: { label: self.getI18nString('PLUGINS.NO_CONFIGURATION_AVAILABLE') }, sections: [] };
 
   var defer = libQ.defer();
 
   var thisPlugin = this.pluginManager.getPlugin(type, name);
 
   try {
-    thisPlugin.getUIConfig(data)
+    thisPlugin
+      .getUIConfig(data)
       .then(function (uiconf) {
         var filePath = __dirname + '/plugins/' + type + '/' + name + '/override.json';
 
-        self.overrideUIConfig(uiconf, filePath)
+        self
+          .overrideUIConfig(uiconf, filePath)
           .then(function () {
             defer.resolve(uiconf);
           })
@@ -1133,7 +1155,9 @@ CoreCommandRouter.prototype.pushToastMessage = function (type, title, message) {
   return libQ.all(
     libFast.map(this.pluginManager.getPluginNames('user_interface'), function (sInterface) {
       var thisInterface = self.pluginManager.getPlugin('user_interface', sInterface);
-      if (typeof thisInterface.printToastMessage === 'function') { return thisInterface.printToastMessage(type, title, message); }
+      if (typeof thisInterface.printToastMessage === 'function') {
+        return thisInterface.printToastMessage(type, title, message);
+      }
     })
   );
 };
@@ -1143,7 +1167,9 @@ CoreCommandRouter.prototype.broadcastToastMessage = function (type, title, messa
   return libQ.all(
     libFast.map(this.pluginManager.getPluginNames('user_interface'), function (sInterface) {
       var thisInterface = self.pluginManager.getPlugin('user_interface', sInterface);
-      if (typeof thisInterface.broadcastToastMessage === 'function') { return thisInterface.broadcastToastMessage(type, title, message); }
+      if (typeof thisInterface.broadcastToastMessage === 'function') {
+        return thisInterface.broadcastToastMessage(type, title, message);
+      }
     })
   );
 };
@@ -1153,11 +1179,12 @@ CoreCommandRouter.prototype.broadcastMessage = function (msg, value) {
   this.pushConsoleMessage('CoreCommandRouter::BroadCastMessage ' + msg);
 
   return libQ.all(
-
     libFast.map(this.pluginManager.getPluginNames('user_interface'), function (sInterface) {
-      var emit = {msg: msg, value: value};
+      var emit = { msg: msg, value: value };
       var thisInterface = self.pluginManager.getPlugin('user_interface', sInterface);
-      if (typeof thisInterface.broadcastMessage === 'function') { return thisInterface.broadcastMessage(emit); }
+      if (typeof thisInterface.broadcastMessage === 'function') {
+        return thisInterface.broadcastMessage(emit);
+      }
     })
   );
 };
@@ -1172,7 +1199,9 @@ CoreCommandRouter.prototype.pushMultiroomDevices = function (data) {
   return libQ.all(
     libFast.map(this.pluginManager.getPluginNames('user_interface'), function (sInterface) {
       var thisInterface = self.pluginManager.getPlugin('user_interface', sInterface);
-      if (typeof thisInterface.pushMultiroomDevices === 'function') { return thisInterface.pushMultiroomDevices(data); }
+      if (typeof thisInterface.pushMultiroomDevices === 'function') {
+        return thisInterface.pushMultiroomDevices(data);
+      }
     })
   );
 };
@@ -1218,9 +1247,10 @@ CoreCommandRouter.prototype.pushMultiroom = function (data) {
   return libQ.all(
     libFast.map(this.pluginManager.getPluginNames('user_interface'), function (sInterface) {
       var thisInterface = self.pluginManager.getPlugin('user_interface', sInterface);
-      if (typeof thisInterface.pushMultiroom === 'function') { return thisInterface.pushMultiroom(data); }
+      if (typeof thisInterface.pushMultiroom === 'function') {
+        return thisInterface.pushMultiroom(data);
+      }
     })
-
   );
 };
 
@@ -1229,7 +1259,9 @@ CoreCommandRouter.prototype.pushAirplay = function (data) {
   return libQ.all(
     libFast.map(this.pluginManager.getPluginNames('user_interface'), function (sInterface) {
       var thisInterface = self.pluginManager.getPlugin('user_interface', sInterface);
-      if (typeof thisInterface.pushAirplay === 'function') { return thisInterface.pushAirplay(data); }
+      if (typeof thisInterface.pushAirplay === 'function') {
+        return thisInterface.pushAirplay(data);
+      }
     })
   );
 };
@@ -1243,24 +1275,30 @@ CoreCommandRouter.prototype.shutdown = function () {
     self.logger.info('Executing Standby mode with handler plugin ' + self.standByHandler.name);
     self.executeOnPlugin(self.standByHandler.category, self.standByHandler.name, self.standByHandler.method, '');
   } else {
-    self.pluginManager.onVolumioShutdown().then(function () {
-      self.platformspecific.shutdown();
-    }).fail(function (e) {
-      self.logger.info('Error in onVolumioShutdown Plugin Promise handling: ' + e);
-      self.platformspecific.shutdown();
-    });
+    self.pluginManager
+      .onVolumioShutdown()
+      .then(function () {
+        self.platformspecific.shutdown();
+      })
+      .fail(function (e) {
+        self.logger.info('Error in onVolumioShutdown Plugin Promise handling: ' + e);
+        self.platformspecific.shutdown();
+      });
   }
 };
 
 CoreCommandRouter.prototype.reboot = function () {
   var self = this;
 
-  self.pluginManager.onVolumioReboot().then(function () {
-		 self.platformspecific.reboot();
-  }).fail(function (e) {
-    self.logger.info('Error in onVolumioReboot Plugin Promise handling: ' + e);
-    self.platformspecific.reboot();
-  });
+  self.pluginManager
+    .onVolumioReboot()
+    .then(function () {
+      self.platformspecific.reboot();
+    })
+    .fail(function (e) {
+      self.logger.info('Error in onVolumioReboot Plugin Promise handling: ' + e);
+      self.platformspecific.reboot();
+    });
 };
 
 CoreCommandRouter.prototype.networkRestart = function () {
@@ -1289,17 +1327,20 @@ CoreCommandRouter.prototype.explodeUriFromService = function (service, uri) {
 
   var thisPlugin = this.pluginManager.getPlugin('music_service', service);
   if (thisPlugin != undefined && thisPlugin.explodeUri != undefined) {
-    thisPlugin.explodeUri(uri).then((explodedUri)=>{
-      promise.resolve(explodedUri);
-    }).fail((error)=>{
-      // If explodeUri Fails we resolve an empty promise, in order not to lock the playback progression
-      this.logger.error('Commandrouter: Cannot explode uri ' + uri + ' from service ' + service + ': ' + error);
-      promise.resolve();
-    });
+    thisPlugin
+      .explodeUri(uri)
+      .then((explodedUri) => {
+        promise.resolve(explodedUri);
+      })
+      .fail((error) => {
+        // If explodeUri Fails we resolve an empty promise, in order not to lock the playback progression
+        this.logger.error('Commandrouter: Cannot explode uri ' + uri + ' from service ' + service + ': ' + error);
+        promise.resolve();
+      });
   } else {
     promise.resolve({
       uri: uri,
-      service: service
+      service: service,
     });
   }
   return promise.promise;
@@ -1313,7 +1354,9 @@ CoreCommandRouter.prototype.volumioPlay = function (N) {
 
   this.stateMachine.unSetVolatile();
 
-  if (N === undefined) { return this.stateMachine.play(); } else {
+  if (N === undefined) {
+    return this.stateMachine.play();
+  } else {
     return this.stateMachine.play(N);
   }
 };
@@ -1358,12 +1401,15 @@ CoreCommandRouter.prototype.installPlugin = function (uri) {
   var self = this;
   var defer = libQ.defer();
 
-  this.pluginManager.installPlugin(uri).then(function () {
-    defer.resolve();
-  }).fail(function (e) {
-    self.logger.info('Error: ' + e);
-    defer.reject(new Error('Cannot install plugin. Error: ' + e));
-  });
+  this.pluginManager
+    .installPlugin(uri)
+    .then(function () {
+      defer.resolve();
+    })
+    .fail(function (e) {
+      self.logger.info('Error: ' + e);
+      defer.reject(new Error('Cannot install plugin. Error: ' + e));
+    });
 
   return defer.promise;
 };
@@ -1372,13 +1418,16 @@ CoreCommandRouter.prototype.updatePlugin = function (data) {
   var self = this;
   var defer = libQ.defer();
 
-  this.pluginManager.updatePlugin(data).then(function () {
-    defer.resolve();
-  }).fail(function (e) {
-    self.logger.info('Error: ' + e);
-    self.logger.info('Error: ' + e);
-    defer.reject(new Error('Cannot Update plugin. Error: ' + e));
-  });
+  this.pluginManager
+    .updatePlugin(data)
+    .then(function () {
+      defer.resolve();
+    })
+    .fail(function (e) {
+      self.logger.info('Error: ' + e);
+      self.logger.info('Error: ' + e);
+      defer.reject(new Error('Cannot Update plugin. Error: ' + e));
+    });
 
   return defer.promise;
 };
@@ -1389,11 +1438,14 @@ CoreCommandRouter.prototype.unInstallPlugin = function (data) {
 
   self.logger.info('Starting Uninstall of plugin ' + data.category + ' - ' + data.name);
 
-  this.pluginManager.unInstallPlugin(data.category, data.name).then(function () {
-    defer.resolve();
-  }).fail(function () {
-    defer.reject(new Error('Cannot uninstall plugin'));
-  });
+  this.pluginManager
+    .unInstallPlugin(data.category, data.name)
+    .then(function () {
+      defer.resolve();
+    })
+    .fail(function () {
+      defer.reject(new Error('Cannot uninstall plugin'));
+    });
 
   return defer.promise;
 };
@@ -1401,11 +1453,14 @@ CoreCommandRouter.prototype.unInstallPlugin = function (data) {
 CoreCommandRouter.prototype.enablePlugin = function (data) {
   var defer = libQ.defer();
 
-  this.pluginManager.enablePlugin(data.category, data.plugin).then(function () {
-    defer.resolve();
-  }).fail(function () {
-    defer.reject(new Error('Cannot enable plugin'));
-  });
+  this.pluginManager
+    .enablePlugin(data.category, data.plugin)
+    .then(function () {
+      defer.resolve();
+    })
+    .fail(function () {
+      defer.reject(new Error('Cannot enable plugin'));
+    });
 
   return defer.promise;
 };
@@ -1413,11 +1468,14 @@ CoreCommandRouter.prototype.enablePlugin = function (data) {
 CoreCommandRouter.prototype.disablePlugin = function (data) {
   var defer = libQ.defer();
 
-  this.pluginManager.disablePlugin(data.category, data.plugin).then(function () {
-    defer.resolve();
-  }).fail(function () {
-    defer.reject(new Error('Cannot disable plugin'));
-  });
+  this.pluginManager
+    .disablePlugin(data.category, data.plugin)
+    .then(function () {
+      defer.resolve();
+    })
+    .fail(function () {
+      defer.reject(new Error('Cannot disable plugin'));
+    });
 
   return defer.promise;
 };
@@ -1425,11 +1483,14 @@ CoreCommandRouter.prototype.disablePlugin = function (data) {
 CoreCommandRouter.prototype.modifyPluginStatus = function (data) {
   var defer = libQ.defer();
 
-  this.pluginManager.modifyPluginStatus(data.category, data.plugin, data.status).then(function () {
-    defer.resolve();
-  }).fail(function () {
-    defer.reject(new Error('Cannot update plugin status'));
-  });
+  this.pluginManager
+    .modifyPluginStatus(data.category, data.plugin, data.status)
+    .then(function () {
+      defer.resolve();
+    })
+    .fail(function () {
+      defer.reject(new Error('Cannot update plugin status'));
+    });
 
   return defer.promise;
 };
@@ -1439,7 +1500,9 @@ CoreCommandRouter.prototype.broadcastMessage = function (emit, payload) {
   return libQ.all(
     libFast.map(this.pluginManager.getPluginNames('user_interface'), function (sInterface) {
       var thisInterface = self.pluginManager.getPlugin('user_interface', sInterface);
-      if (typeof thisInterface.broadcastMessage === 'function') { return thisInterface.broadcastMessage(emit, payload); }
+      if (typeof thisInterface.broadcastMessage === 'function') {
+        return thisInterface.broadcastMessage(emit, payload);
+      }
     })
   );
 };
@@ -1528,9 +1591,10 @@ CoreCommandRouter.prototype.volumioSaveQueueToPlaylist = function (name) {
   var queueArray = this.stateMachine.getQueue();
   var defer = this.playListManager.commonAddItemsToPlaylist(this.playListManager.playlistFolder, name, queueArray);
 
-  defer.then(function () {
-    self.pushToastMessage('success', self.getI18nString('COMMON.SAVE_QUEUE_SUCCESS') + name);
-  })
+  defer
+    .then(function () {
+      self.pushToastMessage('success', self.getI18nString('COMMON.SAVE_QUEUE_SUCCESS') + name);
+    })
     .fail(function () {
       self.pushToastMessage('success', self.getI18nString('COMMON.SAVE_QUEUE_ERROR') + name);
     });
@@ -1556,14 +1620,21 @@ CoreCommandRouter.prototype.getI18nString = function (key) {
 
   if (this.i18nStrings) {
     if (splitted.length == 1) {
-      if (this.i18nStrings[key] !== undefined && this.i18nStrings[key] !== '') { return this.i18nStrings[key]; } else return this.i18nStringsDefaults[key];
+      if (this.i18nStrings[key] !== undefined && this.i18nStrings[key] !== '') {
+        return this.i18nStrings[key];
+      } else return this.i18nStringsDefaults[key];
     } else {
-      if (this.i18nStrings[splitted[0]] !== undefined &&
-                this.i18nStrings[splitted[0]][splitted[1]] !== undefined && this.i18nStrings[splitted[0]][splitted[1]] !== '') { return this.i18nStrings[splitted[0]][splitted[1]]; } else return this.i18nStringsDefaults[splitted[0]][splitted[1]];
+      if (
+        this.i18nStrings[splitted[0]] !== undefined &&
+        this.i18nStrings[splitted[0]][splitted[1]] !== undefined &&
+        this.i18nStrings[splitted[0]][splitted[1]] !== ''
+      ) {
+        return this.i18nStrings[splitted[0]][splitted[1]];
+      } else return this.i18nStringsDefaults[splitted[0]][splitted[1]];
     }
   } else {
-    	var emptyString = '';
-    	return emptyString;
+    var emptyString = '';
+    return emptyString;
   }
 };
 
@@ -1575,7 +1646,7 @@ CoreCommandRouter.prototype.loadI18nStrings = function () {
 
   try {
     this.logger.info('Loading i18n strings for locale ' + language_code);
-    	this.i18nStrings = fs.readJsonSync(__dirname + '/i18n/strings_' + language_code + '.json');
+    this.i18nStrings = fs.readJsonSync(__dirname + '/i18n/strings_' + language_code + '.json');
   } catch (e) {
     this.logger.error('Failed to load i18n strings for locale ' + language_code + ': ' + e);
     this.i18nStrings = this.i18nStringsDefaults;
@@ -1624,7 +1695,8 @@ CoreCommandRouter.prototype.i18nJson = function (dictionaryFile, defaultDictiona
   defers.push(libQ.nfcall(fs.readJson, defaultDictionaryFile));
   defers.push(libQ.nfcall(fs.readJson, jsonFile));
 
-  libQ.all(defers)
+  libQ
+    .all(defers)
     .then(function (documents) {
       var dictionary = documents[0];
       var defaultDictionary = documents[1];
@@ -1648,7 +1720,7 @@ CoreCommandRouter.prototype.translateKeys = function (parent, dictionary, defaul
 
     for (var i in keys) {
       var obj = parent[keys[i]];
-      var type = typeof (obj);
+      var type = typeof obj;
 
       if (type === 'object') {
         self.translateKeys(obj, dictionary, defaultDictionary);
@@ -1682,7 +1754,7 @@ CoreCommandRouter.prototype.translateKeys = function (parent, dictionary, defaul
       }
     }
   } catch (e) {
-    	self.logger.error('Cannot translate keys: ' + e);
+    self.logger.error('Cannot translate keys: ' + e);
   }
 };
 
@@ -1714,7 +1786,7 @@ CoreCommandRouter.prototype.overrideUIConfig = function (uiconfig, overrideFile)
 CoreCommandRouter.prototype.overrideField = function (parent, id, attribute_name, attribute_value) {
   var self = this;
 
-  if (typeof (parent) === 'object') {
+  if (typeof parent === 'object') {
     if (parent.id === id) {
       parent[attribute_name] = attribute_value;
     } else {
@@ -1781,21 +1853,24 @@ CoreCommandRouter.prototype.safeRemoveDrive = function (data) {
   exec('/usr/bin/sudo /bin/umount /mnt/USB/' + data, function (error, stdout, stderr) {
     if (error !== null) {
       self.pushConsoleMessage(error);
-      self.pushToastMessage('error', data,
-        self.getI18nString('SYSTEM.CANNOT_REMOVE_MEDIA') + ': ' + error);
+      self.pushToastMessage('error', data, self.getI18nString('SYSTEM.CANNOT_REMOVE_MEDIA') + ': ' + error);
     } else {
-      self.pushToastMessage('success', self.getI18nString('SYSTEM.MEDIA_REMOVED_SUCCESSFULLY'),
-        self.getI18nString('SYSTEM.MEDIA_REMOVED_SUCCESSFULLY'));
+      self.pushToastMessage(
+        'success',
+        self.getI18nString('SYSTEM.MEDIA_REMOVED_SUCCESSFULLY'),
+        self.getI18nString('SYSTEM.MEDIA_REMOVED_SUCCESSFULLY')
+      );
       self.executeOnPlugin('music_service', 'mpd', 'updateMpdDB', '/USB/');
       execSync('/usr/bin/mpc update', { uid: 1000, gid: 1000, encoding: 'utf8' });
-      exec('/usr/bin/mpc idle update', {uid: 1000, gid: 1000, timeout: 10000}, function (error, stdout, stderr) {
+      exec('/usr/bin/mpc idle update', { uid: 1000, gid: 1000, timeout: 10000 }, function (error, stdout, stderr) {
         if (error !== null) {
         } else {
           var response = self.musicLibrary.executeBrowseSource('music-library/USB');
           if (response != undefined) {
-            response.then(function (result) {
-              defer.resolve(result);
-            })
+            response
+              .then(function (result) {
+                defer.resolve(result);
+              })
               .fail(function () {
                 defer.reject();
               });
@@ -1821,11 +1896,12 @@ CoreCommandRouter.prototype.getMyVolumioToken = function () {
   var response = self.executeOnPlugin('system_controller', 'my_volumio', 'getMyVolumioToken', '');
 
   if (response != undefined) {
-    response.then(function (result) {
-      defer.resolve(result);
-    })
+    response
+      .then(function (result) {
+        defer.resolve(result);
+      })
       .fail(function () {
-        var jsonobject = {'tokenAvailable': false};
+        var jsonobject = { tokenAvailable: false };
         defer.resolve(jsonobject);
       });
   }
@@ -1840,9 +1916,10 @@ CoreCommandRouter.prototype.setMyVolumioToken = function (data) {
   var response = self.executeOnPlugin('system_controller', 'my_volumio', 'setMyVolumioToken', data);
 
   if (response != undefined) {
-    response.then(function (result) {
-      defer.resolve(result);
-    })
+    response
+      .then(function (result) {
+        defer.resolve(result);
+      })
       .fail(function () {
         defer.resolve('');
       });
@@ -1854,17 +1931,19 @@ CoreCommandRouter.prototype.setMyVolumioToken = function (data) {
 CoreCommandRouter.prototype.getMyVolumioStatus = function () {
   var self = this;
   var defer = libQ.defer();
-  var notLoggedInResponseObject = {'loggedIn': false};
+  var notLoggedInResponseObject = { loggedIn: false };
 
   var response = self.executeOnPlugin('system_controller', 'my_volumio', 'getMyVolumioStatus', '');
   if (response != undefined) {
-    response.then(function (result) {
-      defer.resolve(result);
-    }).fail(function () {
-      defer.resolve(notLoggedInResponseObject);
-    });
+    response
+      .then(function (result) {
+        defer.resolve(result);
+      })
+      .fail(function () {
+        defer.resolve(notLoggedInResponseObject);
+      });
   } else {
-    	// MyVolumio plugin not loaded
+    // MyVolumio plugin not loaded
     defer.resolve(notLoggedInResponseObject);
   }
 
@@ -1911,12 +1990,15 @@ CoreCommandRouter.prototype.getMenuItems = function () {
   var defer = libQ.defer();
   var lang_code = self.sharedVars.get('language_code');
 
-  self.i18nJson(__dirname + '/i18n/strings_' + lang_code + '.json',
-    __dirname + '/i18n/strings_en.json',
-    __dirname + '/mainmenu.json')
+  self
+    .i18nJson(
+      __dirname + '/i18n/strings_' + lang_code + '.json',
+      __dirname + '/i18n/strings_en.json',
+      __dirname + '/mainmenu.json'
+    )
     .then(function (menuItemsJson) {
       if (fs.existsSync('/myvolumio/')) {
-        var menuItems = [{'id': 'my-volumio'}];
+        var menuItems = [{ id: 'my-volumio' }];
         menuItems = menuItems.concat(menuItemsJson.menuItems);
       } else {
         var menuItems = menuItemsJson['menuItems'];
@@ -1973,7 +2055,9 @@ CoreCommandRouter.prototype.addPluginRestEndpoint = function (data) {
         if (endpoint.endpoint === data.endpoint) {
           updated = true;
           endpoint = data;
-          return self.logger.info('Updating ' + data.endpoint + ' REST Endpoint for plugin: ' + data.type + '/' + data.name);
+          return self.logger.info(
+            'Updating ' + data.endpoint + ' REST Endpoint for plugin: ' + data.type + '/' + data.name
+          );
         }
       }
       if (!updated) {
@@ -1990,20 +2074,20 @@ CoreCommandRouter.prototype.addPluginRestEndpoint = function (data) {
 };
 
 CoreCommandRouter.prototype.removePluginRestEndpoint = function (data) {
-    var self = this;
-    var updated = false;
+  var self = this;
+  var updated = false;
 
-    if (data && data.endpoint) {
-        if (self.pluginsRestEndpoints.length) {
-            for (var i in self.pluginsRestEndpoints) {
-                var endpoint = self.pluginsRestEndpoints[i];
-                if (endpoint.endpoint === data.endpoint) {
-                    self.logger.info('Removing ' + data.endpoint + ' REST Endpoint');
-                    self.pluginsRestEndpoints.splice(i, 1);
-                }
-            }
+  if (data && data.endpoint) {
+    if (self.pluginsRestEndpoints.length) {
+      for (var i in self.pluginsRestEndpoints) {
+        var endpoint = self.pluginsRestEndpoints[i];
+        if (endpoint.endpoint === data.endpoint) {
+          self.logger.info('Removing ' + data.endpoint + ' REST Endpoint');
+          self.pluginsRestEndpoints.splice(i, 1);
         }
+      }
     }
+  }
 };
 
 CoreCommandRouter.prototype.getPluginsRestEndpoints = function () {
