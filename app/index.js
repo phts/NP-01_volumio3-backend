@@ -123,13 +123,10 @@ CoreCommandRouter.prototype.volumioClearQueue = function () {
 };
 
 // Volumio Set Volume
-CoreCommandRouter.prototype.volumiosetvolume = function (VolumeInteger) {
-  var self = this;
-  this.callCallback('volumiosetvolume', VolumeInteger);
-
-  var volSet = this.volumeControl.alsavolume(VolumeInteger);
-  volSet.then(function (result) {
-    return self.volumioupdatevolume(result);
+CoreCommandRouter.prototype.volumiosetvolume = function (value) {
+  this.callCallback('volumiosetvolume', value);
+  this.volumeControl.alsavolume(value).then((result) => {
+    return this.volumioupdatevolume(result);
   });
 };
 

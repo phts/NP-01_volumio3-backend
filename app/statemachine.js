@@ -3,6 +3,8 @@
 var libQ = require('kew');
 var RandomQueue = require('./randomqueue');
 
+const DEFAULT_VOLUME = 75;
+
 // Define the CoreStateMachine class
 module.exports = CoreStateMachine;
 function CoreStateMachine(commandRouter) {
@@ -257,6 +259,7 @@ CoreStateMachine.prototype.clearQueue = function (sendEmptyState) {
     this.currentRandom = false;
     this.currentRepeat = false;
     this.currentRepeatSingleSong = false;
+    if (this.currentVolume !== DEFAULT_VOLUME) this.commandRouter.volumiosetvolume(DEFAULT_VOLUME);
     return this.playQueue.clearPlayQueue(sendEmptyState);
   });
 };
