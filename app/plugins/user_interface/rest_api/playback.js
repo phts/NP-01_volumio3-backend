@@ -191,6 +191,15 @@ RESTApiPlayback.prototype.playbackCommands = function (req, res) {
         .done(function () {
           res.json({ time: timeStart, response: req.query.cmd + ' Success' });
         });
+    } else if (req.query.cmd == 'toggleRandomRepeat') {
+      var timeStart = Date.now();
+      self
+        .logStart('Client requests toggleRandomRepeat')
+        .then(() => self.commandRouter.volumioToggleRandomRepeat())
+        .fail(self.pushError.bind(self))
+        .done(() => {
+          res.json({ time: timeStart, response: req.query.cmd + ' Success' });
+        });
     } else if (req.query.cmd == 'startAirplayPlayback') {
       var timeStart = Date.now();
       self

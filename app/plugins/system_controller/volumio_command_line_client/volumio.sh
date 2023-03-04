@@ -158,6 +158,9 @@ random)
     /usr/bin/curl "http://127.0.0.1:3000/api/v1/commands/?cmd=random"
   fi
   ;;
+toggleRandomRepeat)
+  /usr/bin/curl "http://127.0.0.1:3000/api/v1/commands/?cmd=toggleRandomRepeat"
+  ;;
 startairplayplayback)
   /usr/bin/curl "http://127.0.0.1:3000/api/v1/commands/?cmd=startAirplayPlayback"
   ;;

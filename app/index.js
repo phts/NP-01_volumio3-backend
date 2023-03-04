@@ -1550,6 +1550,14 @@ CoreCommandRouter.prototype.volumioRepeat = function (repeat, repeatSingle) {
   return this.stateMachine.setRepeat(repeat, repeatSingle);
 };
 
+CoreCommandRouter.prototype.volumioToggleRandomRepeat = function () {
+  const { random, repeat, repeatSingle } = this.stateMachine.getState();
+  let newRepeat = !(repeat && repeatSingle);
+  let newRepeatSingle = repeat && !repeatSingle;
+  let newRandom = !newRepeat && !newRepeatSingle ? !random : random;
+  return libQ.all([this.stateMachine.setRepeat(newRepeat, newRepeatSingle), this.stateMachine.setRandom(newRandom)]);
+};
+
 CoreCommandRouter.prototype.repeatToggle = function () {
   const state = this.stateMachine.getState();
   const repeat = !(state.repeat && state.repeatSingle);
