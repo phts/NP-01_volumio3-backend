@@ -1557,7 +1557,7 @@ ControllerMpd.prototype.lsInfo = function (uri) {
                   var title1 = self.searchFor(lines, i + 1, 'Title:')
                   var track = self.searchFor(lines, i + 1, 'Track:')
                   if (track && title1) {
-                    var title = track + ' - ' + title1
+                    var title = track.padStart(2, '0') + ' - ' + title1
                   } else {
                     var title = title1
                   }
@@ -1660,7 +1660,7 @@ ControllerMpd.prototype.listallFolder = function (uri) {
               var title1 = self.searchFor(lines, i + 1, 'Title:')
               var track = self.searchFor(lines, i + 1, 'Track:')
               if (track && title1) {
-                var title = track + ' - ' + title1
+                var title = track.padStart(2, '0') + ' - ' + title1
               } else {
                 var title = title1
               }
@@ -1819,7 +1819,7 @@ ControllerMpd.prototype.search = function (query) {
               var title1 = self.searchFor(lines, i + 1, 'Title:')
               var track = self.searchFor(lines, i + 1, 'Track:')
               if (track && title1) {
-                var title = track + ' - ' + title1
+                var title = track.padStart(2, '0') + ' - ' + title1
               } else {
                 var title = title1
               }
@@ -2154,7 +2154,7 @@ ControllerMpd.prototype.explodeUri = function (uri) {
                   var title1 = self.searchFor(lines, i + 1, 'Title:')
                   var track = self.searchFor(lines, i + 1, 'Track:')
                   if (track && title1) {
-                    var title = track + ' - ' + title1
+                    var title = track.padStart(2, '0') + ' - ' + title1
                   } else {
                     var title = title1
                   }
@@ -2211,7 +2211,7 @@ ControllerMpd.prototype.explodeUri = function (uri) {
                   var title1 = self.searchFor(lines, i + 1, 'Title:')
                   var track = self.searchFor(lines, i + 1, 'Track:')
                   if (track && title1) {
-                    var title = track + ' - ' + title1
+                    var title = track.padStart(2, '0') + ' - ' + title1
                   } else {
                     var title = title1
                   }
@@ -2290,7 +2290,7 @@ ControllerMpd.prototype.explodeUri = function (uri) {
               var title1 = self.searchFor(lines, i + 1, 'Title:')
               var track = self.searchFor(lines, i + 1, 'Track:')
               if (track && title1) {
-                var title = track + ' - ' + title1
+                var title = track.padStart(2, '0') + ' - ' + title1
               } else {
                 var title = title1
               }
@@ -2415,7 +2415,7 @@ ControllerMpd.prototype.explodeUri = function (uri) {
               var title1 = self.searchFor(lines, i + 1, 'Title:')
               var track = self.searchFor(lines, i + 1, 'Track:')
               if (track && title1) {
-                var title = track + ' - ' + title1
+                var title = track.padStart(2, '0') + ' - ' + title1
               } else {
                 var title = title1
               }
@@ -2590,7 +2590,7 @@ ControllerMpd.prototype.exploderArtist = function (err, msg, defer) {
           var title1 = self.searchFor(lines, i + 1, 'Title:')
           var track = self.searchFor(lines, i + 1, 'Track:')
           if (track && title1) {
-            var title = track + ' - ' + title1
+            var title = track.padStart(2, '0') + ' - ' + title1
           } else {
             var title = title1
           }
@@ -2724,7 +2724,7 @@ ControllerMpd.prototype.scanFolder = function (uri) {
                 var title1 = self.searchFor(lines, i + 1, 'Title:')
                 var track = self.searchFor(lines, i + 1, 'Track:')
                 if (track && title1) {
-                  var title = track + ' - ' + title1
+                  var title = track.padStart(2, '0') + ' - ' + title1
                 } else {
                   var title = title1
                 }
@@ -2814,7 +2814,7 @@ ControllerMpd.prototype.explodeISOFile = function (uri) {
               var title1 = self.searchFor(lines, i + 1, 'Title:')
               var track = self.searchFor(lines, i + 1, 'Track:')
               if (track && title1) {
-                var title = track + ' - ' + title1
+                var title = track.padStart(2, '0') + ' - ' + title1
               } else {
                 var title = title1
               }
@@ -3343,7 +3343,7 @@ ControllerMpd.prototype.listAlbumSongs = function (uri, index, previous) {
 
           // Include track number if tracknumbers variable is set to 'true'
           if (tracknumbers && track) {
-            var title = track + ' - ' + title
+            var title = track.padStart(2, '0') + ' - ' + title
           }
 
           var albumart = self.getAlbumArt(
@@ -3604,7 +3604,7 @@ ControllerMpd.prototype.parseListAlbum = function (err, msg, defer, response, ur
           var title1 = self.searchFor(lines, i + 1, 'Title:')
           var track = self.searchFor(lines, i + 1, 'Track:')
           if (track && title1) {
-            var title = track + ' - ' + title1
+            var title = track.padStart(2, '0') + ' - ' + title1
           } else {
             var title = title1
           }
@@ -3799,7 +3799,7 @@ ControllerMpd.prototype.listGenre = function (curUri) {
               var title1 = self.searchFor(lines, i + 1, 'Title:')
               var track = self.searchFor(lines, i + 1, 'Track:')
               if (track && title1) {
-                var title = track + ' - ' + title1
+                var title = track.padStart(2, '0') + ' - ' + title1
               } else {
                 var title = title1
               }
