@@ -9,7 +9,6 @@ var libFsExtra = require('fs-extra')
 var fs = require('fs')
 var exec = require('child_process').exec
 var parser = require('cue-parser')
-var mm = require('music-metadata')
 var os = require('os')
 var execSync = require('child_process').execSync
 var ignoreupdate = false
@@ -72,12 +71,6 @@ ControllerMpd.prototype.next = function () {
 ControllerMpd.prototype.previous = function () {
   this.logger.info('ControllerMpd::previous')
   return this.sendMpdCommand('previous', [])
-}
-
-// MPD Seek
-ControllerMpd.prototype.seek = function (timepos) {
-  this.logger.info('ControllerMpd::seek to ' + timepos)
-  return this.sendMpdCommand('seekcur', [timepos])
 }
 
 // MPD Random
@@ -166,8 +159,6 @@ ControllerMpd.prototype.addPlay = function (fileName) {
 }
 
 ControllerMpd.prototype.addPlayCue = function (data) {
-  var self = this
-
   if (data.number !== undefined) {
     this.logger.info('Adding CUE individual entry: ' + data.number + ' ' + data.uri)
     var cueItem = this.explodeCue(data.uri, data.number)
@@ -356,7 +347,6 @@ ControllerMpd.prototype.sendMpdCommand = function (sCommand, arrayParameters) {
       // If there's an error show an alert on UI
       if ('error' in respobject) {
         self.commandRouter.broadcastToastMessage('error', 'Error', respobject.error)
-
         self.sendMpdCommand('clearerror', [])
       }
       const stop = Date.now()
@@ -425,7 +415,7 @@ ControllerMpd.prototype.parseTrackInfo = function (objTrackInfo) {
   } else {
     var file = objTrackInfo.file
     if (file !== undefined) {
-      var filetitle = file.replace(/^.*\/(?=[^\/]*$)/, '')
+      var filetitle = file.replace(/^.*\/(?=[^/]*$)/, '')
 
       resp.title = filetitle
     }
@@ -475,15 +465,7 @@ ControllerMpd.prototype.parseTrackInfo = function (objTrackInfo) {
 }
 
 // Parse MPD's text playlist into a Volumio recognizable playlist object
-ControllerMpd.prototype.parsePlaylist = function (objQueue) {
-  var self = this
-
-  // objQueue is in form {'0': 'file: http://uk4.internet-radio.com:15938/', '1': 'file: http://2363.live.streamtheworld.com:80/KUSCMP128_SC'}
-  // We want to convert to a straight array of trackIds
-  return libQ.fcall(libFast.map, Object.keys(objQueue), function (currentKey) {
-    return convertUriToTrackId(objQueue[currentKey])
-  })
-}
+ControllerMpd.prototype.parsePlaylist = function () {}
 
 // Parse MPD's text status into a Volumio recognizable status object
 ControllerMpd.prototype.parseState = function (objState) {
@@ -665,7 +647,7 @@ ControllerMpd.prototype.initializeMpdConnection = function () {
   var defer = libQ.defer()
 
   // Connect to MPD only if process MPD is running
-  exec('/bin/pidof mpd', {uid: 1000, gid: 1000}, function (error, stdout, stderr) {
+  exec('/bin/pidof mpd', {uid: 1000, gid: 1000}, function (error, stdout) {
     if (error) {
       self.logger.error('Cannot initialize  MPD Connection: MPD is not running')
       defer.resolve()
@@ -709,7 +691,7 @@ ControllerMpd.prototype.mpdEstablish = function () {
   // Catch and log errors
   self.clientMpd.on('error', function (err) {
     self.logger.error('MPD error: ' + err)
-    if ((err = "{ [Error: This socket has been ended by the other party] code: 'EPIPE' }")) {
+    if (err === "{ [Error: This socket has been ended by the other party] code: 'EPIPE' }") {
       // Wait 5 seconds before trying to reconnect
       setTimeout(function () {
         self.mpdEstablish()
@@ -764,7 +746,7 @@ ControllerMpd.prototype.mpdEstablish = function () {
     // return self.commandRouter.fileUpdate();
     // return self.reportUpdatedLibrary();
     // Refresh AlbumList - delete the current AlbumList cache entry
-    memoryCache.del('cacheAlbumList', function (err) {})
+    memoryCache.del('cacheAlbumList', function () {})
     // Store new AlbumList in cache
     self.listAlbums()
     self.logger.info('MPD Database updated - AlbumList cache refreshed')
@@ -862,7 +844,7 @@ ControllerMpd.prototype.savePlaybackOptions = function (data) {
       })
       execSync('/bin/sync', {uid: 1000, gid: 1000, encoding: 'utf8'})
       setTimeout(function () {
-        exec('/usr/bin/mpc update', {uid: 1000, gid: 1000}, function (error, stdout, stderr) {
+        exec('/usr/bin/mpc update', {uid: 1000, gid: 1000}, function (error) {
           if (error) {
             self.logger.error('Cannot Update MPD DB: ' + error)
           }
@@ -896,7 +878,7 @@ ControllerMpd.prototype.savePlaybackOptions = function (data) {
       })
       execSync('/bin/sync', {uid: 1000, gid: 1000, encoding: 'utf8'})
       setTimeout(function () {
-        exec('/usr/bin/mpc update', {uid: 1000, gid: 1000}, function (error, stdout, stderr) {
+        exec('/usr/bin/mpc update', {uid: 1000, gid: 1000}, function (error) {
           if (error) {
             self.logger.error('Cannot Update MPD DB: ' + error)
           }
@@ -935,11 +917,9 @@ ControllerMpd.prototype.savePlaybackOptions = function (data) {
   return defer.promise
 }
 
-ControllerMpd.prototype.saveResampleOptions = function (data) {
+ControllerMpd.prototype.saveResampleOptions = function () {
   var self = this
-
   var defer = libQ.defer()
-
   self.createMPDFile(function (error) {
     if (error !== undefined && error !== null) {
       // self.commandRouter.pushToastMessage('error', self.commandRouter.getI18nString('mpd_configuration_update'), self.commandRouter.getI18nString('mpd_configuration_update_error'));
@@ -970,7 +950,7 @@ ControllerMpd.prototype.restartMpd = function (callback) {
     exec(
       '/usr/bin/sudo /bin/systemctl restart mpd.service ',
       {uid: 1000, gid: 1000},
-      function (error, stdout, stderr) {
+      function (error) {
         self.mpdEstablish()
         callback(error)
       }
@@ -979,7 +959,7 @@ ControllerMpd.prototype.restartMpd = function (callback) {
     exec(
       '/usr/bin/sudo /bin/systemctl restart mpd.service ',
       {uid: 1000, gid: 1000},
-      function (error, stdout, stderr) {
+      function (error) {
         if (error) {
           self.logger.error('Cannot restart MPD: ' + error)
         } else {
@@ -993,17 +973,13 @@ ControllerMpd.prototype.restartMpd = function (callback) {
 ControllerMpd.prototype.createMPDFile = function (callback) {
   var self = this
 
-  exec(
-    '/usr/bin/sudo /bin/chmod 777 /etc/mpd.conf',
-    {uid: 1000, gid: 1000},
-    function (error, stdout, stderr) {
-      if (error != null) {
-        self.logger.info('Error setting mpd conf file perms: ' + error)
-      } else {
-        self.logger.info('MPD Permissions set')
-      }
+  exec('/usr/bin/sudo /bin/chmod 777 /etc/mpd.conf', {uid: 1000, gid: 1000}, function (error) {
+    if (error != null) {
+      self.logger.info('Error setting mpd conf file perms: ' + error)
+    } else {
+      self.logger.info('MPD Permissions set')
     }
-  )
+  })
 
   try {
     fs.readFile(__dirname + '/mpd.conf.tmpl', 'utf8', function (err, data) {
@@ -1270,7 +1246,7 @@ ControllerMpd.prototype.checkTrue = function (config) {
 /*
  * This method shall be defined by every plugin which needs to be configured.
  */
-ControllerMpd.prototype.setConfiguration = function (configuration) {
+ControllerMpd.prototype.setConfiguration = function () {
   // DO something intelligent
 }
 
@@ -1285,11 +1261,9 @@ ControllerMpd.prototype.setConfigParam = function (data) {
   self.config.set(data.key, data.value)
 }
 
-ControllerMpd.prototype.listPlaylists = function (uri) {
+ControllerMpd.prototype.listPlaylists = function () {
   var self = this
-
   var defer = libQ.defer()
-
   var response = {
     navigation: {
       lists: [
@@ -1491,7 +1465,6 @@ ControllerMpd.prototype.lsInfo = function (uri) {
               var line = lines[i]
 
               if (line.indexOf('directory:') === 0) {
-                var diricon = 'fa fa-folder-open-o'
                 path = line.slice(11)
                 var namearr = path.split('/')
                 name = namearr[namearr.length - 1]
@@ -1520,7 +1493,6 @@ ControllerMpd.prototype.lsInfo = function (uri) {
                 }
                 if (namearr.length == 2 && namearr[0] == 'USB') {
                   dirtype = 'remdisk'
-                  diricon = 'fa fa-usb'
                 } else if (uri.indexOf('music-library/INTERNAL') >= 0) {
                   dirtype = 'internal-folder'
                 } else {
@@ -1614,9 +1586,7 @@ ControllerMpd.prototype.lsInfo = function (uri) {
                   genre = self.searchFor(lines, i + 1, 'Genre:')
                 }
 
-                if (title) {
-                  title = title
-                } else {
+                if (!title) {
                   title = name
                 }
                 var albumart = self.getAlbumArt('', self.getParentFolder('/mnt/' + path), 'music')
@@ -1701,9 +1671,7 @@ ControllerMpd.prototype.listallFolder = function (uri) {
               'fa-tags'
             )
 
-            if (title) {
-              title = title
-            } else {
+            if (!title) {
               title = name
             }
             list.push({
@@ -1760,7 +1728,6 @@ ControllerMpd.prototype.search = function (query) {
         for (var i = 0; i < lines.length; i++) {
           var line = lines[i]
           if (line.startsWith('file:')) {
-            var path = line.slice(5).trimLeft()
             var artist = self.searchFor(lines, i + 1, 'Artist:')
             //* *********Check if artist is already found and exists in 'artistsfound' array
             if (artistsfound.indexOf(artist) < 0) {
@@ -1992,7 +1959,6 @@ ControllerMpd.prototype.updateQueue = function () {
   var defer = libQ.defer()
 
   var prev = ''
-  var folderToList = ''
   var command = 'playlistinfo'
   var list = []
 
@@ -2060,19 +2026,6 @@ ControllerMpd.prototype.getAlbumArt = function (data, path, icon) {
   }
 }
 
-ControllerMpd.prototype.reportUpdatedLibrary = function () {
-  var self = this
-  // TODO PUSH THIS MESSAGE TO ALL CONNECTED CLIENTS
-  self.logger.info('ControllerMpd::DB Update Finished')
-  // return self.commandRouter.pushToastMessage('Success', 'ASF', ' Added');
-}
-
-ControllerMpd.prototype.getConfigurationFiles = function () {
-  var self = this
-
-  return ['config.json']
-}
-
 ControllerMpd.prototype.getAdditionalConf = function (type, controller, data, def) {
   var self = this
   var setting = self.commandRouter.executeOnPlugin(type, controller, 'getConfigParam', data)
@@ -2082,11 +2035,6 @@ ControllerMpd.prototype.getAdditionalConf = function (type, controller, data, de
   }
 
   return setting
-}
-
-ControllerMpd.prototype.setAdditionalConf = function (type, controller, data) {
-  var self = this
-  return self.commandRouter.executeOnPlugin(type, controller, 'setConfigParam', data)
 }
 
 ControllerMpd.prototype.rescanDb = function () {
@@ -2115,26 +2063,6 @@ ControllerMpd.prototype.updateDb = function (data) {
     message
   )
   return self.sendMpdCommand('update', [pos])
-}
-
-ControllerMpd.prototype.getGroupVolume = function () {
-  var self = this
-  return self.sendMpdCommand('status', []).then(function (objState) {
-    var state = self.parseState(objState)
-    if (state.volume != undefined) {
-      state.volume = groupvolume
-      return libQ.resolve(groupvolume)
-    }
-  })
-}
-
-ControllerMpd.prototype.setGroupVolume = function (data) {
-  var self = this
-  return self.sendMpdCommand('setvol', [data])
-}
-
-ControllerMpd.prototype.syncGroupVolume = function (data) {
-  var self = this
 }
 
 // --------------------------------- music services interface ---------------------------------------
@@ -2209,8 +2137,6 @@ ControllerMpd.prototype.explodeUri = function (uri) {
 
       self.mpdReady.then(function () {
         self.clientMpd.sendCommand(cmd(commandArtist, []), function (err, msg) {
-          var subList = []
-
           if (msg) {
             var lines = msg.split('\n')
             for (var i = 0; i < lines.length; i++) {
@@ -2219,8 +2145,6 @@ ControllerMpd.prototype.explodeUri = function (uri) {
               if (line.startsWith('file:')) {
                 var path = line.slice(5).trimLeft()
                 var name = path.split('/')
-                var count = name.length
-
                 var artist = self.searchFor(lines, i + 1, 'Artist:')
                 var album = self.searchFor(lines, i + 1, 'Album:')
                 // Include track number if tracknumber variable is set to 'true'
@@ -2237,9 +2161,7 @@ ControllerMpd.prototype.explodeUri = function (uri) {
                 }
                 var time = parseInt(self.searchFor(lines, i + 1, 'Time:'))
 
-                if (title) {
-                  title = title
-                } else {
+                if (!title) {
                   title = name
                 }
 
@@ -2272,8 +2194,6 @@ ControllerMpd.prototype.explodeUri = function (uri) {
       }
       self.mpdReady.then(function () {
         self.clientMpd.sendCommand(cmd(commandAlbum, []), function (err, msg) {
-          var subList = []
-
           if (msg) {
             var lines = msg.split('\n')
             for (var i = 0; i < lines.length; i++) {
@@ -2282,8 +2202,6 @@ ControllerMpd.prototype.explodeUri = function (uri) {
               if (line.startsWith('file:')) {
                 var path = line.slice(5).trimLeft()
                 var name = path.split('/')
-                var count = name.length
-
                 var artist = self.searchFor(lines, i + 1, 'Artist:')
                 var album = self.searchFor(lines, i + 1, 'Album:')
                 // Include track number if tracknumber variable is set to 'true'
@@ -2300,9 +2218,7 @@ ControllerMpd.prototype.explodeUri = function (uri) {
                 }
                 var time = parseInt(self.searchFor(lines, i + 1, 'Time:'))
 
-                if (title) {
-                  title = title
-                } else {
+                if (!title) {
                   title = name
                 }
 
@@ -2385,9 +2301,7 @@ ControllerMpd.prototype.explodeUri = function (uri) {
             )
             var time = parseInt(self.searchFor(lines, i + 1, 'Time:'))
 
-            if (title) {
-              title = title
-            } else {
+            if (!title) {
               title = name
             }
             list.push({
@@ -2483,8 +2397,6 @@ ControllerMpd.prototype.explodeUri = function (uri) {
 
     self.clientMpd.sendCommand(cmd(GetMatches, []), function (err, msg) {
       var list = []
-      var albums = [],
-        albumarts = []
       if (msg) {
         var path
         var name
@@ -2514,9 +2426,7 @@ ControllerMpd.prototype.explodeUri = function (uri) {
             )
             var time = parseInt(self.searchFor(lines, i + 1, 'Time:'))
 
-            if (title) {
-              title = title
-            } else {
+            if (!title) {
               title = name
             }
 
@@ -2621,15 +2531,12 @@ ControllerMpd.prototype.explodeUri = function (uri) {
 
 ControllerMpd.prototype.explodeCue = function (uri, index) {
   var self = this
-
   var uri = self.sanitizeUri(uri)
   var cuesheet = parser.parse('/mnt/' + uri)
   var cuealbum
   var cueartist
   var cuename
-
   var tracks = cuesheet.files[0].tracks
-  var list = []
 
   if (cuesheet.title != undefined && cuesheet.title.length > 0) {
     cuealbum = cuesheet.title
@@ -2664,8 +2571,6 @@ ControllerMpd.prototype.explodeCue = function (uri, index) {
 ControllerMpd.prototype.exploderArtist = function (err, msg, defer) {
   var self = this
   var list = []
-  var albums = [],
-    albumarts = []
   if (msg) {
     var path
     var name
@@ -2696,9 +2601,7 @@ ControllerMpd.prototype.exploderArtist = function (err, msg, defer) {
         )
         var time = parseInt(self.searchFor(lines, i + 1, 'Time:'))
 
-        if (title) {
-          title = title
-        } else {
+        if (!title) {
           title = name
         }
         list.push({
@@ -2750,8 +2653,7 @@ ControllerMpd.prototype.scanFolder = function (uri) {
 
   if (uri.indexOf('.iso') >= 0 || uri.indexOf('.ISO') >= 0) {
     var uri2 = uri.substr(0, uri.lastIndexOf('/'))
-    if (uri2.indexOf('.iso') >= 0 || uri2.indexOf('.ISO') >= 0) {
-    } else {
+    if (uri2.indexOf('.iso') < 0 && uri2.indexOf('.ISO') < 0) {
       isofile = true
     }
   } else {
@@ -2800,9 +2702,7 @@ ControllerMpd.prototype.scanFolder = function (uri) {
 
     self.mpdReady.then(function () {
       self.clientMpd.sendCommand(cmd(command, []), function (err, msg) {
-        var list = []
         if (msg) {
-          var s0 = sections[0] + '/'
           var path
           var name
           var lines = msg.split('\n')
@@ -2831,9 +2731,7 @@ ControllerMpd.prototype.scanFolder = function (uri) {
               }
               var time = parseInt(self.searchFor(lines, i + 1, 'Time:'))
 
-              if (title) {
-                title = title
-              } else {
+              if (!title) {
                 title = name
               }
               self.commandRouter.logger.info(
@@ -2895,11 +2793,9 @@ ControllerMpd.prototype.explodeISOFile = function (uri) {
   self.mpdReady.then(function () {
     self.clientMpd.sendCommand(cmd(command, []), function (err, msg) {
       if (msg) {
-        var s0 = sections[0] + '/'
         var path
         var name
         var lines = msg.split('\n')
-        var isSolved = false
 
         for (var i = 0; i < lines.length; i++) {
           var line = lines[i]
@@ -2925,9 +2821,7 @@ ControllerMpd.prototype.explodeISOFile = function (uri) {
             }
             var time = parseInt(self.searchFor(lines, i + 1, 'Time:'))
 
-            if (title) {
-              title = title
-            } else {
+            if (!title) {
               title = name
             }
             self.commandRouter.logger.info(
@@ -2977,10 +2871,6 @@ ControllerMpd.prototype.explodeISOFile = function (uri) {
 // ----------------------- new play system ----------------------------
 ControllerMpd.prototype.clearAddPlayTrack = function (track) {
   var self = this
-
-  var sections = track.uri.split('/')
-  var prev = ''
-
   if (track.uri.startsWith('cue://')) {
     var uri1 = track.uri.substring(6)
     var splitted = uri1.split('@')
@@ -3015,9 +2905,6 @@ ControllerMpd.prototype.clearAddPlayTrack = function (track) {
       self.dsdVolume()
     }
     // Clear the queue, add the first track, and start playback
-    var defer = libQ.defer()
-    var cmd = libMpd.cmd
-
     var safeUri = uri.replace(/"/g, '\\"')
 
     return self
@@ -3087,8 +2974,6 @@ ControllerMpd.prototype.reportUpdatedLibrary = function () {
 }
 
 ControllerMpd.prototype.getConfigurationFiles = function () {
-  var self = this
-
   return ['config.json']
 }
 
@@ -3169,7 +3054,7 @@ ControllerMpd.prototype.getGroupVolume = function () {
   var self = this
   var defer = libQ.defer()
 
-  return self.sendMpdCommand('status', []).then(function (objState) {
+  self.sendMpdCommand('status', []).then(function (objState) {
     if (objState.volume) {
       defer.resolve(objState.volume)
     }
@@ -3182,11 +3067,9 @@ ControllerMpd.prototype.setGroupVolume = function (data) {
   return self.sendMpdCommand('setvol', [data])
 }
 
-ControllerMpd.prototype.syncGroupVolume = function (data) {
-  var self = this
-}
+ControllerMpd.prototype.syncGroupVolume = function () {}
 
-ControllerMpd.prototype.handleBrowseUri = function (curUri, previous) {
+ControllerMpd.prototype.handleBrowseUri = function (curUri) {
   var self = this
   var response
 
@@ -3247,7 +3130,7 @@ ControllerMpd.prototype.handleBrowseUri = function (curUri, previous) {
         response = self.listArtist(curUri, 3, 'genres://' + splitted[2], 'genres://')
       } else if (splitted.length == 5) {
         response = self.listAlbumSongs(curUri, 4, 'genres://' + splitted[2])
-      } else if ((splitted.length = 6)) {
+      } else if (splitted.length == 6) {
         response = self.listAlbumSongs(curUri, 4, 'genres://' + splitted[4] + '/' + splitted[5])
       }
     }
@@ -3264,7 +3147,7 @@ ControllerMpd.prototype.listAlbums = function (ui) {
   var self = this
 
   var defer = libQ.defer()
-  var response = memoryCache.get('cacheAlbumList', function (err, response) {
+  memoryCache.get('cacheAlbumList', function (err, response) {
     if (response == undefined) {
       response = {
         navigation: {
@@ -3360,7 +3243,6 @@ ControllerMpd.prototype.listAlbumSongs = function (uri, index, previous) {
 
   if (splitted[0] == 'genres:') {
     // genre
-    var genreString = uri.replace('genres://', '')
     var genre = decodeURIComponent(splitted[2])
     var artist = decodeURIComponent(splitted[3])
     var albumName = decodeURIComponent(splitted[4])
@@ -3438,7 +3320,6 @@ ControllerMpd.prototype.listAlbumSongs = function (uri, index, previous) {
 
   var cmd = libMpd.cmd
   var duration = 0
-  var year = ''
   var genre = ''
   var albumTrackType = ''
 
@@ -3476,9 +3357,7 @@ ControllerMpd.prototype.listAlbumSongs = function (uri, index, previous) {
           genre = self.searchFor(lines, i + 1, 'Genre:')
           albumTrackType = trackType
 
-          if (title) {
-            title = title
-          } else {
+          if (!title) {
             title = name
           }
           response.navigation.lists[0].items.push({
@@ -3691,7 +3570,6 @@ ControllerMpd.prototype.listArtist = function (curUri, index, previous, uriBegin
 
 ControllerMpd.prototype.parseListAlbum = function (err, msg, defer, response, uriBegin, VA) {
   var self = this
-  var list = []
   var albums = [],
     albumarts = []
   if (msg) {
@@ -3737,9 +3615,7 @@ ControllerMpd.prototype.parseListAlbum = function (err, msg, defer, response, ur
           'dot-circle-o'
         )
 
-        if (title) {
-          title = title
-        } else {
+        if (!title) {
           title = name
         }
 
@@ -3902,7 +3778,6 @@ ControllerMpd.prototype.listGenre = function (curUri) {
       var albumsArt = []
       var artists = []
       var artistArt = []
-      var list = []
 
       if (msg) {
         var path
@@ -3935,9 +3810,7 @@ ControllerMpd.prototype.listGenre = function (curUri) {
               'dot-circle-o'
             )
 
-            if (title) {
-              title = title
-            } else {
+            if (!title) {
               title = name
             }
 
@@ -4054,11 +3927,8 @@ ControllerMpd.prototype.getParentFolder = function (file) {
 }
 
 ControllerMpd.prototype.getAlbumArtPathFromUri = function (uri) {
-  var self = this
   var startIndex = 0
-
   var splitted = uri.split('/')
-
   while (splitted[startIndex] === '') {
     startIndex = startIndex + 1
   }
@@ -4135,7 +4005,7 @@ ControllerMpd.prototype.ffwdRew = function (millisecs) {
     param = delta
   }
 
-  self.clientMpd.sendCommand(cmd('seekcur', [param]), function (err, msg) {
+  self.clientMpd.sendCommand(cmd('seekcur', [param]), function (err) {
     if (err) {
       defer.reject(new Error('Cannot seek ' + millisecs))
     } else {
@@ -4146,8 +4016,6 @@ ControllerMpd.prototype.ffwdRew = function (millisecs) {
 }
 
 ControllerMpd.prototype.loadLibrarySettings = function () {
-  var self = this
-
   var tracknumbersConf = this.config.get('tracknumbers', false)
   var compilationConf = this.config.get(
     'compilation',
@@ -4217,7 +4085,7 @@ ControllerMpd.prototype.rebuildAlbumCache = function () {
   var self = this
 
   self.logger.info('Rebuild Album cache')
-  memoryCache.del('cacheAlbumList', function (err) {})
+  memoryCache.del('cacheAlbumList', function () {})
   self.listAlbums()
 }
 
@@ -4240,7 +4108,6 @@ ControllerMpd.prototype.checkUSBDrives = function () {
           if (disk.uri) {
             var path = disk.uri.replace('music-library', '/mnt')
             if (!fs.existsSync(path)) {
-              var mpdPath = path.replace('/mnt/', '')
               return this.sendMpdCommand('update', ['USB'])
             }
           }
@@ -4261,7 +4128,7 @@ ControllerMpd.prototype.deleteFolder = function (data) {
     exec(
       '/usr/bin/sudo /bin/rm -rf "' + folderToDelete + '"',
       {uid: 1000, gid: 1000},
-      function (error, stdout, stderr) {
+      function (error) {
         if (error) {
           self.logger.error('Cannot delete folder: ' + error)
           defer.reject('Cannot delete folder ' + data.curUri)
@@ -4286,7 +4153,7 @@ ControllerMpd.prototype.deleteFolder = function (data) {
     )
   }
 
-  exec('/bin/sync', {uid: 1000, gid: 1000}, function (error, stdout, stderr) {
+  exec('/bin/sync', {uid: 1000, gid: 1000}, function (error) {
     if (error) {
       self.logger.error('Cannot execute sync')
     }

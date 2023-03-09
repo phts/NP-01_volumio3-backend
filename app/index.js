@@ -276,7 +276,7 @@ CoreCommandRouter.prototype.serviceUpdateTracklist = function (sService) {
 }
 
 // Start WirelessScan
-CoreCommandRouter.prototype.volumiowirelessscan = function () {
+CoreCommandRouter.prototype.volumiowirelessscan = function (sService) {
   this.pushConsoleMessage('CoreCommandRouter::StartWirelessScan')
   var thisPlugin = this.pluginManager.getPlugin('music_service', sService)
   return thisPlugin.scanWirelessNetworks()
@@ -544,8 +544,6 @@ CoreCommandRouter.prototype.playPlaylist = function (data) {
  * @returns {{name: *, uuid: *, time: string}}
  */
 CoreCommandRouter.prototype.getId = function () {
-  var self = this
-
   var file = fs.readJsonSync('data/configuration/system_controller/system/config.json')
 
   var name = file.playerName.value
@@ -621,8 +619,6 @@ CoreCommandRouter.prototype.getPluginsConf = function () {
     var plugConf = self.catPluginsConf(cName, plugins)
     confs.push({cName, plugConf})
   }
-
-  var identification = self.getId()
   return confs
 }
 
@@ -708,8 +704,6 @@ CoreCommandRouter.prototype.usefulBackupConfs = function (currArray, backArray) 
  * @param data is a json with useful plugin's configuration files, sorted by category
  */
 CoreCommandRouter.prototype.writeConfs = function (data) {
-  var self = this
-
   var usefulConfs = data
   for (var i = 0; i < usefulConfs.length; i++) {
     for (var j = 0; j < usefulConfs[i].plugConf.length; j++) {
@@ -733,8 +727,6 @@ CoreCommandRouter.prototype.writeConfs = function (data) {
  * @returns {*}
  */
 CoreCommandRouter.prototype.min = function (a, b) {
-  var self = this
-
   if (a < b) {
     return a
   } else {
@@ -887,11 +879,10 @@ CoreCommandRouter.prototype.writeFavouritesBackup = function () {
 CoreCommandRouter.prototype.restorePlaylistBackup = function () {
   var self = this
   var check = self.checkBackup('playlists')
-  var path = self.playListManager.playlistFolder
   var isbackup = check[0]
 
   if (isbackup) {
-    self.restorePlaylist({type: 'playlist', backup: backup})
+    self.restorePlaylist({type: 'playlist', backup: check[1]})
   }
 }
 
@@ -904,13 +895,11 @@ CoreCommandRouter.prototype.restoreFavouritesBackup = function (type) {
 
   var backup = self.checkBackup('favourites')
   var isbackup = backup[0]
-  var path = self.playListManager.favouritesPlaylistFolder
 
   if (isbackup) {
     var kind = self.checkFavouritesType(type, backup[1])
-    var file = kind[0]
     var data = kind[1]
-    self.restorePlaylist({type: type, path: file, backup: data})
+    self.restorePlaylist({type: type, backup: data})
   }
 }
 
@@ -1017,7 +1006,6 @@ CoreCommandRouter.prototype.checkFavouritesType = function (type, backup) {
  * @returns {*}
  */
 CoreCommandRouter.prototype.mergePlaylists = function (recent, old) {
-  var self = this
   var backup = recent
   var current = old
 
@@ -1224,7 +1212,6 @@ CoreCommandRouter.prototype.pushMultiroomDevices = function (data) {
 
 CoreCommandRouter.prototype.updateMultiroomSyncOutput = function (data) {
   // Send this to all plugins that require this information
-  var self = this
   var audioOutputPlugin = this.pluginManager.getPlugin('audio_interface', 'multiroom')
   if (
     audioOutputPlugin != undefined &&
@@ -1236,7 +1223,6 @@ CoreCommandRouter.prototype.updateMultiroomSyncOutput = function (data) {
 
 CoreCommandRouter.prototype.getMultiroomSyncOutput = function (data) {
   // Send this to all plugins that require this information
-  var self = this
   var audioOutputPlugin = this.pluginManager.getPlugin('audio_interface', 'multiroom')
   if (
     audioOutputPlugin != undefined &&
@@ -1248,7 +1234,6 @@ CoreCommandRouter.prototype.getMultiroomSyncOutput = function (data) {
 
 CoreCommandRouter.prototype.enableMultiroomSyncOutput = function (data) {
   // Send this to all plugins that require this information
-  var self = this
   var audioOutputPlugin = this.pluginManager.getPlugin('audio_interface', 'multiroom')
   if (
     audioOutputPlugin != undefined &&
@@ -1260,7 +1245,6 @@ CoreCommandRouter.prototype.enableMultiroomSyncOutput = function (data) {
 
 CoreCommandRouter.prototype.disableMultiroomSyncOutput = function (data) {
   // Send this to all plugins that require this information
-  var self = this
   var audioOutputPlugin = this.pluginManager.getPlugin('audio_interface', 'multiroom')
   if (
     audioOutputPlugin != undefined &&
@@ -1859,8 +1843,6 @@ CoreCommandRouter.prototype.overrideField = function (parent, id, attribute_name
 }
 
 CoreCommandRouter.prototype.updateBrowseSourcesLang = function () {
-  var self = this
-
   return this.musicLibrary.updateBrowseSourcesLang()
 }
 
@@ -1886,7 +1868,7 @@ CoreCommandRouter.prototype.checkAndPerformSystemUpdates = function () {
         var file = files[i]
 
         if (file.endsWith('.sh')) {
-          var output = execSync('sh ' + updateFolder + '/' + file, {encoding: 'utf8'})
+          execSync('sh ' + updateFolder + '/' + file, {encoding: 'utf8'})
         }
       }
 
@@ -1907,7 +1889,7 @@ CoreCommandRouter.prototype.safeRemoveDrive = function (data) {
   var self = this
   var defer = libQ.defer()
 
-  exec('/usr/bin/sudo /bin/umount /mnt/USB/' + data, function (error, stdout, stderr) {
+  exec('/usr/bin/sudo /bin/umount /mnt/USB/' + data, function (error) {
     if (error !== null) {
       self.pushConsoleMessage(error)
       self.pushToastMessage(
@@ -1923,25 +1905,20 @@ CoreCommandRouter.prototype.safeRemoveDrive = function (data) {
       )
       self.executeOnPlugin('music_service', 'mpd', 'updateMpdDB', '/USB/')
       execSync('/usr/bin/mpc update', {uid: 1000, gid: 1000, encoding: 'utf8'})
-      exec(
-        '/usr/bin/mpc idle update',
-        {uid: 1000, gid: 1000, timeout: 10000},
-        function (error, stdout, stderr) {
-          if (error !== null) {
-          } else {
-            var response = self.musicLibrary.executeBrowseSource('music-library/USB')
-            if (response != undefined) {
-              response
-                .then(function (result) {
-                  defer.resolve(result)
-                })
-                .fail(function () {
-                  defer.reject()
-                })
-            }
+      exec('/usr/bin/mpc idle update', {uid: 1000, gid: 1000, timeout: 10000}, function (error) {
+        if (error === null) {
+          var response = self.musicLibrary.executeBrowseSource('music-library/USB')
+          if (response != undefined) {
+            response
+              .then(function (result) {
+                defer.resolve(result)
+              })
+              .fail(function () {
+                defer.reject()
+              })
           }
         }
-      )
+      })
     }
   })
   return defer.promise
@@ -2017,29 +1994,21 @@ CoreCommandRouter.prototype.getMyVolumioStatus = function () {
 
 CoreCommandRouter.prototype.myVolumioLogout = function () {
   var self = this
-  var defer = libQ.defer()
-
   return self.executeOnPlugin('system_controller', 'my_volumio', 'myVolumioLogout', '')
 }
 
 CoreCommandRouter.prototype.enableMyVolumioDevice = function (device) {
   var self = this
-  var defer = libQ.defer()
-
   return self.executeOnPlugin('system_controller', 'my_volumio', 'enableMyVolumioDevice', device)
 }
 
 CoreCommandRouter.prototype.disableMyVolumioDevice = function (device) {
   var self = this
-  var defer = libQ.defer()
-
   return self.executeOnPlugin('system_controller', 'my_volumio', 'disableMyVolumioDevice', device)
 }
 
 CoreCommandRouter.prototype.deleteMyVolumioDevice = function (device) {
   var self = this
-  var defer = libQ.defer()
-
   return self.executeOnPlugin('system_controller', 'my_volumio', 'deleteMyVolumioDevice', device)
 }
 
@@ -2098,14 +2067,10 @@ CoreCommandRouter.prototype.usbAudioDetach = function () {
 }
 
 CoreCommandRouter.prototype.getMyMusicPlugins = function () {
-  var self = this
-
   return this.pluginManager.getMyMusicPlugins()
 }
 
 CoreCommandRouter.prototype.enableDisableMyMusicPlugin = function (data) {
-  var self = this
-
   return this.pluginManager.enableDisableMyMusicPlugin(data)
 }
 
@@ -2149,7 +2114,6 @@ CoreCommandRouter.prototype.addPluginRestEndpoint = function (data) {
 
 CoreCommandRouter.prototype.removePluginRestEndpoint = function (data) {
   var self = this
-  var updated = false
 
   if (data && data.endpoint) {
     if (self.pluginsRestEndpoints.length) {
@@ -2171,26 +2135,18 @@ CoreCommandRouter.prototype.getPluginsRestEndpoints = function () {
 }
 
 CoreCommandRouter.prototype.getPluginEnabled = function (category, pluginName) {
-  var self = this
-
   return this.pluginManager.isEnabled(category, pluginName)
 }
 
 CoreCommandRouter.prototype.getSystemVersion = function () {
-  var self = this
-
   return this.executeOnPlugin('system_controller', 'system', 'getSystemVersion', '')
 }
 
 CoreCommandRouter.prototype.getAdvancedSettingsStatus = function () {
-  var self = this
-
   return this.executeOnPlugin('system_controller', 'system', 'getAdvancedSettingsStatus', '')
 }
 
 CoreCommandRouter.prototype.getExperienceAdvancedSettings = function () {
-  var self = this
-
   return this.executeOnPlugin('system_controller', 'system', 'getExperienceAdvancedSettings', '')
 }
 
@@ -2208,8 +2164,6 @@ CoreCommandRouter.prototype.broadcastUiSettings = function () {
 // ============================  AUDIO OUTPUTS =================================
 
 CoreCommandRouter.prototype.addAudioOutput = function (data) {
-  var self = this
-
   var audioOutputPlugin = this.pluginManager.getPlugin('audio_interface', 'outputs')
   if (audioOutputPlugin != undefined && typeof audioOutputPlugin.addAudioOutput === 'function') {
     return audioOutputPlugin.addAudioOutput(data)
@@ -2219,8 +2173,6 @@ CoreCommandRouter.prototype.addAudioOutput = function (data) {
 }
 
 CoreCommandRouter.prototype.updateAudioOutput = function (data) {
-  var self = this
-
   var audioOutputPlugin = this.pluginManager.getPlugin('audio_interface', 'outputs')
   if (audioOutputPlugin != undefined && typeof audioOutputPlugin.updateAudioOutput === 'function') {
     return audioOutputPlugin.updateAudioOutput(data)
@@ -2230,8 +2182,6 @@ CoreCommandRouter.prototype.updateAudioOutput = function (data) {
 }
 
 CoreCommandRouter.prototype.removeAudioOutput = function (id) {
-  var self = this
-
   var audioOutputPlugin = this.pluginManager.getPlugin('audio_interface', 'outputs')
   if (audioOutputPlugin != undefined && typeof audioOutputPlugin.removeAudioOutput === 'function') {
     return audioOutputPlugin.removeAudioOutput(id)
@@ -2241,8 +2191,6 @@ CoreCommandRouter.prototype.removeAudioOutput = function (id) {
 }
 
 CoreCommandRouter.prototype.getAudioOutputs = function () {
-  var self = this
-
   var audioOutputPlugin = this.pluginManager.getPlugin('audio_interface', 'outputs')
   if (audioOutputPlugin != undefined && typeof audioOutputPlugin.getAudioOutputs === 'function') {
     return audioOutputPlugin.getAudioOutputs()
@@ -2252,8 +2200,6 @@ CoreCommandRouter.prototype.getAudioOutputs = function () {
 }
 
 CoreCommandRouter.prototype.enableAudioOutput = function (data) {
-  var self = this
-
   var audioOutputPlugin = this.pluginManager.getPlugin('audio_interface', 'outputs')
   if (audioOutputPlugin != undefined && typeof audioOutputPlugin.enableAudioOutput === 'function') {
     return audioOutputPlugin.enableAudioOutput(data)
@@ -2263,8 +2209,6 @@ CoreCommandRouter.prototype.enableAudioOutput = function (data) {
 }
 
 CoreCommandRouter.prototype.disableAudioOutput = function (id) {
-  var self = this
-
   var audioOutputPlugin = this.pluginManager.getPlugin('audio_interface', 'outputs')
   if (
     audioOutputPlugin != undefined &&
@@ -2277,8 +2221,6 @@ CoreCommandRouter.prototype.disableAudioOutput = function (id) {
 }
 
 CoreCommandRouter.prototype.setAudioOutputVolume = function (data) {
-  var self = this
-
   var audioOutputPlugin = this.pluginManager.getPlugin('audio_interface', 'outputs')
   if (
     audioOutputPlugin != undefined &&
@@ -2291,8 +2233,6 @@ CoreCommandRouter.prototype.setAudioOutputVolume = function (data) {
 }
 
 CoreCommandRouter.prototype.audioOutputPlay = function (data) {
-  var self = this
-
   var audioOutputPlugin = this.pluginManager.getPlugin('audio_interface', 'outputs')
   if (audioOutputPlugin != undefined && typeof audioOutputPlugin.audioOutputPlay === 'function') {
     return audioOutputPlugin.audioOutputPlay(data)
@@ -2302,8 +2242,6 @@ CoreCommandRouter.prototype.audioOutputPlay = function (data) {
 }
 
 CoreCommandRouter.prototype.audioOutputPause = function (data) {
-  var self = this
-
   var audioOutputPlugin = this.pluginManager.getPlugin('audio_interface', 'outputs')
   if (audioOutputPlugin != undefined && typeof audioOutputPlugin.audioOutputPause === 'function') {
     return audioOutputPlugin.audioOutputPause(data)
@@ -2335,22 +2273,16 @@ CoreCommandRouter.prototype.setOauthData = function (data) {
 }
 
 CoreCommandRouter.prototype.getCurrentIPAddresses = function () {
-  var self = this
-
   var networkPlugin = this.pluginManager.getPlugin('system_controller', 'network')
   return networkPlugin.getCurrentIPAddresses()
 }
 
 CoreCommandRouter.prototype.getCachedIPAddresses = function () {
-  var self = this
-
   var networkPlugin = this.pluginManager.getPlugin('system_controller', 'network')
   return networkPlugin.getCachedIPAddresses()
 }
 
 CoreCommandRouter.prototype.refreshCachedPAddresses = function () {
-  var self = this
-
   var networkPlugin = this.pluginManager.getPlugin('system_controller', 'network')
   return networkPlugin.refreshCachedPAddresses()
 }

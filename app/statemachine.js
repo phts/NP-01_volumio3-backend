@@ -101,7 +101,6 @@ CoreStateMachine.prototype.getState = function () {
       stream: this.volatileState.stream,
       updatedb: this.currentUpdate,
       volatile: true,
-      trackType: this.volatileState.trackType,
       disableUiControls: this.volatileState.disableUiControls,
       service: this.volatileState.service,
     }
@@ -151,7 +150,6 @@ CoreStateMachine.prototype.getState = function () {
         stream: this.consumeState.stream,
         updatedb: this.currentUpdate,
         volatile: false,
-        trackType: this.consumeState.trackType,
         service: this.consumeState.service,
       }
     } else {
@@ -386,8 +384,6 @@ CoreStateMachine.prototype.getNextIndex = function () {
 }
 
 CoreStateMachine.prototype.increasePlaybackTimer = function () {
-  var self = this
-
   var now = Date.now()
   this.currentSeek += now - this.playbackStart
 
@@ -483,8 +479,8 @@ CoreStateMachine.prototype.pushState = function (source) {
 
   state.pushSource = source
 
-  self.commandRouter.volumioPushState(state).then(function (data) {
-    self.checkFavourites(state).then(function (a) {
+  self.commandRouter.volumioPushState(state).then(function () {
+    self.checkFavourites(state).then(function () {
       promise.resolve({})
     })
   })
@@ -515,8 +511,8 @@ CoreStateMachine.prototype.pushEmptyState = function () {
   var state = this.getEmptyState()
 
   var self = this
-  self.commandRouter.volumioPushState(state).then(function (data) {
-    self.checkFavourites(state).then(function (a) {
+  self.commandRouter.volumioPushState(state).then(function () {
+    self.checkFavourites(state).then(function () {
       promise.resolve({})
     })
   })
@@ -814,8 +810,6 @@ CoreStateMachine.prototype.syncState = function (stateService, sService) {
           this.playQueue.removeQueueItem(this.currentPosition)
         } else {
           if (this.currentRandom !== undefined && this.currentRandom === true) {
-            var nextSongIndex = 0
-
             /**
              * Using nextRandomIndex because prefetch may have picked one sone randomly
              * from another service (thus not prefetched). This way we use the same index
@@ -979,7 +973,7 @@ CoreStateMachine.prototype.play = function (index) {
     }
 
     if (index !== undefined) {
-      return self.stop().then(function (e) {
+      return self.stop().then(function () {
         self.currentPosition = index
         return self.play()
       })
@@ -1028,7 +1022,6 @@ CoreStateMachine.prototype.play = function (index) {
 }
 
 CoreStateMachine.prototype.volatilePlay = function () {
-  var self = this
   this.commandRouter.pushConsoleMessage('CoreStateMachine::volatilePlay')
 
   if (this.isVolatile) {
@@ -1051,7 +1044,6 @@ CoreStateMachine.prototype.volatilePlay = function () {
 }
 
 CoreStateMachine.prototype.seek = function (position) {
-  var self = this
   this.commandRouter.pushConsoleMessage('CoreStateMachine::seek')
 
   // self.setConsumeUpdateService(undefined);
