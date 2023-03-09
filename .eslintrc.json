@@ -1,0 +1,20 @@
+{
+  "extends": ["@phts", "@phts/eslint-config/addons/node", "@phts/eslint-config/addons/prettier"],
+  "globals": {
+    "metrics": true
+  },
+  "rules": {
+    "import/order": 0,
+    "import/newline-after-import": 0,
+    "camelcase": 0,
+    "eqeqeq": 1,
+    "new-cap": 1,
+    "no-path-concat": 1,
+    "no-redeclare": 1,
+    "no-use-before-define": 1,
+    "no-useless-call": 1,
+    "no-var": 0,
+    "prefer-const": 1,
+    "strict": 0
+  }
+}
