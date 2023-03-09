@@ -276,6 +276,7 @@ ControllerMpd.prototype.getState = function () {
       return self
         .sendMpdCommand('playlistinfo', [collectedState.position])
         .then(function (objTrackInfo) {
+          self.logger.info('objTrackInfo:' + JSON.stringify(objTrackInfo, null, 2))
           var trackinfo = self.parseTrackInfo(objTrackInfo)
           collectedState.isStreaming =
             trackinfo.isStreaming != undefined ? trackinfo.isStreaming : false
@@ -380,7 +381,7 @@ ControllerMpd.prototype.parseTrackInfo = function (objTrackInfo) {
   var self = this
   self.logger.verbose('ControllerMpd::parseTrackInfo')
 
-  // this.commandRouter.logger.info("OBJTRACKINFO "+JSON.stringify(objTrackInfo));
+  this.commandRouter.logger.info('OBJTRACKINFO ' + JSON.stringify(objTrackInfo))
   var resp = {}
 
   if (objTrackInfo.Time === 0) {
@@ -2075,6 +2076,7 @@ ControllerMpd.prototype.explodeUri = function (uri) {
   var defer = libQ.defer()
   var items = []
   var cmd = libMpd.cmd
+  self.commandRouter.logger.info(`DEBUG: uri: ${uri}`)
 
   if (uri.startsWith('cue://')) {
     var splitted = uri.split('@')
@@ -2140,6 +2142,7 @@ ControllerMpd.prototype.explodeUri = function (uri) {
       self.mpdReady.then(function () {
         self.clientMpd.sendCommand(cmd(commandArtist, []), function (err, msg) {
           if (msg) {
+            self.commandRouter.logger.info('----->>>>> ' + msg)
             var lines = msg.split('\n')
             for (var i = 0; i < lines.length; i++) {
               var line = lines[i]
@@ -2197,6 +2200,7 @@ ControllerMpd.prototype.explodeUri = function (uri) {
       self.mpdReady.then(function () {
         self.clientMpd.sendCommand(cmd(commandAlbum, []), function (err, msg) {
           if (msg) {
+            self.commandRouter.logger.info('----->>>>> ' + msg)
             var lines = msg.split('\n')
             for (var i = 0; i < lines.length; i++) {
               var line = lines[i]
@@ -2275,6 +2279,7 @@ ControllerMpd.prototype.explodeUri = function (uri) {
       if (msg) {
         var path
         var name
+        self.commandRouter.logger.info('----->>>>> ' + msg)
         var lines = msg.split('\n')
         for (var i = 0; i < lines.length; i++) {
           var line = lines[i]
@@ -2402,6 +2407,7 @@ ControllerMpd.prototype.explodeUri = function (uri) {
       if (msg) {
         var path
         var name
+        self.commandRouter.logger.info('----->>>>> ' + msg)
         var lines = msg.split('\n')
         for (var i = 0; i < lines.length; i++) {
           var line = lines[i]
@@ -2468,7 +2474,7 @@ ControllerMpd.prototype.explodeUri = function (uri) {
         defer.resolve(result)
       } else {
         for (var j in result) {
-          // self.commandRouter.logger.info("----->>>>> " + JSON.stringify(result[j]));
+          self.commandRouter.logger.info('----->>>>> ' + JSON.stringify(result[j]))
           // console.log('AAAAAAAAALLLLLLLLLLLLLLLLLLLLL'+result[j].albumart)
           var albumartiso = result[j].albumart.substring(0, result[j].albumart.lastIndexOf('%2F'))
           if (result !== undefined && result[j].uri !== undefined) {
@@ -2501,7 +2507,7 @@ ControllerMpd.prototype.explodeUri = function (uri) {
       .all(uris)
       .then(function (result) {
         for (var j in result) {
-          // self.commandRouter.logger.info("----->>>>> "+JSON.stringify(result[j]));
+          self.commandRouter.logger.info('----->>>>> ' + JSON.stringify(result[j]))
 
           if (result !== undefined && result[j].uri !== undefined) {
             response.push({
@@ -2662,6 +2668,7 @@ ControllerMpd.prototype.scanFolder = function (uri) {
   } else {
     try {
       var stat = libFsExtra.statSync(uri)
+      self.commandRouter.logger.info(`DEBUG: stat=${JSON.stringify(stat)}`)
     } catch (err) {
       self.logger.error("scanFolder - failure to stat '" + uri + "'")
       return uris
@@ -2710,6 +2717,7 @@ ControllerMpd.prototype.scanFolder = function (uri) {
           var name
           var lines = msg.split('\n')
           var isSolved = false
+          self.commandRouter.logger.info(`DEBUG: lsinfo=${msg}`)
 
           for (var i = 0; i < lines.length; i++) {
             var line = lines[i]

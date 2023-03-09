@@ -538,6 +538,7 @@ CoreStateMachine.prototype.pushError = function (sReason) {
 CoreStateMachine.prototype.syncState = function (stateService, sService) {
   var self = this
   this.commandRouter.pushDebugConsoleMessage('CoreStateMachine::syncState')
+  this.commandRouter.pushConsoleMessage('stateService' + JSON.stringify(stateService, null, 2))
 
   // Checking if stateService is defined (REPLACE WITH CONDITIONAL LIBRARY AS SOON AS POSSIBLE)
   if (!stateService) {
