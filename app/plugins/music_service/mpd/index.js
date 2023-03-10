@@ -283,6 +283,7 @@ ControllerMpd.prototype.getState = function () {
           collectedState.artist = trackinfo.artist
           collectedState.album = trackinfo.album
           collectedState.year = trackinfo.year
+          collectedState.tracknumber = trackinfo.tracknumber
           collectedState.uri = trackinfo.uri
           collectedState.trackType = trackinfo.trackType.split('?')[0]
           return collectedState
@@ -461,6 +462,7 @@ ControllerMpd.prototype.parseTrackInfo = function (objTrackInfo) {
 
   resp.albumart = artUrl
   resp.year = objTrackInfo.Date
+  resp.tracknumber = objTrackInfo.Track
   return resp
 }
 
@@ -2719,14 +2721,14 @@ ControllerMpd.prototype.scanFolder = function (uri) {
               var artist = self.searchFor(lines, i + 1, 'Artist:')
               var album = self.searchFor(lines, i + 1, 'Album:')
               const year = self.searchFor(lines, i + 1, 'Date:')
+              const tracknumber = self.searchFor(lines, i + 1, 'Track:')
               // Include track number if tracknumber variable is set to 'true'
               if (!tracknumbers) {
                 var title = self.searchFor(lines, i + 1, 'Title:')
               } else {
                 var title1 = self.searchFor(lines, i + 1, 'Title:')
-                var track = self.searchFor(lines, i + 1, 'Track:')
-                if (track && title1) {
-                  var title = track.padStart(2, '0') + ' - ' + title1
+                if (tracknumber && title1) {
+                  var title = tracknumber.padStart(2, '0') + ' - ' + title1
                 } else {
                   var title = title1
                 }
@@ -2748,7 +2750,7 @@ ControllerMpd.prototype.scanFolder = function (uri) {
                 artist: artist,
                 album: album,
                 type: 'track',
-                tracknumber: 0,
+                tracknumber: tracknumber,
                 albumart: self.getAlbumArt(
                   {artist: artist, album: album},
                   self.getAlbumArtPathFromUri(uri)
