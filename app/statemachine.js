@@ -103,6 +103,7 @@ CoreStateMachine.prototype.getState = function () {
       volatile: true,
       disableUiControls: this.volatileState.disableUiControls,
       service: this.volatileState.service,
+      year: null,
     }
   } else if (this.isConsume) {
     // checking consumeState or the below code will throw an exception
@@ -151,6 +152,7 @@ CoreStateMachine.prototype.getState = function () {
         updatedb: this.currentUpdate,
         volatile: false,
         service: this.consumeState.service,
+        year: null,
       }
     } else {
       return this.getEmptyState()
@@ -191,6 +193,7 @@ CoreStateMachine.prototype.getState = function () {
         updatedb: this.currentUpdate,
         volatile: false,
         service: trackBlock.service,
+        year: trackBlock.year,
       }
     }
   }
@@ -224,6 +227,7 @@ CoreStateMachine.prototype.getEmptyState = function () {
     repeatSingle: this.currentRepeatSingleSong,
     updatedb: this.currentUpdate,
     consume: this.currentConsume,
+    year: null,
   }
 }
 

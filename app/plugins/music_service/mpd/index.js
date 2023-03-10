@@ -460,7 +460,7 @@ ControllerMpd.prototype.parseTrackInfo = function (objTrackInfo) {
   }
 
   resp.albumart = artUrl
-
+  resp.year = objTrackInfo.Date
   return resp
 }
 
@@ -2515,6 +2515,7 @@ ControllerMpd.prototype.explodeUri = function (uri) {
               samplerate: result[j].samplerate,
               bitdepth: result[j].bitdepth,
               trackType: result[j].trackType,
+              year: result[j].year,
             })
           }
         }
@@ -2717,6 +2718,7 @@ ControllerMpd.prototype.scanFolder = function (uri) {
 
               var artist = self.searchFor(lines, i + 1, 'Artist:')
               var album = self.searchFor(lines, i + 1, 'Album:')
+              const year = self.searchFor(lines, i + 1, 'Date:')
               // Include track number if tracknumber variable is set to 'true'
               if (!tracknumbers) {
                 var title = self.searchFor(lines, i + 1, 'Title:')
@@ -2753,6 +2755,7 @@ ControllerMpd.prototype.scanFolder = function (uri) {
                 ),
                 duration: time,
                 trackType: uri.split('.').pop(),
+                year,
               })
 
               isSolved = true
