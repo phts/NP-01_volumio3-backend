@@ -23,6 +23,52 @@ var singleBrowse = false
 var startup = true
 var stickingMusicLibrary = false
 
+function parseMpdOutput(lines, startFrom) {
+  const map = {
+    Album: 'album',
+    AlbumArtist: 'albumartist',
+    Artist: 'artist',
+    Date: 'year',
+    Genre: 'genre',
+    Pos: 'position',
+    Time: 'duration',
+    Title: 'title',
+    Track: 'tracknumber',
+  }
+  const res = Object.values(map).reduce((acc, key) => {
+    acc[key] = ''
+    return acc
+  }, {})
+  res.path = lines[startFrom].slice(6).trim()
+  const filename = res.path.split('/').pop()
+  for (let i = startFrom + 1; i < lines.length; i++) {
+    const line = lines[i]
+    if (!line) {
+      continue
+    }
+    const key = line.split(':')[0]
+    if (!key) {
+      continue
+    }
+    if (['file', 'directory'].includes(key)) {
+      break
+    }
+    const value = line.substr(line.indexOf(':') + 1, line.length).trim()
+    res[map[key]] = value
+  }
+  if (tracknumbers) {
+    if (res.tracknumber && res.title) {
+      res.title = res.tracknumber + ' - ' + res.title
+    }
+  }
+  res.duration = res.duration ? parseInt(res.duration) : 0
+  if (!res.title) {
+    res.title = filename
+  }
+  res.albumartistOrArtist = res.albumartist || res.artist
+  return res
+}
+
 // Define the ControllerMpd class
 module.exports = ControllerMpd
 function ControllerMpd(context) {
@@ -196,60 +242,31 @@ ControllerMpd.prototype.getTracklist = function () {
 // Parses the info out of the 'listallinfo' MPD command
 // Metadata fields to roughly conform to Ogg Vorbis standards (http://xiph.org/vorbis/doc/v-comment.html)
 ControllerMpd.prototype.parseListAllInfoResult = function (sInput) {
-  var arrayLines = sInput.split('\n')
-  var objReturn = {}
-  var curEntry = {}
-
-  objReturn.tracks = []
-  objReturn.playlists = []
-  var nLines = arrayLines.length
-
-  for (var i = 0; i < nLines; i++) {
-    var arrayLineParts = libFast.map(arrayLines[i].split(':'), function (sPart) {
-      return sPart.trim()
-    })
-
-    if (arrayLineParts[0] === 'file') {
-      curEntry = {
-        name: '',
+  const lines = sInput.split('\n')
+  const result = {
+    tracks: [],
+    playlists: [],
+  }
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i]
+    if (line.indexOf('file:') === 0) {
+      const {path, artist, album, title, year, tracknumber, duration, albumartist} = parseMpdOutput(lines, i)
+      result.tracks.push({
         service: this.servicename,
-        uri: arrayLineParts[1],
-        browsepath: [this.displayname].concat(arrayLineParts[1].split('/').slice(0, -1)),
-        artists: [],
-        album: '',
+        uri: path,
+        browsepath: [this.displayname].concat(path.split('/').slice(0, -1)),
+        artists: artist ? artist.split(',').map((x) => x.trim()) : [],
+        album,
+        name: title,
         genres: [],
-        performers: [],
-        tracknumber: 0,
-        year: '',
-        duration: 0,
-      }
-      objReturn.tracks.push(curEntry)
-    } else if (arrayLineParts[0] === 'playlist') {
-      // Do we even need to parse MPD playlists?
-    } else if (arrayLineParts[0] === 'Time') {
-      curEntry.duration = arrayLineParts[1]
-    } else if (arrayLineParts[0] === 'Title') {
-      curEntry.name = arrayLineParts[1]
-    } else if (arrayLineParts[0] === 'Artist') {
-      curEntry.artists = libFast.map(arrayLineParts[1].split(','), function (sArtist) {
-        // TODO - parse other options in artist string, such as "feat."
-        return sArtist.trim()
+        performers: albumartist ? albumartist.split(',').map((x) => x.trim()) : [],
+        tracknumber: tracknumber ? Number(tracknumber) : 0,
+        year,
+        duration,
       })
-    } else if (arrayLineParts[0] === 'AlbumArtist') {
-      curEntry.performers = libFast.map(arrayLineParts[1].split(','), function (sPerformer) {
-        return sPerformer.trim()
-      })
-    } else if (arrayLineParts[0] === 'Album') {
-      curEntry.album = arrayLineParts[1]
-    } else if (arrayLineParts[0] === 'Track') {
-      curEntry.tracknumber = Number(arrayLineParts[1])
-    } else if (arrayLineParts[0] === 'Date') {
-      // TODO - parse into a date object
-      curEntry.year = arrayLineParts[1]
     }
   }
-
-  return objReturn
+  return result
 }
 
 // Define a method to get the MPD state
@@ -1413,7 +1430,6 @@ ControllerMpd.prototype.lsInfo = function (uri) {
         } else {
           if (msg) {
             var s0 = sections[0] + '/'
-            var path
             var name
             var dirtype
             var lines = msg.split('\n')
@@ -1463,8 +1479,8 @@ ControllerMpd.prototype.lsInfo = function (uri) {
                   uri: s0 + path,
                 })
               } else if (line.indexOf('playlist:') === 0) {
-                path = line.slice(10)
-                name = path.split('/').pop()
+                const path = line.slice(10)
+                const name = path.split('/').pop()
                 if (path.endsWith('.cue')) {
                   try {
                     var cuesheet = parser.parse('/mnt/' + path)
@@ -1502,63 +1518,25 @@ ControllerMpd.prototype.lsInfo = function (uri) {
                   })
                 }
               } else if (line.indexOf('file:') === 0) {
-                var path = line.slice(6)
-                var name = path.split('/').pop()
-
-                var artist = self.searchFor(lines, i + 1, 'Artist:')
-                var album = self.searchFor(lines, i + 1, 'Album:')
-                if (!tracknumbers) {
-                  var title = self.searchFor(lines, i + 1, 'Title:')
-                } else {
-                  var title1 = self.searchFor(lines, i + 1, 'Title:')
-                  var track = self.searchFor(lines, i + 1, 'Track:')
-                  if (track && title1) {
-                    var title = track + ' - ' + title1
-                  } else {
-                    var title = title1
-                  }
+                const {path, artist, album, title, year, tracknumber, duration, genre} = parseMpdOutput(lines, i)
+                const albumart = self.getAlbumArt('', self.getParentFolder('/mnt/' + path), 'music')
+                let tracknumberInt
+                if (tracknumber) {
+                  tracknumberInt = parseInt(tracknumber.split('/')[0])
                 }
-                var year, albumart, tracknumber, duration, composer, genre
-                if (self.commandRouter.sharedVars.get('extendedMetas')) {
-                  year = self.searchFor(lines, i + 1, 'Date:')
-                  if (year) {
-                    year = parseInt(year)
-                  }
-
-                  albumart = self.getAlbumArt(
-                    {artist: artist, album: album},
-                    self.getParentFolder('/mnt/' + path),
-                    'fa-tags'
-                  )
-                  tracknumber = self.searchFor(lines, i + 1, 'Track:')
-
-                  if (tracknumber) {
-                    var split = tracknumber.split('/')
-                    tracknumber = parseInt(split[0])
-                  }
-
-                  duration = self.searchFor(lines, i + 1, 'Time:')
-                  composer = artist
-                  genre = self.searchFor(lines, i + 1, 'Genre:')
-                }
-
-                if (!title) {
-                  title = name
-                }
-                var albumart = self.getAlbumArt('', self.getParentFolder('/mnt/' + path), 'music')
                 list.push({
                   service: 'mpd',
                   type: 'song',
-                  title: title,
-                  artist: artist,
-                  album: album,
+                  title,
+                  artist,
+                  album,
                   uri: s0 + path,
-                  year: year,
-                  albumart: albumart,
-                  genre: genre,
-                  tracknumber: tracknumber,
-                  duration: duration,
-                  composer: composer,
+                  year: year ? parseInt(year) : '',
+                  albumart,
+                  genre,
+                  tracknumber: tracknumberInt,
+                  duration,
+                  composer: artist,
                 })
               }
             }
@@ -1597,46 +1575,25 @@ ControllerMpd.prototype.listallFolder = function (uri) {
       var list = []
       if (msg) {
         var s0 = sections[0] + '/'
-        var path
-        var name
         var lines = msg.split('\n')
         for (var i = 0; i < lines.length; i++) {
           var line = lines[i]
-
           if (line.indexOf('file:') === 0) {
-            var path = line.slice(6)
-            var name = path.split('/').pop()
-            var album = self.searchFor(lines, i + 1, 'Album:')
-            var artist = self.searchFor(lines, i + 1, 'AlbumArtist:') || self.searchFor(lines, i + 1, 'Artist:')
-            if (!tracknumbers) {
-              var title = self.searchFor(lines, i + 1, 'Title:')
-            } else {
-              var title1 = self.searchFor(lines, i + 1, 'Title:')
-              var track = self.searchFor(lines, i + 1, 'Track:')
-              if (track && title1) {
-                var title = track + ' - ' + title1
-              } else {
-                var title = title1
-              }
-            }
+            const {path, albumartistOrArtist: artist, album, title} = parseMpdOutput(lines, i)
             var albumart = self.getAlbumArt(
               {artist: artist, album: album},
               self.getParentFolder('/mnt/' + path),
               'fa-tags'
             )
-
-            if (!title) {
-              title = name
-            }
             list.push({
               service: 'mpd',
               type: 'song',
-              title: title,
-              artist: artist,
-              album: album,
+              title,
+              artist,
+              album,
               icon: 'fa fa-music',
               uri: s0 + path,
-              albumart: albumart,
+              albumart,
             })
           }
         }
@@ -1682,10 +1639,8 @@ ControllerMpd.prototype.search = function (query) {
         for (var i = 0; i < lines.length; i++) {
           var line = lines[i]
           if (line.startsWith('file:')) {
-            var artist = self.searchFor(lines, i + 1, 'Artist:')
-            //* *********Check if artist is already found and exists in 'artistsfound' array
+            const {artist} = parseMpdOutput(lines, i)
             if (artistsfound.indexOf(artist) < 0) {
-              // Artist is not in 'artistsfound' array
               artistcount++
               artistsfound.push(artist)
               subList.push({
@@ -1714,20 +1669,15 @@ ControllerMpd.prototype.search = function (query) {
         for (var i = 0; i < lines.length; i++) {
           var line = lines[i]
           if (line.startsWith('file:')) {
-            var path = line.slice(5).trimLeft()
-            var album = self.searchFor(lines, i + 1, 'Album:')
-            var artist = self.searchFor(lines, i + 1, 'AlbumArtist:') || self.searchFor(lines, i + 1, 'Artist:')
-
-            //* *******Check if album and artist combination is already found and exists in 'albumsfound' array (Allows for duplicate album names)
+            const {path, albumartistOrArtist: artist, album} = parseMpdOutput(lines, i)
             if (album != undefined && artist != undefined && albumsfound.indexOf(album + artist) < 0) {
-              // Album/Artist is not in 'albumsfound' array
               albumcount++
               albumsfound.push(album + artist)
               subList.push({
                 service: 'mpd',
                 type: 'folder',
                 title: album,
-                artist: artist,
+                artist,
                 album: '',
                 // Use the correct album / artist match
                 uri: 'albums://' + encodeURIComponent(artist) + '/' + encodeURIComponent(album),
@@ -1755,32 +1705,13 @@ ControllerMpd.prototype.search = function (query) {
           var line = lines[i]
           if (line.startsWith('file:')) {
             trackcount++
-            var path = line.slice(5).trimLeft()
-            var name = path.split('/')
-            var count = name.length
-            var artist = self.searchFor(lines, i + 1, 'Artist:')
-            var album = self.searchFor(lines, i + 1, 'Album:')
-            // Include track number if tracknumber variable is set to 'true'
-            if (!tracknumbers) {
-              var title = self.searchFor(lines, i + 1, 'Title:')
-            } else {
-              var title1 = self.searchFor(lines, i + 1, 'Title:')
-              var track = self.searchFor(lines, i + 1, 'Track:')
-              if (track && title1) {
-                var title = track + ' - ' + title1
-              } else {
-                var title = title1
-              }
-            }
-            if (title == undefined) {
-              title = name[count - 1]
-            }
+            const {path, artist, album, title} = parseMpdOutput(lines, i)
             subList.push({
               service: 'mpd',
               type: 'song',
-              title: title,
-              artist: artist,
-              album: album,
+              title,
+              artist,
+              album,
               uri: 'music-library/' + path,
               albumart: self.getAlbumArt(
                 {artist: artist, album: album},
@@ -1879,28 +1810,6 @@ ControllerMpd.prototype.search = function (query) {
   return defer.promise
 }
 
-ControllerMpd.prototype.searchFor = function (lines, startFrom, beginning) {
-  var count = lines.length
-  var i = startFrom
-
-  while (i < count) {
-    var line = lines[i]
-
-    if (line !== undefined) {
-      if (line.indexOf(beginning) === 0) {
-        return line.slice(beginning.length).trimLeft()
-      } else if (line.indexOf('file:') === 0) {
-        return ''
-      } else if (line.indexOf('directory:') === 0) {
-        return ''
-      }
-    }
-
-    i++
-  }
-  return ''
-}
-
 ControllerMpd.prototype.updateQueue = function () {
   var self = this
 
@@ -1919,27 +1828,15 @@ ControllerMpd.prototype.updateQueue = function () {
         for (var i = 0; i < lines.length; i++) {
           var line = lines[i]
           if (line.indexOf('file:') === 0) {
-            var artist = self.searchFor(lines, i + 1, 'Artist:')
-            var album = self.searchFor(lines, i + 1, 'Album:')
-            var rawtitle = self.searchFor(lines, i + 1, 'Title:')
-            var tracknumber = self.searchFor(lines, i + 1, 'Pos:')
-            var path = line.slice(5).trimLeft()
-
-            if (rawtitle) {
-              var title = rawtitle
-            } else {
-              var name = path.split('/')
-              var title = name.slice(-1)[0]
-            }
-
-            var queueItem = {
+            const {path, artist, album, title: rawtitle, position} = parseMpdOutput(lines, i)
+            const queueItem = {
               uri: path,
               service: 'mpd',
-              name: title,
+              name: rawtitle || path.split('/').slice(-1)[0],
               artist: artist,
               album: album,
               type: 'track',
-              tracknumber: tracknumber,
+              tracknumber: position,
               albumart: self.getAlbumArt({artist: artist, album: album}, path),
             }
             queue.push(queueItem)
@@ -2087,38 +1984,17 @@ ControllerMpd.prototype.explodeUri = function (uri) {
               var line = lines[i]
 
               if (line.startsWith('file:')) {
-                var path = line.slice(5).trimLeft()
-                var name = path.split('/')
-                var artist = self.searchFor(lines, i + 1, 'Artist:')
-                var album = self.searchFor(lines, i + 1, 'Album:')
-                // Include track number if tracknumber variable is set to 'true'
-                if (!tracknumbers) {
-                  var title = self.searchFor(lines, i + 1, 'Title:')
-                } else {
-                  var title1 = self.searchFor(lines, i + 1, 'Title:')
-                  var track = self.searchFor(lines, i + 1, 'Track:')
-                  if (track && title1) {
-                    var title = track + ' - ' + title1
-                  } else {
-                    var title = title1
-                  }
-                }
-                var time = parseInt(self.searchFor(lines, i + 1, 'Time:'))
-
-                if (!title) {
-                  title = name
-                }
-
+                const {path, artist, album, title, duration} = parseMpdOutput(lines, i)
                 items.push({
                   uri: 'music-library/' + path,
                   service: 'mpd',
                   name: title,
-                  artist: artist,
-                  album: album,
+                  artist,
+                  album,
                   type: 'track',
                   tracknumber: 0,
                   albumart: self.getAlbumArt({artist: artist, album: album}, uri),
-                  duration: time,
+                  duration,
                   trackType: 'mp3',
                 })
               }
@@ -2142,40 +2018,18 @@ ControllerMpd.prototype.explodeUri = function (uri) {
             var lines = msg.split('\n')
             for (var i = 0; i < lines.length; i++) {
               var line = lines[i]
-
               if (line.startsWith('file:')) {
-                var path = line.slice(5).trimLeft()
-                var name = path.split('/')
-                var artist = self.searchFor(lines, i + 1, 'Artist:')
-                var album = self.searchFor(lines, i + 1, 'Album:')
-                // Include track number if tracknumber variable is set to 'true'
-                if (!tracknumbers) {
-                  var title = self.searchFor(lines, i + 1, 'Title:')
-                } else {
-                  var title1 = self.searchFor(lines, i + 1, 'Title:')
-                  var track = self.searchFor(lines, i + 1, 'Track:')
-                  if (track && title1) {
-                    var title = track + ' - ' + title1
-                  } else {
-                    var title = title1
-                  }
-                }
-                var time = parseInt(self.searchFor(lines, i + 1, 'Time:'))
-
-                if (!title) {
-                  title = name
-                }
-
+                const {path, artist, album, title, duration} = parseMpdOutput(lines, i)
                 items.push({
                   uri: 'music-library/' + path,
                   service: 'mpd',
                   name: title,
-                  artist: artist,
-                  album: album,
+                  artist,
+                  album,
                   type: 'track',
                   tracknumber: 0,
                   albumart: self.getAlbumArt({artist: artist, album: album}, uri),
-                  duration: time,
+                  duration,
                   trackType: 'mp3',
                 })
               }
@@ -2214,49 +2068,25 @@ ControllerMpd.prototype.explodeUri = function (uri) {
     self.clientMpd.sendCommand(cmd(GetAlbum, []), function (err, msg) {
       var list = []
       if (msg) {
-        var path
-        var name
         var lines = msg.split('\n')
         for (var i = 0; i < lines.length; i++) {
           var line = lines[i]
           if (line.indexOf('file:') === 0) {
-            var path = line.slice(6)
-            var name = path.split('/').pop()
-
-            var artist = self.searchFor(lines, i + 1, 'Artist:')
-            var album = self.searchFor(lines, i + 1, 'Album:')
-
-            // Include track number if tracknumber variable is set to 'true'
-            if (!tracknumbers) {
-              var title = self.searchFor(lines, i + 1, 'Title:')
-            } else {
-              var title1 = self.searchFor(lines, i + 1, 'Title:')
-              var track = self.searchFor(lines, i + 1, 'Track:')
-              if (track && title1) {
-                var title = track + ' - ' + title1
-              } else {
-                var title = title1
-              }
-            }
+            const {path, artist, album, title, duration} = parseMpdOutput(lines, i)
             var albumart = self.getAlbumArt(
               {artist: artist, album: album, icon: 'dot-circle-o'},
               self.getParentFolder('/mnt/' + path)
             )
-            var time = parseInt(self.searchFor(lines, i + 1, 'Time:'))
-
-            if (!title) {
-              title = name
-            }
             list.push({
               uri: 'music-library/' + path,
               service: 'mpd',
               name: title,
-              artist: artist,
-              album: album,
+              artist,
+              album,
               type: 'track',
               tracknumber: 0,
-              albumart: albumart,
-              duration: time,
+              albumart,
+              duration,
               trackType: path.split('.').pop(),
             })
           }
@@ -2326,46 +2156,23 @@ ControllerMpd.prototype.explodeUri = function (uri) {
     self.clientMpd.sendCommand(cmd(GetMatches, []), function (err, msg) {
       var list = []
       if (msg) {
-        var path
-        var name
         var lines = msg.split('\n')
         for (var i = 0; i < lines.length; i++) {
           var line = lines[i]
           if (line.indexOf('file:') === 0) {
-            var path = line.slice(6)
-            var name = path.split('/').pop()
-            var artist = self.searchFor(lines, i + 1, 'Artist:')
-            var album = self.searchFor(lines, i + 1, 'Album:')
-            // Include track number if tracknumber variable is set to 'true'
-            if (!tracknumbers) {
-              var title = self.searchFor(lines, i + 1, 'Title:')
-            } else {
-              var title1 = self.searchFor(lines, i + 1, 'Title:')
-              var track = self.searchFor(lines, i + 1, 'Track:')
-              if (track && title1) {
-                var title = track + ' - ' + title1
-              } else {
-                var title = title1
-              }
-            }
+            const {path, artist, album, title, duration} = parseMpdOutput(lines, i)
             var albumart = self.getAlbumArt({artist: artist, album: album}, self.getParentFolder('/mnt/' + path))
-            var time = parseInt(self.searchFor(lines, i + 1, 'Time:'))
-
-            if (!title) {
-              title = name
-            }
-
             if (title !== '') {
               list.push({
                 uri: 'music-library/' + path,
                 service: 'mpd',
                 name: title,
-                artist: artist,
-                album: album,
+                artist,
+                album,
                 type: 'track',
                 tracknumber: 0,
                 albumart: albumart,
-                duration: time,
+                duration,
                 trackType: path.split('.').pop(),
               })
             }
@@ -2494,45 +2301,22 @@ ControllerMpd.prototype.exploderArtist = function (err, msg, defer) {
   var self = this
   var list = []
   if (msg) {
-    var path
-    var name
     var lines = msg.split('\n')
     for (var i = 0; i < lines.length; i++) {
       var line = lines[i]
       if (line.indexOf('file:') === 0) {
-        var path = line.slice(6)
-        var name = path.split('/').pop()
-
-        var artist = self.searchFor(lines, i + 1, 'Artist:')
-        var album = self.searchFor(lines, i + 1, 'Album:')
-        // Include track number if tracknumber variable is set to 'true'
-        if (!tracknumbers) {
-          var title = self.searchFor(lines, i + 1, 'Title:')
-        } else {
-          var title1 = self.searchFor(lines, i + 1, 'Title:')
-          var track = self.searchFor(lines, i + 1, 'Track:')
-          if (track && title1) {
-            var title = track + ' - ' + title1
-          } else {
-            var title = title1
-          }
-        }
+        const {path, artist, album, title, duration} = parseMpdOutput(lines, i)
         var albumart = self.getAlbumArt({artist: artist, album: album}, self.getParentFolder('/mnt/' + path))
-        var time = parseInt(self.searchFor(lines, i + 1, 'Time:'))
-
-        if (!title) {
-          title = name
-        }
         list.push({
           uri: 'music-library/' + path,
           service: 'mpd',
           name: title,
-          artist: artist,
-          album: album,
+          artist,
+          album,
           type: 'track',
           tracknumber: 0,
-          albumart: albumart,
-          duration: time,
+          albumart,
+          duration,
           trackType: path.split('.').pop(),
         })
       }
@@ -2617,50 +2401,25 @@ ControllerMpd.prototype.scanFolder = function (uri) {
     self.mpdReady.then(function () {
       self.clientMpd.sendCommand(cmd(command, []), function (err, msg) {
         if (msg) {
-          var path
-          var name
           var lines = msg.split('\n')
           var isSolved = false
 
           for (var i = 0; i < lines.length; i++) {
             var line = lines[i]
-
             if (line.indexOf('file:') === 0) {
-              var path = line.slice(6)
-              var name = path.split('/').pop()
-
-              var artist = self.searchFor(lines, i + 1, 'Artist:')
-              var album = self.searchFor(lines, i + 1, 'Album:')
-              // Include track number if tracknumber variable is set to 'true'
-              if (!tracknumbers) {
-                var title = self.searchFor(lines, i + 1, 'Title:')
-              } else {
-                var title1 = self.searchFor(lines, i + 1, 'Title:')
-                var track = self.searchFor(lines, i + 1, 'Track:')
-                if (track && title1) {
-                  var title = track + ' - ' + title1
-                } else {
-                  var title = title1
-                }
-              }
-              var time = parseInt(self.searchFor(lines, i + 1, 'Time:'))
-
-              if (!title) {
-                title = name
-              }
-              self.commandRouter.logger.info('ALBUMART ' + self.getAlbumArt({artist: artist, album: album}, uri))
+              const {artist, album, title, duration} = parseMpdOutput(lines, i)
               self.commandRouter.logger.info('URI ' + uri)
-
+              self.commandRouter.logger.info('ALBUMART ' + self.getAlbumArt({artist: artist, album: album}, uri))
               defer.resolve({
                 uri: 'music-library/' + self.fromPathToUri(uri),
                 service: 'mpd',
                 name: title,
-                artist: artist,
-                album: album,
+                artist,
+                album,
                 type: 'track',
                 tracknumber: 0,
                 albumart: self.getAlbumArt({artist: artist, album: album}, self.getAlbumArtPathFromUri(uri)),
-                duration: time,
+                duration,
                 trackType: uri.split('.').pop(),
               })
 
@@ -2702,37 +2461,13 @@ ControllerMpd.prototype.explodeISOFile = function (uri) {
   self.mpdReady.then(function () {
     self.clientMpd.sendCommand(cmd(command, []), function (err, msg) {
       if (msg) {
-        var path
-        var name
         var lines = msg.split('\n')
-
         for (var i = 0; i < lines.length; i++) {
           var line = lines[i]
 
           if (line.indexOf('file:') === 0) {
-            var path = line.slice(6)
-            var name = path.split('/').pop()
-
-            var artist = self.searchFor(lines, i + 1, 'Artist:')
-            var album = self.searchFor(lines, i + 1, 'Album:')
-            var ISOuri = self.searchFor(lines, i, 'file:')
-            // Include track number if tracknumber variable is set to 'true'
-            if (!tracknumbers) {
-              var title = self.searchFor(lines, i + 1, 'Title:')
-            } else {
-              var title1 = self.searchFor(lines, i + 1, 'Title:')
-              var track = self.searchFor(lines, i + 1, 'Track:')
-              if (track && title1) {
-                var title = track + ' - ' + title1
-              } else {
-                var title = title1
-              }
-            }
-            var time = parseInt(self.searchFor(lines, i + 1, 'Time:'))
-
-            if (!title) {
-              title = name
-            }
+            const {path, artist, album, title, duration} = parseMpdOutput(lines, i)
+            self.commandRouter.logger.info('URI ' + uri)
             self.commandRouter.logger.info(
               'ALBUMART ' +
                 self.getAlbumArt(
@@ -2743,24 +2478,22 @@ ControllerMpd.prototype.explodeISOFile = function (uri) {
                   uri
                 )
             )
-            self.commandRouter.logger.info('URI ' + uri)
-
             ISOlist.push({
-              uri: ISOuri,
+              uri: path,
               service: 'mpd',
               name: title,
-              artist: artist,
-              album: album,
+              artist,
+              album,
               type: 'track',
               tracknumber: 0,
               albumart: self.getAlbumArt(
                 {
-                  artist: artist,
-                  album: album,
+                  artist,
+                  album,
                 },
                 self.getAlbumArtPathFromUri(uri)
               ),
-              duration: time,
+              duration,
               samplerate: '',
               bitdepth: '',
               trackType: uri.split('.').pop(),
@@ -3074,10 +2807,9 @@ ControllerMpd.prototype.listAlbums = function (ui) {
           for (var i = 0; i < lines.length; i++) {
             var line = lines[i]
             if (line.startsWith('file:')) {
-              var path = line.slice(6)
-              var albumName = self.searchFor(lines, i + 1, 'Album:')
-              var albumYear = self.searchFor(lines, i + 1, 'Date:')
-              var artistName = self.searchFor(lines, i + 1, 'AlbumArtist:') || self.searchFor(lines, i + 1, 'Artist:')
+              const {path, album, year: albumYear, albumartistOrArtist} = parseMpdOutput(lines, i)
+              let albumName = album
+              let artistName = albumartistOrArtist
 
               // This causes all orphaned tracks (tracks without an album) in the Albums view to be
               //  grouped into a single dummy-album, rather than creating one such dummy-album per artist.
@@ -3091,7 +2823,7 @@ ControllerMpd.prototype.listAlbums = function (ui) {
               if (albumsfound.indexOf(albumId) < 0) {
                 // Album/Artist is not in 'albumsfound' array
                 albumsfound.push(albumId)
-                var album = {
+                const item = {
                   service: 'mpd',
                   type: 'folder',
                   title: albumName,
@@ -3106,7 +2838,7 @@ ControllerMpd.prototype.listAlbums = function (ui) {
                     'dot-circle-o'
                   ),
                 }
-                response.navigation.lists[0].items.push(album)
+                response.navigation.lists[0].items.push(item)
               }
             }
           }
@@ -3138,8 +2870,8 @@ ControllerMpd.prototype.listAlbumSongs = function (uri, index, previous) {
 
   if (splitted[0] == 'genres:') {
     // genre
-    var genre = decodeURIComponent(splitted[2])
-    var artist = decodeURIComponent(splitted[3])
+    const genre = decodeURIComponent(splitted[2])
+    const artist = decodeURIComponent(splitted[3])
     var albumName = decodeURIComponent(splitted[4])
     var safeGenre = genre.replace(/"/g, '\\"')
     var safeArtist = artist.replace(/"/g, '\\"')
@@ -3154,7 +2886,7 @@ ControllerMpd.prototype.listAlbumSongs = function (uri, index, previous) {
     }
   } else if (splitted[0] == 'albums:') {
     // album
-    var artist = decodeURIComponent(splitted[2])
+    const artist = decodeURIComponent(splitted[2])
     var albumName = decodeURIComponent(splitted[3])
     var safeArtist = artist.replace(/"/g, '\\"')
     var safeAlbumName = albumName.replace(/"/g, '\\"')
@@ -3165,7 +2897,7 @@ ControllerMpd.prototype.listAlbumSongs = function (uri, index, previous) {
     var findstring = 'find album "' + safeAlbumName + '"' + artistSubQuery
   } else {
     // artist
-    var artist = decodeURIComponent(splitted[2])
+    const artist = decodeURIComponent(splitted[2])
     var albumName = decodeURIComponent(splitted[3])
     var safeArtist = artist.replace(/"/g, '\\"')
     var safeAlbumName = albumName.replace(/"/g, '\\"')
@@ -3206,76 +2938,61 @@ ControllerMpd.prototype.listAlbumSongs = function (uri, index, previous) {
   }
 
   var cmd = libMpd.cmd
-  var duration = 0
-  var genre = ''
-  var albumTrackType = ''
+  var totalDuration = 0
+  let respTrackType = ''
+  let respArtist
+  let respAlbum
+  let respYear
+  let respGenre
 
   self.clientMpd.sendCommand(cmd(findstring, []), function (err, msg) {
     if (msg) {
-      var path
-      var name
       var lines = msg.split('\n')
       for (var i = 0; i < lines.length; i++) {
         var line = lines[i]
         if (line.indexOf('file:') === 0) {
-          var path = line.slice(6)
-          var name = path.split('/').pop()
-
-          var artist = self.searchFor(lines, i + 1, 'Artist:')
-          var album = self.searchFor(lines, i + 1, 'Album:')
-          var year = self.searchFor(lines, i + 1, 'Date:')
-
-          var track = self.searchFor(lines, i + 1, 'Track:')
-          var title = self.searchFor(lines, i + 1, 'Title:')
-
-          // Include track number if tracknumbers variable is set to 'true'
-          if (tracknumbers && track) {
-            var title = track + ' - ' + title
-          }
-
+          const {path, artist, album, title, year, tracknumber, duration, genre} = parseMpdOutput(lines, i)
           var albumart = self.getAlbumArt({artist: artist, album: album}, self.getParentFolder(path), 'dot-circle-o')
-          var time = parseInt(self.searchFor(lines, i + 1, 'Time:'))
           var trackType = path.split('.').pop()
-          duration = duration + parseInt(self.searchFor(lines, i + 1, 'Time:'))
-          genre = self.searchFor(lines, i + 1, 'Genre:')
-          albumTrackType = trackType
-
-          if (!title) {
-            title = name
-          }
+          totalDuration = totalDuration + duration
+          respTrackType = trackType
+          respArtist = artist
+          respAlbum = album
+          respYear = year
+          respGenre = genre
           response.navigation.lists[0].items.push({
             uri: 'music-library/' + path,
             service: 'mpd',
-            title: title,
-            artist: artist,
-            album: album,
+            title,
+            artist,
+            album,
             type: 'song',
-            tracknumber: track,
-            duration: time,
-            trackType: trackType,
+            tracknumber,
+            duration,
+            trackType,
           })
         }
       }
-      if (duration != undefined && duration > 0) {
-        var durationminutes = Math.floor(duration / 60)
-        var durationseconds = duration - durationminutes * 60
+      if (totalDuration && totalDuration > 0) {
+        var durationminutes = Math.floor(totalDuration / 60)
+        var durationseconds = totalDuration - durationminutes * 60
         if (durationseconds < 10) {
           durationseconds = '0' + durationseconds
         }
-        duration = durationminutes + ':' + durationseconds
+        totalDuration = durationminutes + ':' + durationseconds
       }
       var isOrphanAlbum = uri === 'albums://*/'
-      duration = response.navigation.info = {
-        uri: uri,
+      response.navigation.info = {
+        uri,
         service: 'mpd',
-        artist: isOrphanAlbum ? '*' : artist,
-        album: album,
-        albumart: albumart,
-        year: isOrphanAlbum ? '' : year,
-        genre: isOrphanAlbum ? '' : genre,
+        artist: isOrphanAlbum ? '*' : respArtist,
+        album: respAlbum,
+        albumart,
+        year: isOrphanAlbum ? '' : respYear,
+        genre: isOrphanAlbum ? '' : respGenre,
         type: 'album',
-        trackType: albumTrackType,
-        duration: duration,
+        trackType: respTrackType,
+        duration: totalDuration,
       }
     } else self.logger.error('Listalbum songs error: ' + err)
 
@@ -3443,60 +3160,24 @@ ControllerMpd.prototype.listArtist = function (curUri, index, previous, uriBegin
   return defer.promise
 }
 
-ControllerMpd.prototype.parseListAlbum = function (err, msg, defer, response, uriBegin, VA) {
+ControllerMpd.prototype.parseListAlbum = function (err, msg, defer, response, uriBegin) {
   var self = this
-  var albums = [],
-    albumarts = []
+  var albums = []
   if (msg) {
-    var path
-    var name
     var lines = msg.split('\n')
-
     for (var i = 0; i < lines.length; i++) {
       var line = lines[i]
       if (line.indexOf('file:') === 0) {
-        var path = line.slice(6)
-        var name = path.split('/').pop()
-        if (VA === 1) {
-          var artist = self.searchFor(lines, i + 1, 'AlbumArtist:') || self.searchFor(lines, i + 1, 'Artist:')
-        } else {
-          var artistSortAlbumArtist = self.searchFor(lines, i + 1, 'AlbumArtist:')
-          var artistSortArtist = self.searchFor(lines, i + 1, 'Artist:')
-          if (artistsort && artistSortAlbumArtist) {
-            var artist = artistSortAlbumArtist
-          } else {
-            var artist = artistSortArtist
-          }
-        }
-        var album = self.searchFor(lines, i + 1, 'Album:')
-        var genre = self.searchFor(lines, i + 1, 'Genre:')
-        var year = self.searchFor(lines, i + 1, 'Date:')
-        // Include track number if tracknumber variable is set to 'true'
-        if (!tracknumbers) {
-          var title = self.searchFor(lines, i + 1, 'Title:')
-        } else {
-          var title1 = self.searchFor(lines, i + 1, 'Title:')
-          var track = self.searchFor(lines, i + 1, 'Track:')
-          if (track && title1) {
-            var title = track + ' - ' + title1
-          } else {
-            var title = title1
-          }
-        }
+        const {path, albumartistOrArtist: artist, album, title, year, genre} = parseMpdOutput(lines, i)
         var albumart = self.getAlbumArt({artist: artist, album: album}, self.getParentFolder(path), 'dot-circle-o')
-
-        if (!title) {
-          title = name
-        }
-
         response.navigation.lists[1].items.push({
           service: 'mpd',
           type: 'song',
-          title: title,
-          artist: artist,
-          album: album,
-          year: year,
-          albumart: albumart,
+          title,
+          artist,
+          album,
+          year,
+          albumart,
           uri: 'music-library/' + path,
         })
 
@@ -3505,8 +3186,6 @@ ControllerMpd.prototype.parseListAlbum = function (err, msg, defer, response, ur
         //  as orphaned tracks remain accessible from the tracks-list.
         if (album !== '' && albums.indexOf(album) === -1) {
           albums.push(album)
-          albumarts.push()
-
           var uri
 
           if (uriBegin === 'artists://') {
@@ -3527,9 +3206,9 @@ ControllerMpd.prototype.parseListAlbum = function (err, msg, defer, response, ur
             service: 'mpd',
             type: 'folder',
             title: album,
-            artist: artist,
+            artist,
             albumart: self.getAlbumArt({artist: artist, album: album}, self.getParentFolder(path), 'dot-circle-o'),
-            uri: uri,
+            uri,
           })
         }
       }
@@ -3641,53 +3320,28 @@ ControllerMpd.prototype.listGenre = function (curUri) {
     }
     self.clientMpd.sendCommand(cmd(findString, []), function (err, msg) {
       var albums = []
-      var albumsArt = []
       var artists = []
-      var artistArt = []
 
       if (msg) {
-        var path
-        var name
         var lines = msg.split('\n')
         for (var i = 0; i < lines.length; i++) {
           var line = lines[i]
           if (line.indexOf('file:') === 0) {
-            var path = line.slice(6)
-            var name = path.split('/').pop()
-            var artist = self.searchFor(lines, i + 1, 'AlbumArtist:') || self.searchFor(lines, i + 1, 'Artist:')
-            var album = self.searchFor(lines, i + 1, 'Album:')
-            // Include track number if tracknumber variable is set to 'true'
-            if (!tracknumbers) {
-              var title = self.searchFor(lines, i + 1, 'Title:')
-            } else {
-              var title1 = self.searchFor(lines, i + 1, 'Title:')
-              var track = self.searchFor(lines, i + 1, 'Track:')
-              if (track && title1) {
-                var title = track + ' - ' + title1
-              } else {
-                var title = title1
-              }
-            }
+            const {path, albumartistOrArtist: artist, album} = parseMpdOutput(lines, i)
             var albumart = self.getAlbumArt({artist: artist, album: album}, self.getParentFolder(path), 'dot-circle-o')
-
-            if (!title) {
-              title = name
-            }
 
             if (artistsort) {
               // for albumArtist
-
               if (albums.indexOf(album) === -1) {
                 albums.push(album)
-                albumsArt.push(albumart)
 
                 if (album !== '') {
                   response.navigation.lists[0].items.push({
                     service: 'mpd',
                     type: 'folder',
                     title: album,
-                    artist: artist,
-                    albumart: albumart,
+                    artist,
+                    albumart,
                     uri:
                       'genres://' +
                       encodeURIComponent(genreName) +
@@ -3701,8 +3355,6 @@ ControllerMpd.prototype.listGenre = function (curUri) {
 
               if (artists.indexOf(artist) === -1) {
                 artists.push(artist)
-                artistArt.push()
-
                 if (artist !== '') {
                   response.navigation.lists[1].items.push({
                     service: 'mpd',
@@ -3715,18 +3367,15 @@ ControllerMpd.prototype.listGenre = function (curUri) {
               }
             } else {
               // for artist
-
               if (albums.indexOf(album) === -1) {
                 albums.push(album)
-                albumsArt.push(albumart)
-
                 if (album !== '') {
                   response.navigation.lists[0].items.push({
                     service: 'mpd',
                     type: 'folder',
                     title: album,
-                    artist: artist,
-                    albumart: albumart,
+                    artist,
+                    albumart,
                     uri:
                       'genres://' +
                       encodeURIComponent(genreName) +
@@ -3740,8 +3389,6 @@ ControllerMpd.prototype.listGenre = function (curUri) {
 
               if (artists.indexOf(artist) === -1) {
                 artists.push(artist)
-                artistArt.push()
-
                 if (artist !== '') {
                   response.navigation.lists[1].items.push({
                     service: 'mpd',
