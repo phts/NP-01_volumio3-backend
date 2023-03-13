@@ -461,7 +461,7 @@ ControllerMpd.prototype.parseTrackInfo = function (objTrackInfo) {
   }
 
   resp.albumart = artUrl
-
+  resp.year = objTrackInfo.Date
   return resp
 }
 
@@ -2244,6 +2244,7 @@ ControllerMpd.prototype.explodeUri = function (uri) {
               samplerate: result[j].samplerate,
               bitdepth: result[j].bitdepth,
               trackType: result[j].trackType,
+              year: result[j].year,
             })
           }
         }
@@ -2404,7 +2405,7 @@ ControllerMpd.prototype.scanFolder = function (uri) {
           for (var i = 0; i < lines.length; i++) {
             var line = lines[i]
             if (line.indexOf('file:') === 0) {
-              const {artist, album, title, duration} = parseMpdOutput(lines, i)
+              const {artist, album, title, duration, year} = parseMpdOutput(lines, i)
               self.commandRouter.logger.info('URI ' + uri)
               self.commandRouter.logger.info('ALBUMART ' + self.getAlbumArt({artist: artist, album: album}, uri))
               defer.resolve({
@@ -2418,6 +2419,7 @@ ControllerMpd.prototype.scanFolder = function (uri) {
                 albumart: self.getAlbumArt({artist: artist, album: album}, self.getAlbumArtPathFromUri(uri)),
                 duration,
                 trackType: uri.split('.').pop(),
+                year,
               })
 
               isSolved = true
