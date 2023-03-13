@@ -58,7 +58,7 @@ function parseMpdOutput(lines, startFrom) {
   }
   if (tracknumbers) {
     if (res.tracknumber && res.title) {
-      res.title = res.tracknumber + ' - ' + res.title
+      res.title = res.tracknumber.padStart(2, '0') + ' - ' + res.title
     }
   }
   res.duration = res.duration ? parseInt(res.duration) : 0
