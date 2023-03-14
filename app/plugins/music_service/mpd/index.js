@@ -344,7 +344,7 @@ ControllerMpd.prototype.sendMpdCommand = function (sCommand, arrayParameters) {
       return libQ.nfcall(self.clientMpd.sendCommand.bind(self.clientMpd), libMpd.cmd(sCommand, arrayParameters))
     })
     .then(function (response) {
-      var respobject = libMpd.parseKeyValueMessage.call(libMpd, response)
+      var respobject = libMpd.parseKeyValueMessage(response)
       // If there's an error show an alert on UI
       if ('error' in respobject) {
         self.commandRouter.broadcastToastMessage('error', 'Error', respobject.error)
@@ -501,25 +501,25 @@ ControllerMpd.prototype.parseState = function (objState) {
     var nSampleRateRaw = Number(objMetrics[0]) / 1000
     nBitDepth = Number(objMetrics[1]) + ' bit'
     nChannels = Number(objMetrics[2])
-    if (objMetrics[1] == 'f') {
+    if (objMetrics[1] === 'f') {
       nBitDepth = '32 bit'
-    } else if (objMetrics[0] == 'dsd64') {
+    } else if (objMetrics[0] === 'dsd64') {
       var nSampleRateRaw = '2.82 MHz'
       nBitDepth = '1 bit'
       nChannels = 2
-    } else if (objMetrics[0] == 'dsd128') {
+    } else if (objMetrics[0] === 'dsd128') {
       var nSampleRateRaw = '5.64 MHz'
       nBitDepth = '1 bit'
       nChannels = 2
-    } else if (objMetrics[0] == 'dsd256') {
+    } else if (objMetrics[0] === 'dsd256') {
       var nSampleRateRaw = '11.28 MHz'
       nBitDepth = '1 bit'
       nChannels = 2
-    } else if (objMetrics[0] == 'dsd512') {
+    } else if (objMetrics[0] === 'dsd512') {
       var nSampleRateRaw = '22.58 MHz'
       nBitDepth = '1 bit'
       nChannels = 2
-    } else if (objMetrics[1] == 'dsd') {
+    } else if (objMetrics[1] === 'dsd') {
       if (nSampleRateRaw === 352.8) {
         var nSampleRateRaw = '2.82 MHz'
         nBitDepth = '1 bit'
@@ -539,12 +539,12 @@ ControllerMpd.prototype.parseState = function (objState) {
   }
   var random = null
   if ('random' in objState) {
-    random = objState.random == 1
+    random = objState.random === 1
   }
 
   var repeat = null
   if ('repeat' in objState) {
-    repeat = objState.repeat == 1
+    repeat = objState.repeat === 1
   }
 
   var sStatus = null
@@ -704,7 +704,7 @@ ControllerMpd.prototype.mpdEstablish = function () {
   self.clientMpd.on('system', function (status) {
     var timeStart = Date.now()
 
-    if (!ignoreupdate && status != 'playlist' && status != undefined) {
+    if (!ignoreupdate && status !== 'playlist' && status != undefined) {
       self
         .logStart('MPD announces state update: ' + status)
         .then(self.getState.bind(self))
@@ -1298,8 +1298,6 @@ ControllerMpd.prototype.browsePlaylist = function (uri) {
     },
   }
 
-  var name = uri.split('/')[1]
-
   var promise = self.commandRouter.playListManager.getPlaylistContent(name)
   promise.then(function (data) {
     var n = data.length
@@ -1388,7 +1386,7 @@ ControllerMpd.prototype.lsInfo = function (uri) {
             },
           ]
 
-          for (var i in browseSources) {
+          for (const i in browseSources) {
             list.push(browseSources[i])
           }
 
@@ -1424,46 +1422,46 @@ ControllerMpd.prototype.lsInfo = function (uri) {
             },
           ]
 
-          for (var i in musicLibrary) {
+          for (const i in musicLibrary) {
             list.push(musicLibrary[i])
           }
         } else {
           if (msg) {
-            var s0 = sections[0] + '/'
-            var name
-            var dirtype
-            var lines = msg.split('\n')
-            for (var i = 0; i < lines.length; i++) {
-              var line = lines[i]
+            const s0 = sections[0] + '/'
+            const lines = msg.split('\n')
+            for (let i = 0; i < lines.length; i++) {
+              const line = lines[i]
 
               if (line.indexOf('directory:') === 0) {
-                path = line.slice(11)
-                var namearr = path.split('/')
-                name = namearr[namearr.length - 1]
+                const path = line.slice(11)
+                const namearr = path.split('/')
+                const name = namearr[namearr.length - 1]
 
                 // early out to exclude hidden folders (eg. ".Trashes")
                 if (name.startsWith('.')) {
                   continue
                 }
 
+                let albumart
                 if (uri === 'music-library') {
                   switch (path) {
                     case 'INTERNAL':
-                      var albumart = self.getAlbumArt('', '', 'microchip')
+                      albumart = self.getAlbumArt('', '', 'microchip')
                       break
                     case 'NAS':
-                      var albumart = self.getAlbumArt('', '', 'server')
+                      albumart = self.getAlbumArt('', '', 'server')
                       break
                     case 'USB':
-                      var albumart = self.getAlbumArt('', '', 'usb')
+                      albumart = self.getAlbumArt('', '', 'usb')
                       break
                     default:
-                      var albumart = self.getAlbumArt('', '/mnt/' + path, 'folder-o')
+                      albumart = self.getAlbumArt('', '/mnt/' + path, 'folder-o')
                   }
                 } else {
-                  var albumart = self.getAlbumArt('', '/mnt/' + path, 'folder-o')
+                  albumart = self.getAlbumArt('', '/mnt/' + path, 'folder-o')
                 }
-                if (namearr.length == 2 && namearr[0] == 'USB') {
+                let dirtype
+                if (namearr.length === 2 && namearr[0] === 'USB') {
                   dirtype = 'remdisk'
                 } else if (uri.indexOf('music-library/INTERNAL') >= 0) {
                   dirtype = 'internal-folder'
@@ -1776,8 +1774,7 @@ ControllerMpd.prototype.search = function (query) {
       }
 
       if (values[2]) {
-        var trackdesc = self.commandRouter.getI18nString('COMMON.TRACK')
-        if (trackcount > 1) var trackdesc = self.commandRouter.getI18nString('COMMON.TRACKS')
+        var trackdesc = self.commandRouter.getI18nString(trackcount > 1 ? 'COMMON.TRACKS' : 'COMMON.TRACK')
         var songList = {
           title:
             self.commandRouter.getI18nString('COMMON.FOUND') +
@@ -1797,7 +1794,7 @@ ControllerMpd.prototype.search = function (query) {
       }
 
       list = list.filter(function (v) {
-        return !!v == true
+        return !!v === true
       })
 
       defer.resolve(list)
@@ -2717,7 +2714,7 @@ ControllerMpd.prototype.handleBrowseUri = function (curUri) {
 
   // playlist
   else if (curUri.startsWith('playlists')) {
-    if (curUri == 'playlists') {
+    if (curUri === 'playlists') {
       response = self.listPlaylists(curUri)
     } else {
       response = self.browsePlaylist(curUri)
@@ -2726,7 +2723,7 @@ ControllerMpd.prototype.handleBrowseUri = function (curUri) {
 
   // albums
   else if (curUri.startsWith('albums://')) {
-    if (curUri == 'albums://') {
+    if (curUri === 'albums://') {
       // Just list albums
       response = self.listAlbums(curUri)
     } else {
@@ -2740,10 +2737,10 @@ ControllerMpd.prototype.handleBrowseUri = function (curUri) {
 
   // artists
   else if (curUri.startsWith('artists://')) {
-    if (curUri == 'artists://') {
+    if (curUri === 'artists://') {
       response = self.listArtists(curUri)
     } else {
-      if (splitted.length == 3) {
+      if (splitted.length === 3) {
         // No album name
         response = self.listArtist(curUri, 2, 'artists://', 'artists://') // Pass back to listArtist
       } else {
@@ -2755,7 +2752,7 @@ ControllerMpd.prototype.handleBrowseUri = function (curUri) {
 
   // genres
   else if (curUri.startsWith('genres://')) {
-    if (curUri == 'genres://') {
+    if (curUri === 'genres://') {
       response = self.listGenres(curUri)
     } else {
       if (splitted.length == 3) {
@@ -2868,7 +2865,7 @@ ControllerMpd.prototype.listAlbumSongs = function (uri, index, previous) {
   var defer = libQ.defer()
   var splitted = uri.split('/')
 
-  if (splitted[0] == 'genres:') {
+  if (splitted[0] === 'genres:') {
     // genre
     const genre = decodeURIComponent(splitted[2])
     const artist = decodeURIComponent(splitted[3])
@@ -3108,38 +3105,39 @@ ControllerMpd.prototype.listArtist = function (curUri, index, previous, uriBegin
   }
 
   self.mpdReady.then(function () {
-    var artist = decodeURIComponent(splitted[index])
+    let artist = decodeURIComponent(splitted[index])
     var VA = 0
     var cmd = libMpd.cmd
     var safeArtist = artist.replace(/"/g, '\\"')
+    let findartist
 
     if (uriBegin === 'genres://') {
       try {
         var genreString = curUri.replace('genres://', '')
         var genre = decodeURIComponent(genreString.split('/')[0])
         var safeGenre = genre.replace(/"/g, '\\"')
-        var artist = decodeURIComponent(genreString.split('/')[1])
+        artist = decodeURIComponent(genreString.split('/')[1])
         safeArtist = artist.replace(/"/g, '\\"')
       } catch (e) {
         self.logger.error('Cannot browse genre: ' + e)
       }
       if (artistsort) {
-        var findartist = 'find albumartist "' + safeArtist + '" genre "' + safeGenre + '" '
+        findartist = 'find albumartist "' + safeArtist + '" genre "' + safeGenre + '" '
       } else {
-        var findartist = 'find artist "' + safeArtist + '" genre "' + safeGenre + '" '
+        findartist = 'find artist "' + safeArtist + '" genre "' + safeGenre + '" '
       }
     } else {
       if (compilation.indexOf(artist) > -1) {
         // artist is in compilation array so use albumartist
-        var findartist = 'find albumartist "' + safeArtist + '"'
+        findartist = 'find albumartist "' + safeArtist + '"'
         VA = 1
       } else {
         // artist is NOT in compilation array so use artist or albumartist
         if (artistsort) {
           // Fix - now set by artistsort variable
-          var findartist = 'find albumartist "' + safeArtist + '"'
+          findartist = 'find albumartist "' + safeArtist + '"'
         } else {
-          var findartist = 'find artist "' + safeArtist + '"'
+          findartist = 'find artist "' + safeArtist + '"'
         }
       }
     }
@@ -3308,17 +3306,17 @@ ControllerMpd.prototype.listGenre = function (curUri) {
   }
 
   self.mpdReady.then(function () {
-    var cmd = libMpd.cmd
+    let findString
     if (genreArtist != 'undefined') {
       if (artistsort) {
-        var findString = 'find genre "' + safeGenreName + '" albumartist "' + safeGenreArtist + '" '
+        findString = 'find genre "' + safeGenreName + '" albumartist "' + safeGenreArtist + '" '
       } else {
-        var findString = 'find genre "' + safeGenreName + '" artist "' + safeGenreArtist + '" '
+        findString = 'find genre "' + safeGenreName + '" artist "' + safeGenreArtist + '" '
       }
     } else {
-      var findString = 'find genre "' + safeGenreName + '"'
+      findString = 'find genre "' + safeGenreName + '"'
     }
-    self.clientMpd.sendCommand(cmd(findString, []), function (err, msg) {
+    self.clientMpd.sendCommand(libMpd.cmd(findString, []), function (err, msg) {
       var albums = []
       var artists = []
 
@@ -3463,14 +3461,14 @@ ControllerMpd.prototype.prefetch = function (trackBlock) {
 }
 
 ControllerMpd.prototype.goto = function (data) {
-  if (data.type == 'artist') {
+  if (data.type === 'artist') {
     return this.listArtist(
       'artists://' + encodeURIComponent(data.value),
       2,
       '',
       'albums://' + encodeURIComponent(data.value) + '/'
     )
-  } else if (data.type == 'album') {
+  } else if (data.type === 'album') {
     return this.listAlbumSongs(
       'albums://' + encodeURIComponent(data.artist) + '/' + encodeURIComponent(data.album),
       2,
@@ -3541,15 +3539,15 @@ ControllerMpd.prototype.saveMusicLibraryOptions = function (data) {
   )
 
   var ffmpegenable = this.config.get('ffmpegenable', false)
-  if (data.ffmpegenable != undefined && ffmpegenable != data.ffmpegenable) {
+  if (data.ffmpegenable && ffmpegenable !== data.ffmpegenable) {
     self.config.set('ffmpegenable', data.ffmpegenable)
     setTimeout(function () {
       self.createMPDFile(function (error) {
-        if (error !== undefined && error !== null) {
+        if (error) {
           self.logger.error('Cannot create mpd file: ' + error)
         } else {
           self.restartMpd(function (error) {
-            if (error !== null && error != undefined) {
+            if (error) {
               self.logger.error('Cannot restart MPD: ' + error)
             } else {
               setTimeout(function () {
