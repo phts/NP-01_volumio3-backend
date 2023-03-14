@@ -24,12 +24,7 @@ function CorePlayQueue(commandRouter, stateMachine) {
   this.cache = new NodeCache()
 
   // trying to read play queue from file
-  var persistentqueue = this.commandRouter.executeOnPlugin(
-    'music_service',
-    'mpd',
-    'getConfigParam',
-    'persistent_queue'
-  )
+  var persistentqueue = this.commandRouter.executeOnPlugin('music_service', 'mpd', 'getConfigParam', 'persistent_queue')
   if (persistentqueue == undefined) {
     persistentqueue = true
   }
@@ -139,9 +134,7 @@ CorePlayQueue.prototype.explodeUriFromCache = function (service, uri) {
         defer.resolve(result)
       })
       .fail((error) => {
-        this.logger.error(
-          'PlayQueue: Cannot explode uri ' + uri + ' from service ' + service + ': ' + error
-        )
+        this.logger.error('PlayQueue: Cannot explode uri ' + uri + ' from service ' + service + ': ' + error)
         defer.resolve()
       })
     return defer.promise
@@ -249,9 +242,7 @@ CorePlayQueue.prototype.addQueueItems = function (arrayItems) {
       }
 
       if (self.arrayQueue.length > 0 && self.arrayQueue.length >= contentArray.length) {
-        var queueLastElementsObj = self.arrayQueue.slice(
-          Math.max(self.arrayQueue.length - contentArray.length, 0)
-        )
+        var queueLastElementsObj = self.arrayQueue.slice(Math.max(self.arrayQueue.length - contentArray.length, 0))
         var addQueueElementsObj = contentArray
         // If the array we are adding to queue is equal to the last elements of the queue, we don't add it and send index as first item of array we want to add
         if (self.compareTrackListByUri(queueLastElementsObj, addQueueElementsObj)) {

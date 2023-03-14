@@ -62,7 +62,7 @@
   },
   "devDependencies": {
     "@phts/eslint-config": "^2.0.0",
-    "@phts/prettier-config": "^1.1.1",
+    "@phts/prettier-config": "^1.2.0",
     "@prantlf/jsonlint": "^10.2.0",
     "eslint": "^8.35.0",
     "mocha": "^3.2.0",

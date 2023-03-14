@@ -49,10 +49,7 @@ ControllerMpd.prototype.play = function (N) {
 // MPD Add
 ControllerMpd.prototype.add = function (data) {
   var self = this
-  this.commandRouter.pushToastMessage(
-    'success',
-    data + self.commandRouter.getI18nString('COMMON.ADD_QUEUE_TEXT_1')
-  )
+  this.commandRouter.pushToastMessage('success', data + self.commandRouter.getI18nString('COMMON.ADD_QUEUE_TEXT_1'))
   return this.sendMpdCommand('add', [data])
 }
 // MPD Remove
@@ -80,9 +77,7 @@ ControllerMpd.prototype.random = function (randomcmd) {
   this.commandRouter.pushToastMessage(
     'success',
     'Random',
-    string === 1
-      ? self.commandRouter.getI18nString('COMMON.ON')
-      : self.commandRouter.getI18nString('COMMON.OFF')
+    string === 1 ? self.commandRouter.getI18nString('COMMON.ON') : self.commandRouter.getI18nString('COMMON.OFF')
   )
   return this.sendMpdCommand('random', [string])
 }
@@ -94,9 +89,7 @@ ControllerMpd.prototype.repeat = function (repeatcmd) {
   this.commandRouter.pushToastMessage(
     'success',
     'Repeat',
-    string === 1
-      ? self.commandRouter.getI18nString('COMMON.ON')
-      : self.commandRouter.getI18nString('COMMON.ON')
+    string === 1 ? self.commandRouter.getI18nString('COMMON.ON') : self.commandRouter.getI18nString('COMMON.ON')
   )
   return this.sendMpdCommand('repeat', [string])
 }
@@ -189,10 +182,7 @@ ControllerMpd.prototype.getTracklist = function () {
 
   return self.mpdReady
     .then(function () {
-      return libQ.nfcall(
-        self.clientMpd.sendCommand.bind(self.clientMpd),
-        libMpd.cmd('listallinfo', [])
-      )
+      return libQ.nfcall(self.clientMpd.sendCommand.bind(self.clientMpd), libMpd.cmd('listallinfo', []))
     })
     .then(function (objResult) {
       var listInfo = self.parseListAllInfoResult(objResult)
@@ -273,20 +263,17 @@ ControllerMpd.prototype.getState = function () {
     var collectedState = self.parseState(objState)
     // If there is a track listed as currently playing, get the track info
     if (collectedState.position !== null) {
-      return self
-        .sendMpdCommand('playlistinfo', [collectedState.position])
-        .then(function (objTrackInfo) {
-          var trackinfo = self.parseTrackInfo(objTrackInfo)
-          collectedState.isStreaming =
-            trackinfo.isStreaming != undefined ? trackinfo.isStreaming : false
-          collectedState.title = trackinfo.title
-          collectedState.artist = trackinfo.artist
-          collectedState.album = trackinfo.album
-          collectedState.year = trackinfo.year
-          collectedState.uri = trackinfo.uri
-          collectedState.trackType = trackinfo.trackType.split('?')[0]
-          return collectedState
-        })
+      return self.sendMpdCommand('playlistinfo', [collectedState.position]).then(function (objTrackInfo) {
+        var trackinfo = self.parseTrackInfo(objTrackInfo)
+        collectedState.isStreaming = trackinfo.isStreaming != undefined ? trackinfo.isStreaming : false
+        collectedState.title = trackinfo.title
+        collectedState.artist = trackinfo.artist
+        collectedState.album = trackinfo.album
+        collectedState.year = trackinfo.year
+        collectedState.uri = trackinfo.uri
+        collectedState.trackType = trackinfo.trackType.split('?')[0]
+        return collectedState
+      })
       // Else return null track info
     } else {
       collectedState.isStreaming = false
@@ -337,10 +324,7 @@ ControllerMpd.prototype.sendMpdCommand = function (sCommand, arrayParameters) {
   const start = Date.now()
   return self.mpdReady
     .then(function () {
-      return libQ.nfcall(
-        self.clientMpd.sendCommand.bind(self.clientMpd),
-        libMpd.cmd(sCommand, arrayParameters)
-      )
+      return libQ.nfcall(self.clientMpd.sendCommand.bind(self.clientMpd), libMpd.cmd(sCommand, arrayParameters))
     })
     .then(function (response) {
       var respobject = libMpd.parseKeyValueMessage.call(libMpd, response)
@@ -580,9 +564,7 @@ ControllerMpd.prototype.parseState = function (objState) {
 
 ControllerMpd.prototype.logDone = function (timeStart) {
   var self = this
-  self.commandRouter.pushConsoleMessage(
-    '------------------------------ ' + (Date.now() - timeStart) + 'ms'
-  )
+  self.commandRouter.pushConsoleMessage('------------------------------ ' + (Date.now() - timeStart) + 'ms')
   return libQ.resolve()
 }
 
@@ -599,14 +581,8 @@ ControllerMpd.prototype.logStart = function (sCommand) {
 ControllerMpd.prototype.onVolumioStart = function () {
   var self = this
 
-  this.commandRouter.sharedVars.registerCallback(
-    'alsa.outputdevice',
-    this.outputDeviceCallback.bind(this)
-  )
-  var configFile = self.commandRouter.pluginManager.getConfigurationFile(
-    self.context,
-    'config.json'
-  )
+  this.commandRouter.sharedVars.registerCallback('alsa.outputdevice', this.outputDeviceCallback.bind(this))
+  var configFile = self.commandRouter.pluginManager.getConfigurationFile(self.context, 'config.json')
   self.config.loadFile(configFile)
   self.loadLibrarySettings()
   dsd_autovolume = self.config.get('dsd_autovolume', false)
@@ -850,12 +826,8 @@ ControllerMpd.prototype.savePlaybackOptions = function (data) {
           }
         })
         var responseData = {
-          title:
-            self.commandRouter.getI18nString('PLAYBACK_OPTIONS.PLAYBACK_OPTIONS_TITLE') +
-            ': ISO Playback',
-          message:
-            'ISO Playback ' +
-            self.commandRouter.getI18nString('PLAYBACK_OPTIONS.I2S_DAC_ACTIVATED_MESSAGE'),
+          title: self.commandRouter.getI18nString('PLAYBACK_OPTIONS.PLAYBACK_OPTIONS_TITLE') + ': ISO Playback',
+          message: 'ISO Playback ' + self.commandRouter.getI18nString('PLAYBACK_OPTIONS.I2S_DAC_ACTIVATED_MESSAGE'),
           size: 'lg',
           buttons: [
             {
@@ -947,26 +919,18 @@ ControllerMpd.prototype.restartMpd = function (callback) {
   var self = this
 
   if (callback) {
-    exec(
-      '/usr/bin/sudo /bin/systemctl restart mpd.service ',
-      {uid: 1000, gid: 1000},
-      function (error) {
-        self.mpdEstablish()
-        callback(error)
-      }
-    )
+    exec('/usr/bin/sudo /bin/systemctl restart mpd.service ', {uid: 1000, gid: 1000}, function (error) {
+      self.mpdEstablish()
+      callback(error)
+    })
   } else {
-    exec(
-      '/usr/bin/sudo /bin/systemctl restart mpd.service ',
-      {uid: 1000, gid: 1000},
-      function (error) {
-        if (error) {
-          self.logger.error('Cannot restart MPD: ' + error)
-        } else {
-          self.mpdEstablish()
-        }
+    exec('/usr/bin/sudo /bin/systemctl restart mpd.service ', {uid: 1000, gid: 1000}, function (error) {
+      if (error) {
+        self.logger.error('Cannot restart MPD: ' + error)
+      } else {
+        self.mpdEstablish()
       }
-    )
+    })
   }
 }
 
@@ -1000,11 +964,7 @@ ControllerMpd.prototype.createMPDFile = function (callback) {
         'alsa_controller',
         'resampling_target_samplerate'
       )
-      var resampling_quality = self.getAdditionalConf(
-        'audio_interface',
-        'alsa_controller',
-        'resampling_quality'
-      )
+      var resampling_quality = self.getAdditionalConf('audio_interface', 'alsa_controller', 'resampling_quality')
       var ffmpeg = self.config.get('ffmpegenable', false)
 
       var mixerdev = ''
@@ -1034,11 +994,7 @@ ControllerMpd.prototype.createMPDFile = function (callback) {
           }
         } else {
           mixerdev = 'SoftMaster'
-          var realDev = self.getAdditionalConf(
-            'audio_interface',
-            'alsa_controller',
-            'softvolumenumber'
-          )
+          var realDev = self.getAdditionalConf('audio_interface', 'alsa_controller', 'softvolumenumber')
         }
       }
 
@@ -1060,10 +1016,10 @@ ControllerMpd.prototype.createMPDFile = function (callback) {
 
       // VIM1 fix for buffer on SPDIF OUTPUT
       try {
-        var systemHw = execSync(
-          "cat /etc/os-release | grep ^VOLUMIO_HARDWARE | tr -d 'VOLUMIO_HARDWARE=\"'",
-          {uid: 1000, gid: 1000}
-        )
+        var systemHw = execSync("cat /etc/os-release | grep ^VOLUMIO_HARDWARE | tr -d 'VOLUMIO_HARDWARE=\"'", {
+          uid: 1000,
+          gid: 1000,
+        })
           .toString()
           .replace('\n', '')
       } catch (e) {
@@ -1651,9 +1607,7 @@ ControllerMpd.prototype.listallFolder = function (uri) {
             var path = line.slice(6)
             var name = path.split('/').pop()
             var album = self.searchFor(lines, i + 1, 'Album:')
-            var artist =
-              self.searchFor(lines, i + 1, 'AlbumArtist:') ||
-              self.searchFor(lines, i + 1, 'Artist:')
+            var artist = self.searchFor(lines, i + 1, 'AlbumArtist:') || self.searchFor(lines, i + 1, 'Artist:')
             if (!tracknumbers) {
               var title = self.searchFor(lines, i + 1, 'Title:')
             } else {
@@ -1762,16 +1716,10 @@ ControllerMpd.prototype.search = function (query) {
           if (line.startsWith('file:')) {
             var path = line.slice(5).trimLeft()
             var album = self.searchFor(lines, i + 1, 'Album:')
-            var artist =
-              self.searchFor(lines, i + 1, 'AlbumArtist:') ||
-              self.searchFor(lines, i + 1, 'Artist:')
+            var artist = self.searchFor(lines, i + 1, 'AlbumArtist:') || self.searchFor(lines, i + 1, 'Artist:')
 
             //* *******Check if album and artist combination is already found and exists in 'albumsfound' array (Allows for duplicate album names)
-            if (
-              album != undefined &&
-              artist != undefined &&
-              albumsfound.indexOf(album + artist) < 0
-            ) {
+            if (album != undefined && artist != undefined && albumsfound.indexOf(album + artist) < 0) {
               // Album/Artist is not in 'albumsfound' array
               albumcount++
               albumsfound.push(album + artist)
@@ -2057,11 +2005,7 @@ ControllerMpd.prototype.updateDb = function (data) {
     pos = data.replace('music-library/', '')
     message = pos + ': ' + message
   }
-  self.commandRouter.pushToastMessage(
-    'success',
-    self.commandRouter.getI18nString('COMMON.MY_MUSIC'),
-    message
-  )
+  self.commandRouter.pushToastMessage('success', self.commandRouter.getI18nString('COMMON.MY_MUSIC'), message)
   return self.sendMpdCommand('update', [pos])
 }
 
@@ -2260,8 +2204,7 @@ ControllerMpd.prototype.explodeUri = function (uri) {
       // Until we find a better way to handle this we search just for album if there is no artist.
       if (safeArtistName !== null || safeArtistName !== '') {
         // is a artist ?
-        var GetAlbum =
-          'find album "' + safeAlbumName + '"' + ' albumartist "' + safeArtistName + '"'
+        var GetAlbum = 'find album "' + safeAlbumName + '"' + ' albumartist "' + safeArtistName + '"'
       } else {
         // No artist.
         var GetAlbum = 'find album "' + safeAlbumName + '"'
@@ -2338,12 +2281,9 @@ ControllerMpd.prototype.explodeUri = function (uri) {
     var safeArtist = artist.replace(/"/g, '\\"')
     self.clientMpd.sendCommand(cmd('find artist "' + safeArtist + '"', []), function (err, msg) {
       if (msg == '') {
-        self.clientMpd.sendCommand(
-          cmd('find albumartist "' + safeArtist + '"', []),
-          function (err, msg) {
-            self.exploderArtist(err, msg, defer)
-          }
-        )
+        self.clientMpd.sendCommand(cmd('find albumartist "' + safeArtist + '"', []), function (err, msg) {
+          self.exploderArtist(err, msg, defer)
+        })
       } else self.exploderArtist(err, msg, defer)
     })
   } else if (uri.startsWith('genres://')) {
@@ -2371,22 +2311,10 @@ ControllerMpd.prototype.explodeUri = function (uri) {
         // artist is NOT in compilation array so use artist
         if (artistsort) {
           var GetMatches =
-            'find genre "' +
-            safeGenreName +
-            '" albumartist "' +
-            safeArtistName +
-            '" album "' +
-            safeAlbumName +
-            '"'
+            'find genre "' + safeGenreName + '" albumartist "' + safeArtistName + '" album "' + safeAlbumName + '"'
         } else {
           var GetMatches =
-            'find genre "' +
-            safeGenreName +
-            '" artist "' +
-            safeArtistName +
-            '" album "' +
-            safeAlbumName +
-            '"'
+            'find genre "' + safeGenreName + '" artist "' + safeArtistName + '" album "' + safeAlbumName + '"'
         }
       }
     } else {
@@ -2420,10 +2348,7 @@ ControllerMpd.prototype.explodeUri = function (uri) {
                 var title = title1
               }
             }
-            var albumart = self.getAlbumArt(
-              {artist: artist, album: album},
-              self.getParentFolder('/mnt/' + path)
-            )
+            var albumart = self.getAlbumArt({artist: artist, album: album}, self.getParentFolder('/mnt/' + path))
             var time = parseInt(self.searchFor(lines, i + 1, 'Time:'))
 
             if (!title) {
@@ -2559,10 +2484,7 @@ ControllerMpd.prototype.explodeCue = function (uri, index) {
     artist: cueartist,
     album: cuealbum,
     number: Number(index) + 1,
-    albumart: self.getAlbumArt(
-      {artist: cueartist, album: cuealbum},
-      self.getParentFolder('/mnt/' + uri)
-    ),
+    albumart: self.getAlbumArt({artist: cueartist, album: cuealbum}, self.getParentFolder('/mnt/' + uri)),
   }
 
   return cueItem
@@ -2595,10 +2517,7 @@ ControllerMpd.prototype.exploderArtist = function (err, msg, defer) {
             var title = title1
           }
         }
-        var albumart = self.getAlbumArt(
-          {artist: artist, album: album},
-          self.getParentFolder('/mnt/' + path)
-        )
+        var albumart = self.getAlbumArt({artist: artist, album: album}, self.getParentFolder('/mnt/' + path))
         var time = parseInt(self.searchFor(lines, i + 1, 'Time:'))
 
         if (!title) {
@@ -2665,12 +2584,7 @@ ControllerMpd.prototype.scanFolder = function (uri) {
     }
   }
 
-  if (
-    uri.indexOf('.iso') < 0 &&
-    uri.indexOf('.ISO') < 0 &&
-    stat != undefined &&
-    stat.isDirectory()
-  ) {
+  if (uri.indexOf('.iso') < 0 && uri.indexOf('.ISO') < 0 && stat != undefined && stat.isDirectory()) {
     try {
       var files = libFsExtra.readdirSync(uri)
       for (var i in files) {
@@ -2734,9 +2648,7 @@ ControllerMpd.prototype.scanFolder = function (uri) {
               if (!title) {
                 title = name
               }
-              self.commandRouter.logger.info(
-                'ALBUMART ' + self.getAlbumArt({artist: artist, album: album}, uri)
-              )
+              self.commandRouter.logger.info('ALBUMART ' + self.getAlbumArt({artist: artist, album: album}, uri))
               self.commandRouter.logger.info('URI ' + uri)
 
               defer.resolve({
@@ -2747,10 +2659,7 @@ ControllerMpd.prototype.scanFolder = function (uri) {
                 album: album,
                 type: 'track',
                 tracknumber: 0,
-                albumart: self.getAlbumArt(
-                  {artist: artist, album: album},
-                  self.getAlbumArtPathFromUri(uri)
-                ),
+                albumart: self.getAlbumArt({artist: artist, album: album}, self.getAlbumArtPathFromUri(uri)),
                 duration: time,
                 trackType: uri.split('.').pop(),
               })
@@ -2896,12 +2805,7 @@ ControllerMpd.prototype.clearAddPlayTrack = function (track) {
     self.logger.verbose('ControllerMpd::clearAddPlayTracks ' + uri)
 
     var urilow = uri.toLowerCase()
-    if (
-      urilow.endsWith('.dff') ||
-      urilow.endsWith('.dsd') ||
-      urilow.endsWith('.dxd') ||
-      urilow.endsWith('.dsf')
-    ) {
+    if (urilow.endsWith('.dff') || urilow.endsWith('.dsd') || urilow.endsWith('.dxd') || urilow.endsWith('.dsf')) {
       self.dsdVolume()
     }
     // Clear the queue, add the first track, and start playback
@@ -3018,29 +2922,26 @@ ControllerMpd.prototype.getMyCollectionStats = function () {
           var playTimeString = '0:0:0'
         }
 
-        self.clientMpd.sendCommand(
-          cmd('list', ['album', 'group', 'albumartist']),
-          function (err, msg) {
-            if (!err) {
-              var splittedAlbum = msg.split('\n')
-              var albumsCount = 0
-              for (var i = 0; i < splittedAlbum.length; i++) {
-                var line = splittedAlbum[i]
-                if (line.startsWith('Album:')) {
-                  albumsCount++
-                }
-              }
-              var response = {
-                artists: artistsCount,
-                albums: albumsCount,
-                songs: songsCount,
-                playtime: playTimeString,
+        self.clientMpd.sendCommand(cmd('list', ['album', 'group', 'albumartist']), function (err, msg) {
+          if (!err) {
+            var splittedAlbum = msg.split('\n')
+            var albumsCount = 0
+            for (var i = 0; i < splittedAlbum.length; i++) {
+              var line = splittedAlbum[i]
+              if (line.startsWith('Album:')) {
+                albumsCount++
               }
             }
-
-            defer.resolve(response)
+            var response = {
+              artists: artistsCount,
+              albums: albumsCount,
+              songs: songsCount,
+              playtime: playTimeString,
+            }
           }
-        )
+
+          defer.resolve(response)
+        })
       }
     })
   } catch (e) {
@@ -3176,9 +3077,7 @@ ControllerMpd.prototype.listAlbums = function (ui) {
               var path = line.slice(6)
               var albumName = self.searchFor(lines, i + 1, 'Album:')
               var albumYear = self.searchFor(lines, i + 1, 'Date:')
-              var artistName =
-                self.searchFor(lines, i + 1, 'AlbumArtist:') ||
-                self.searchFor(lines, i + 1, 'Artist:')
+              var artistName = self.searchFor(lines, i + 1, 'AlbumArtist:') || self.searchFor(lines, i + 1, 'Artist:')
 
               // This causes all orphaned tracks (tracks without an album) in the Albums view to be
               //  grouped into a single dummy-album, rather than creating one such dummy-album per artist.
@@ -3199,11 +3098,7 @@ ControllerMpd.prototype.listAlbums = function (ui) {
                   artist: artistName,
                   year: albumYear,
                   album: '',
-                  uri:
-                    'albums://' +
-                    encodeURIComponent(artistName) +
-                    '/' +
-                    encodeURIComponent(albumName),
+                  uri: 'albums://' + encodeURIComponent(artistName) + '/' + encodeURIComponent(albumName),
                   // Get correct album art from path- only download if not existent
                   albumart: self.getAlbumArt(
                     {artist: artistName, album: albumName},
@@ -3253,17 +3148,9 @@ ControllerMpd.prototype.listAlbumSongs = function (uri, index, previous) {
     if (compilation.indexOf(artist) > -1) {
       var findstring = 'find album "' + safeAlbumName + '" genre "' + safeGenre + '" '
     } else if (artistsort) {
-      var findstring =
-        'find album "' +
-        safeAlbumName +
-        '" albumartist "' +
-        safeArtist +
-        '" genre "' +
-        safeGenre +
-        '" '
+      var findstring = 'find album "' + safeAlbumName + '" albumartist "' + safeArtist + '" genre "' + safeGenre + '" '
     } else {
-      var findstring =
-        'find album "' + safeAlbumName + '" artist "' + safeArtist + '" genre "' + safeGenre + '" '
+      var findstring = 'find album "' + safeAlbumName + '" artist "' + safeArtist + '" genre "' + safeGenre + '" '
     }
   } else if (splitted[0] == 'albums:') {
     // album
@@ -3346,11 +3233,7 @@ ControllerMpd.prototype.listAlbumSongs = function (uri, index, previous) {
             var title = track + ' - ' + title
           }
 
-          var albumart = self.getAlbumArt(
-            {artist: artist, album: album},
-            self.getParentFolder(path),
-            'dot-circle-o'
-          )
+          var albumart = self.getAlbumArt({artist: artist, album: album}, self.getParentFolder(path), 'dot-circle-o')
           var time = parseInt(self.searchFor(lines, i + 1, 'Time:'))
           var trackType = path.split('.').pop()
           duration = duration + parseInt(self.searchFor(lines, i + 1, 'Time:'))
@@ -3482,21 +3365,13 @@ ControllerMpd.prototype.listArtist = function (curUri, index, previous, uriBegin
     navigation: {
       lists: [
         {
-          title:
-            self.commandRouter.getI18nString('COMMON.ALBUMS') +
-            ' (' +
-            decodeURIComponent(splitted[index]) +
-            ')',
+          title: self.commandRouter.getI18nString('COMMON.ALBUMS') + ' (' + decodeURIComponent(splitted[index]) + ')',
           icon: 'fa icon',
           availableListViews: ['list', 'grid'],
           items: [],
         },
         {
-          title:
-            self.commandRouter.getI18nString('COMMON.TRACKS') +
-            ' (' +
-            decodeURIComponent(splitted[index]) +
-            ')',
+          title: self.commandRouter.getI18nString('COMMON.TRACKS') + ' (' + decodeURIComponent(splitted[index]) + ')',
           icon: 'fa icon',
           availableListViews: ['list'],
           items: [],
@@ -3583,8 +3458,7 @@ ControllerMpd.prototype.parseListAlbum = function (err, msg, defer, response, ur
         var path = line.slice(6)
         var name = path.split('/').pop()
         if (VA === 1) {
-          var artist =
-            self.searchFor(lines, i + 1, 'AlbumArtist:') || self.searchFor(lines, i + 1, 'Artist:')
+          var artist = self.searchFor(lines, i + 1, 'AlbumArtist:') || self.searchFor(lines, i + 1, 'Artist:')
         } else {
           var artistSortAlbumArtist = self.searchFor(lines, i + 1, 'AlbumArtist:')
           var artistSortArtist = self.searchFor(lines, i + 1, 'Artist:')
@@ -3609,11 +3483,7 @@ ControllerMpd.prototype.parseListAlbum = function (err, msg, defer, response, ur
             var title = title1
           }
         }
-        var albumart = self.getAlbumArt(
-          {artist: artist, album: album},
-          self.getParentFolder(path),
-          'dot-circle-o'
-        )
+        var albumart = self.getAlbumArt({artist: artist, album: album}, self.getParentFolder(path), 'dot-circle-o')
 
         if (!title) {
           title = name
@@ -3658,11 +3528,7 @@ ControllerMpd.prototype.parseListAlbum = function (err, msg, defer, response, ur
             type: 'folder',
             title: album,
             artist: artist,
-            albumart: self.getAlbumArt(
-              {artist: artist, album: album},
-              self.getParentFolder(path),
-              'dot-circle-o'
-            ),
+            albumart: self.getAlbumArt({artist: artist, album: album}, self.getParentFolder(path), 'dot-circle-o'),
             uri: uri,
           })
         }
@@ -3788,9 +3654,7 @@ ControllerMpd.prototype.listGenre = function (curUri) {
           if (line.indexOf('file:') === 0) {
             var path = line.slice(6)
             var name = path.split('/').pop()
-            var artist =
-              self.searchFor(lines, i + 1, 'AlbumArtist:') ||
-              self.searchFor(lines, i + 1, 'Artist:')
+            var artist = self.searchFor(lines, i + 1, 'AlbumArtist:') || self.searchFor(lines, i + 1, 'Artist:')
             var album = self.searchFor(lines, i + 1, 'Album:')
             // Include track number if tracknumber variable is set to 'true'
             if (!tracknumbers) {
@@ -3804,11 +3668,7 @@ ControllerMpd.prototype.listGenre = function (curUri) {
                 var title = title1
               }
             }
-            var albumart = self.getAlbumArt(
-              {artist: artist, album: album},
-              self.getParentFolder(path),
-              'dot-circle-o'
-            )
+            var albumart = self.getAlbumArt({artist: artist, album: album}, self.getParentFolder(path), 'dot-circle-o')
 
             if (!title) {
               title = name
@@ -3849,11 +3709,7 @@ ControllerMpd.prototype.listGenre = function (curUri) {
                     type: 'folder',
                     title: artist,
                     albumart: self.getAlbumArt({artist: artist}, undefined, 'users'),
-                    uri:
-                      'genres://' +
-                      encodeURIComponent(genreName) +
-                      '/' +
-                      encodeURIComponent(artist),
+                    uri: 'genres://' + encodeURIComponent(genreName) + '/' + encodeURIComponent(artist),
                   })
                 }
               }
@@ -3892,11 +3748,7 @@ ControllerMpd.prototype.listGenre = function (curUri) {
                     type: 'folder',
                     title: artist,
                     albumart: self.getAlbumArt({artist: artist}, undefined, 'users'),
-                    uri:
-                      'genres://' +
-                      encodeURIComponent(genreName) +
-                      '/' +
-                      encodeURIComponent(artist),
+                    uri: 'genres://' + encodeURIComponent(genreName) + '/' + encodeURIComponent(artist),
                   })
                 }
               }
@@ -3952,12 +3804,7 @@ ControllerMpd.prototype.prefetch = function (trackBlock) {
   var uri = this.sanitizeUri(trackBlock.uri)
 
   var urilow = trackBlock.uri.toLowerCase()
-  if (
-    urilow.endsWith('.dff') ||
-    urilow.endsWith('.dsd') ||
-    urilow.endsWith('.dxd') ||
-    urilow.endsWith('.dsf')
-  ) {
+  if (urilow.endsWith('.dff') || urilow.endsWith('.dsd') || urilow.endsWith('.dxd') || urilow.endsWith('.dsf')) {
     setTimeout(function () {
       self.dsdVolume()
     }, 5000)
@@ -4017,10 +3864,7 @@ ControllerMpd.prototype.ffwdRew = function (millisecs) {
 
 ControllerMpd.prototype.loadLibrarySettings = function () {
   var tracknumbersConf = this.config.get('tracknumbers', false)
-  var compilationConf = this.config.get(
-    'compilation',
-    'Various,various,Various Artists,various artists,VA,va'
-  )
+  var compilationConf = this.config.get('compilation', 'Various,various,Various Artists,various artists,VA,va')
   var artistsortConf = this.config.get('artistsort', true)
   var singleBrowseConf = this.config.get('singleBrowse', false)
   var stickingMusicLibraryConf = this.config.get('stickingMusicLibrary', false)
@@ -4125,32 +3969,28 @@ ControllerMpd.prototype.deleteFolder = function (data) {
 
   if (data && data.curUri && data.item && data.item.uri) {
     var folderToDelete = data.item.uri.replace('music-library', '/mnt')
-    exec(
-      '/usr/bin/sudo /bin/rm -rf "' + folderToDelete + '"',
-      {uid: 1000, gid: 1000},
-      function (error) {
-        if (error) {
-          self.logger.error('Cannot delete folder: ' + error)
-          defer.reject('Cannot delete folder ' + data.curUri)
-        } else {
-          var list = self.lsInfo(data.curUri)
-          list
-            .then((list) => {
-              var items = list.navigation.lists[0].items
-              for (var i in items) {
-                if (items[i].uri === data.item.uri) {
-                  list.navigation.lists[0].items.splice(i, 1)
-                }
+    exec('/usr/bin/sudo /bin/rm -rf "' + folderToDelete + '"', {uid: 1000, gid: 1000}, function (error) {
+      if (error) {
+        self.logger.error('Cannot delete folder: ' + error)
+        defer.reject('Cannot delete folder ' + data.curUri)
+      } else {
+        var list = self.lsInfo(data.curUri)
+        list
+          .then((list) => {
+            var items = list.navigation.lists[0].items
+            for (var i in items) {
+              if (items[i].uri === data.item.uri) {
+                list.navigation.lists[0].items.splice(i, 1)
               }
-              defer.resolve(list)
-            })
-            .fail((e) => {
-              self.logger.error('Error in refreshing USB drives list' + e)
-              defer.reject(e)
-            })
-        }
+            }
+            defer.resolve(list)
+          })
+          .fail((e) => {
+            self.logger.error('Error in refreshing USB drives list' + e)
+            defer.reject(e)
+          })
       }
-    )
+    })
   }
 
   exec('/bin/sync', {uid: 1000, gid: 1000}, function (error) {
@@ -4210,12 +4050,7 @@ ControllerMpd.prototype.checkIfSoxCanBeMultithread = function () {
   if (deviceHw === 'Raspberry PI') {
     return false
   } else {
-    var coresNumber = self.commandRouter.executeOnPlugin(
-      'system_controller',
-      'system',
-      'getCPUCoresNumber',
-      ''
-    )
+    var coresNumber = self.commandRouter.executeOnPlugin('system_controller', 'system', 'getCPUCoresNumber', '')
     if (coresNumber > 1) {
       return true
     } else {

@@ -404,11 +404,7 @@ CoreStateMachine.prototype.increasePlaybackTimer = function () {
       var nextIndex = this.getNextIndex()
 
       var nextTrackBlock = this.getTrack(nextIndex)
-      if (
-        nextTrackBlock !== undefined &&
-        nextTrackBlock !== null &&
-        nextTrackBlock.service == trackBlock.service
-      ) {
+      if (nextTrackBlock !== undefined && nextTrackBlock !== null && nextTrackBlock.service == trackBlock.service) {
         this.commandRouter.pushConsoleMessage('Prefetching next song')
 
         var plugin = this.commandRouter.pluginManager.getPlugin('music_service', trackBlock.service)
@@ -494,12 +490,7 @@ CoreStateMachine.prototype.saveCurrenState = function (state) {
   let newStateToString = JSON.stringify(state)
   if (self.lastSavedStateToString !== newStateToString) {
     self.lastSavedStateToString = newStateToString
-    return this.commandRouter.executeOnPlugin(
-      'system_controller',
-      'volumiodiscovery',
-      'saveDeviceInfo',
-      state
-    )
+    return this.commandRouter.executeOnPlugin('system_controller', 'volumiodiscovery', 'saveDeviceInfo', state)
   }
 }
 
@@ -533,9 +524,7 @@ CoreStateMachine.prototype.syncState = function (stateService, sService) {
 
   // Checking if stateService is defined (REPLACE WITH CONDITIONAL LIBRARY AS SOON AS POSSIBLE)
   if (!stateService) {
-    this.commandRouter.pushErrorConsoleMessage(
-      'variable stateService in CoreStateMachine::syncState is undefined'
-    )
+    this.commandRouter.pushErrorConsoleMessage('variable stateService in CoreStateMachine::syncState is undefined')
   }
 
   if (this.isVolatile && (stateService.status == 'play' || stateService.status == 'pause')) {
@@ -599,11 +588,7 @@ CoreStateMachine.prototype.syncState = function (stateService, sService) {
       }
     }
   } else {
-    if (
-      trackBlock != undefined &&
-      trackBlock.service !== sService &&
-      trackBlock.service !== 'upnp_browser'
-    ) {
+    if (trackBlock != undefined && trackBlock.service !== sService && trackBlock.service !== 'upnp_browser') {
       this.commandRouter.pushConsoleMessage(
         'Received update from a service different from the one supposed to be playing music. Skipping notification.Current ' +
           trackBlock.service +
@@ -629,18 +614,12 @@ CoreStateMachine.prototype.syncState = function (stateService, sService) {
     this.uri = '/' + stateService.uri
   }
   this.currentUpdate = stateService.updatedb
-  this.commandRouter.pushConsoleMessage(
-    'CoreStateMachine::syncState   stateService ' + stateService.status
-  )
-  this.commandRouter.pushConsoleMessage(
-    'CoreStateMachine::syncState   currentStatus ' + this.currentStatus
-  )
+  this.commandRouter.pushConsoleMessage('CoreStateMachine::syncState   stateService ' + stateService.status)
+  this.commandRouter.pushConsoleMessage('CoreStateMachine::syncState   currentStatus ' + this.currentStatus)
 
   if (stateService.status === 'play') {
     if (this.currentStatus === 'play') {
-      this.commandRouter.pushConsoleMessage(
-        'Received an update from plugin. extracting info from payload'
-      )
+      this.commandRouter.pushConsoleMessage('Received an update from plugin. extracting info from payload')
 
       // Checking if system is in consume mode. If it is the status shall be stored
       if (this.isConsume && stateService) {
@@ -655,15 +634,10 @@ CoreStateMachine.prototype.syncState = function (stateService, sService) {
         ) {
           consumeAlbumArt = trackBlock.albumart
         } else if (consumeArtist) {
-          consumeAlbumArt = this.commandRouter.executeOnPlugin(
-            'miscellanea',
-            'albumart',
-            'getAlbumArt',
-            {
-              artist: consumeArtist,
-              album: consumeAlbum,
-            }
-          )
+          consumeAlbumArt = this.commandRouter.executeOnPlugin('miscellanea', 'albumart', 'getAlbumArt', {
+            artist: consumeArtist,
+            album: consumeAlbum,
+          })
         }
         if (stateService.service == undefined) {
           stateService.service = 'mpd'
@@ -838,9 +812,7 @@ CoreStateMachine.prototype.syncState = function (stateService, sService) {
       // Checking repeat status
       if (this.currentRepeat && this.currentRepeatSingleSong) {
         if (this.prefetchDone == false) {
-          this.play(this.currentPosition)
-            .then(self.pushState.bind(self))
-            .fail(this.pushError.bind(this))
+          this.play(this.currentPosition).then(self.pushState.bind(self)).fail(this.pushError.bind(this))
 
           this.askedForPrefetch = false
           this.simulateStopStartDone = false
@@ -958,9 +930,7 @@ CoreStateMachine.prototype.getTrack = function (position) {
 CoreStateMachine.prototype.play = function (index) {
   var self = this
 
-  this.commandRouter.pushConsoleMessage(
-    'CoreStateMachine::play index ' + index || self.currentPosition
-  )
+  this.commandRouter.pushConsoleMessage('CoreStateMachine::play index ' + index || self.currentPosition)
 
   return self.setConsumeUpdateService(undefined).then(function () {
     if (self.currentPosition == null || self.currentPosition === undefined) {
@@ -987,10 +957,7 @@ CoreStateMachine.prototype.play = function (index) {
         return libQ.reject()
       }
 
-      var thisPlugin = self.commandRouter.pluginManager.getPlugin(
-        'music_service',
-        trackBlock.service
-      )
+      var thisPlugin = self.commandRouter.pluginManager.getPlugin('music_service', trackBlock.service)
 
       if (self.currentStatus === 'stop') {
         // queuing
@@ -1000,9 +967,7 @@ CoreStateMachine.prototype.play = function (index) {
         if (typeof thisPlugin.clearAddPlayTrack === 'function') {
           thisPlugin.clearAddPlayTrack(trackBlock)
         } else {
-          this.commandRouter.pushConsoleMessage(
-            'WARNING: No clearAddPlayTrack method for plugin ' + trackBlock.service
-          )
+          this.commandRouter.pushConsoleMessage('WARNING: No clearAddPlayTrack method for plugin ' + trackBlock.service)
         }
       } else if (self.currentStatus === 'pause') {
         self.startPlaybackTimer()
@@ -1010,9 +975,7 @@ CoreStateMachine.prototype.play = function (index) {
         if (typeof thisPlugin.resume === 'function') {
           thisPlugin.resume()
         } else {
-          this.commandRouter.pushConsoleMessage(
-            'WARNING: No resume method for plugin ' + trackBlock.service
-          )
+          this.commandRouter.pushConsoleMessage('WARNING: No resume method for plugin ' + trackBlock.service)
         }
       }
 
@@ -1025,16 +988,11 @@ CoreStateMachine.prototype.volatilePlay = function () {
   this.commandRouter.pushConsoleMessage('CoreStateMachine::volatilePlay')
 
   if (this.isVolatile) {
-    var thisPlugin = this.commandRouter.pluginManager.getPlugin(
-      'music_service',
-      this.volatileService
-    )
+    var thisPlugin = this.commandRouter.pluginManager.getPlugin('music_service', this.volatileService)
     if (thisPlugin && typeof thisPlugin.play === 'function') {
       thisPlugin.play()
     } else {
-      this.commandRouter.pushConsoleMessage(
-        'WARNING: No play method for volatile plugin ' + this.volatileService
-      )
+      this.commandRouter.pushConsoleMessage('WARNING: No play method for volatile plugin ' + this.volatileService)
     }
   } else {
     this.commandRouter.pushConsoleMessage(
@@ -1050,47 +1008,32 @@ CoreStateMachine.prototype.seek = function (position) {
   if (this.isVolatile) {
     if (position == '+') {
       var curPos = this.getState().seek
-      var thisPlugin = this.commandRouter.pluginManager.getPlugin(
-        'music_service',
-        this.volatileService
-      )
+      var thisPlugin = this.commandRouter.pluginManager.getPlugin('music_service', this.volatileService)
       this.currentSeek = curPos + 10000
       if (thisPlugin && typeof thisPlugin.seek === 'function') {
         thisPlugin.seek(curPos + 10000)
       } else {
-        this.commandRouter.pushConsoleMessage(
-          'WARNING: No seek method for volatile plugin ' + this.volatileService
-        )
+        this.commandRouter.pushConsoleMessage('WARNING: No seek method for volatile plugin ' + this.volatileService)
       }
       this.startPlaybackTimer(curPos + 10000)
       this.pushState().fail(this.pushError.bind(this))
     } else if (position == '-') {
       var curPos = this.getState().seek
-      var thisPlugin = this.commandRouter.pluginManager.getPlugin(
-        'music_service',
-        this.volatileService
-      )
+      var thisPlugin = this.commandRouter.pluginManager.getPlugin('music_service', this.volatileService)
       this.currentSeek = curPos < 10000 ? 0 : curPos - 10000
       if (thisPlugin && typeof thisPlugin.seek === 'function') {
         thisPlugin.seek(this.currentSeek)
       } else {
-        this.commandRouter.pushConsoleMessage(
-          'WARNING: No seek method for volatile plugin ' + this.volatileService
-        )
+        this.commandRouter.pushConsoleMessage('WARNING: No seek method for volatile plugin ' + this.volatileService)
       }
       this.startPlaybackTimer(this.currentSeek)
       this.pushState().fail(this.pushError.bind(this))
     } else {
-      var thisPlugin = this.commandRouter.pluginManager.getPlugin(
-        'music_service',
-        this.volatileService
-      )
+      var thisPlugin = this.commandRouter.pluginManager.getPlugin('music_service', this.volatileService)
       if (thisPlugin && typeof thisPlugin.seek === 'function') {
         thisPlugin.seek(position * 1000)
       } else {
-        this.commandRouter.pushConsoleMessage(
-          'WARNING: No seek method for volatile plugin ' + this.volatileService
-        )
+        this.commandRouter.pushConsoleMessage('WARNING: No seek method for volatile plugin ' + this.volatileService)
       }
       this.currentSeek = position * 1000
       this.startPlaybackTimer(position * 1000)
@@ -1101,56 +1044,41 @@ CoreStateMachine.prototype.seek = function (position) {
     if (trackBlock !== undefined) {
       if (position == '+') {
         var curPos = this.getState().seek
-        var thisPlugin = this.commandRouter.pluginManager.getPlugin(
-          'music_service',
-          trackBlock.service
-        )
+        var thisPlugin = this.commandRouter.pluginManager.getPlugin('music_service', trackBlock.service)
 
         this.currentSeek = curPos + 10000
         this.startPlaybackTimer(curPos + 10000)
         if (thisPlugin && typeof thisPlugin.seek === 'function') {
           thisPlugin.seek(curPos + 10000)
         } else {
-          this.commandRouter.pushConsoleMessage(
-            'WARNING: No seek method for plugin ' + trackBlock.service
-          )
+          this.commandRouter.pushConsoleMessage('WARNING: No seek method for plugin ' + trackBlock.service)
         }
 
         this.pushState().fail(this.pushError.bind(this))
       } else if (position == '-') {
         var curPos = this.getState().seek
-        var thisPlugin = this.commandRouter.pluginManager.getPlugin(
-          'music_service',
-          trackBlock.service
-        )
+        var thisPlugin = this.commandRouter.pluginManager.getPlugin('music_service', trackBlock.service)
 
         this.currentSeek = curPos < 10000 ? 0 : curPos - 10000
         this.startPlaybackTimer(this.currentSeek)
         if (thisPlugin && typeof thisPlugin.seek === 'function') {
           thisPlugin.seek(this.currentSeek)
         } else {
-          this.commandRouter.pushConsoleMessage(
-            'WARNING: No seek method for plugin ' + trackBlock.service
-          )
+          this.commandRouter.pushConsoleMessage('WARNING: No seek method for plugin ' + trackBlock.service)
         }
 
         this.pushState().fail(this.pushError.bind(this))
       } else {
         this.commandRouter.pushConsoleMessage('TRACKBLOCK ' + JSON.stringify(trackBlock))
 
-        var thisPlugin = this.commandRouter.pluginManager.getPlugin(
-          'music_service',
-          trackBlock.service
-        )
+        var thisPlugin = this.commandRouter.pluginManager.getPlugin('music_service', trackBlock.service)
 
         this.currentSeek = position * 1000
         this.startPlaybackTimer(position * 1000)
         if (thisPlugin && typeof thisPlugin.seek === 'function') {
           thisPlugin.seek(position * 1000)
         } else {
-          this.commandRouter.pushConsoleMessage(
-            'WARNING: No seek method for plugin ' + trackBlock.service
-          )
+          this.commandRouter.pushConsoleMessage('WARNING: No seek method for plugin ' + trackBlock.service)
         }
         this.pushState().fail(this.pushError.bind(this))
       }
@@ -1170,21 +1098,14 @@ CoreStateMachine.prototype.next = function (fromUser) {
 
   if (this.isVolatile) {
     if (this.volatileService) {
-      var volatilePlugin = this.commandRouter.pluginManager.getPlugin(
-        'music_service',
-        this.volatileService
-      )
+      var volatilePlugin = this.commandRouter.pluginManager.getPlugin('music_service', this.volatileService)
       if (volatilePlugin && typeof volatilePlugin.next === 'function') {
         return volatilePlugin.next()
       } else {
-        this.commandRouter.pushConsoleMessage(
-          'WARNING: No next method for plugin ' + this.volatileService
-        )
+        this.commandRouter.pushConsoleMessage('WARNING: No next method for plugin ' + this.volatileService)
       }
     } else {
-      this.commandRouter.pushConsoleMessage(
-        'WARNING: Cannot execute Action because no volatile plugin is defined'
-      )
+      this.commandRouter.pushConsoleMessage('WARNING: Cannot execute Action because no volatile plugin is defined')
     }
   } else {
     if (this.isConsume && this.consumeState.service && this.consumeState.service !== 'webradio') {
@@ -1202,9 +1123,7 @@ CoreStateMachine.prototype.next = function (fromUser) {
       if (typeof thisPlugin.next === 'function') {
         return thisPlugin.next()
       } else {
-        this.commandRouter.pushConsoleMessage(
-          'WARNING: No next method for plugin ' + this.consumeState.service
-        )
+        this.commandRouter.pushConsoleMessage('WARNING: No next method for plugin ' + this.consumeState.service)
       }
     } else if (this.isUpnp) {
       this.logger.verbose('UPNP Next')
@@ -1322,21 +1241,14 @@ CoreStateMachine.prototype.previous = function (fromUser) {
 
   if (this.isVolatile) {
     if (this.volatileService) {
-      var volatilePlugin = this.commandRouter.pluginManager.getPlugin(
-        'music_service',
-        this.volatileService
-      )
+      var volatilePlugin = this.commandRouter.pluginManager.getPlugin('music_service', this.volatileService)
       if (volatilePlugin && typeof volatilePlugin.previous === 'function') {
         volatilePlugin.previous()
       } else {
-        this.commandRouter.pushConsoleMessage(
-          'WARNING: No previous method for plugin ' + this.volatileService
-        )
+        this.commandRouter.pushConsoleMessage('WARNING: No previous method for plugin ' + this.volatileService)
       }
     } else {
-      this.commandRouter.pushConsoleMessage(
-        'WARNING: Cannot execute Action because no volatile plugin is defined'
-      )
+      this.commandRouter.pushConsoleMessage('WARNING: Cannot execute Action because no volatile plugin is defined')
     }
   } else {
     if (this.currentStatus === 'stop') {
@@ -1364,16 +1276,11 @@ CoreStateMachine.prototype.previous = function (fromUser) {
         if (typeof thisPlugin.previous === 'function') {
           thisPlugin.previous()
         } else {
-          this.commandRouter.pushConsoleMessage(
-            'WARNING: No previous method for plugin ' + this.consumeState.service
-          )
+          this.commandRouter.pushConsoleMessage('WARNING: No previous method for plugin ' + this.consumeState.service)
         }
       } else {
         var trackBlock = this.getTrack(this.currentPosition)
-        var thisPlugin = this.commandRouter.pluginManager.getPlugin(
-          'music_service',
-          trackBlock.service
-        )
+        var thisPlugin = this.commandRouter.pluginManager.getPlugin('music_service', trackBlock.service)
         if (
           (this.currentSeek > 10000 || (this.currentPosition === 0 && !this.currentRandom)) &&
           typeof thisPlugin.seek === 'function'
@@ -1440,16 +1347,11 @@ CoreStateMachine.prototype.setRandom = function (value) {
   this.commandRouter.pushConsoleMessage('CoreStateMachine::setRandom ' + value)
 
   if (this.isVolatile) {
-    var volatilePlugin = this.commandRouter.pluginManager.getPlugin(
-      'music_service',
-      this.volatileService
-    )
+    var volatilePlugin = this.commandRouter.pluginManager.getPlugin('music_service', this.volatileService)
     if (volatilePlugin && typeof volatilePlugin.random === 'function') {
       volatilePlugin.random(value)
     } else {
-      this.commandRouter.pushConsoleMessage(
-        'WARNING: No random method for plugin ' + this.volatileService
-      )
+      this.commandRouter.pushConsoleMessage('WARNING: No random method for plugin ' + this.volatileService)
     }
   } else {
     this.currentRandom = value
@@ -1459,21 +1361,14 @@ CoreStateMachine.prototype.setRandom = function (value) {
 }
 
 CoreStateMachine.prototype.setRepeat = function (value, repeatSingle) {
-  this.commandRouter.pushConsoleMessage(
-    'CoreStateMachine::setRepeat ' + value + ' single ' + repeatSingle
-  )
+  this.commandRouter.pushConsoleMessage('CoreStateMachine::setRepeat ' + value + ' single ' + repeatSingle)
 
   if (this.isVolatile) {
-    var volatilePlugin = this.commandRouter.pluginManager.getPlugin(
-      'music_service',
-      this.volatileService
-    )
+    var volatilePlugin = this.commandRouter.pluginManager.getPlugin('music_service', this.volatileService)
     if (volatilePlugin && typeof volatilePlugin.repeat === 'function') {
       volatilePlugin.repeat(value, repeatSingle)
     } else {
-      this.commandRouter.pushConsoleMessage(
-        'WARNING: No repeat method for plugin ' + this.volatileService
-      )
+      this.commandRouter.pushConsoleMessage('WARNING: No repeat method for plugin ' + this.volatileService)
     }
   } else {
     this.currentRepeat = value
@@ -1499,21 +1394,14 @@ CoreStateMachine.prototype.skipBackwards = function (data) {
   this.commandRouter.pushConsoleMessage('CoreStateMachine::skipBackwards ' + data)
 
   if (this.isVolatile) {
-    var volatilePlugin = this.commandRouter.pluginManager.getPlugin(
-      'music_service',
-      this.volatileService
-    )
+    var volatilePlugin = this.commandRouter.pluginManager.getPlugin('music_service', this.volatileService)
     if (volatilePlugin && typeof volatilePlugin.skipBackwards === 'function') {
       volatilePlugin.skipBackwards(data)
     } else {
-      this.commandRouter.pushConsoleMessage(
-        'WARNING: No skipBackwards method for plugin ' + this.volatileService
-      )
+      this.commandRouter.pushConsoleMessage('WARNING: No skipBackwards method for plugin ' + this.volatileService)
     }
   } else {
-    this.commandRouter.pushConsoleMessage(
-      'WARNING: skipBackwards method is only available for volatile plugins'
-    )
+    this.commandRouter.pushConsoleMessage('WARNING: skipBackwards method is only available for volatile plugins')
   }
 }
 
@@ -1521,21 +1409,14 @@ CoreStateMachine.prototype.skipForward = function (data) {
   this.commandRouter.pushConsoleMessage('CoreStateMachine::skipForward ' + data)
 
   if (this.isVolatile) {
-    var volatilePlugin = this.commandRouter.pluginManager.getPlugin(
-      'music_service',
-      this.volatileService
-    )
+    var volatilePlugin = this.commandRouter.pluginManager.getPlugin('music_service', this.volatileService)
     if (volatilePlugin && typeof volatilePlugin.skipForward === 'function') {
       volatilePlugin.skipForward(data)
     } else {
-      this.commandRouter.pushConsoleMessage(
-        'WARNING: No skipForward method for plugin ' + this.volatileService
-      )
+      this.commandRouter.pushConsoleMessage('WARNING: No skipForward method for plugin ' + this.volatileService)
     }
   } else {
-    this.commandRouter.pushConsoleMessage(
-      'WARNING: SkipForward method is only available for volatile plugins'
-    )
+    this.commandRouter.pushConsoleMessage('WARNING: SkipForward method is only available for volatile plugins')
   }
 }
 

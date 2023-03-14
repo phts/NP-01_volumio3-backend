@@ -573,13 +573,9 @@ CoreCommandRouter.prototype.getPlugConf = function (category, plugin) {
   var cName = category
   var name = plugin
   try {
-    var config = fs.readJsonSync(
-      '/data/configuration/' + cName + '/' + name + '/' + 'config.json',
-      'utf-8',
-      {
-        throws: false,
-      }
-    )
+    var config = fs.readJsonSync('/data/configuration/' + cName + '/' + name + '/' + 'config.json', 'utf-8', {
+      throws: false,
+    })
   } catch (e) {
     var config = ''
   }
@@ -709,11 +705,7 @@ CoreCommandRouter.prototype.writeConfs = function (data) {
     for (var j = 0; j < usefulConfs[i].plugConf.length; j++) {
       if (usefulConfs[i].plugConf[j].config != '') {
         var path =
-          '/data/configuration/' +
-          usefulConfs[i].cName +
-          '/' +
-          usefulConfs[i].plugConf[j].name +
-          '/config.json'
+          '/data/configuration/' + usefulConfs[i].cName + '/' + usefulConfs[i].plugConf[j].name + '/config.json'
         fs.outputJsonSync(path, usefulConfs[i].plugConf[j].config)
       }
     }
@@ -788,11 +780,7 @@ CoreCommandRouter.prototype.loadBackup = function (request) {
     var identification = self.getId()
     data = {id: identification, backup: self.loadPlaylistsBackup()}
     defer.resolve(data)
-  } else if (
-    request.type == 'radio-favourites' ||
-    request.type == 'favourites' ||
-    request.type == 'my-web-radio'
-  ) {
+  } else if (request.type == 'radio-favourites' || request.type == 'favourites' || request.type == 'my-web-radio') {
     var identification = self.getId()
     data = {id: identification, backup: self.loadFavBackup(request.type)}
     defer.resolve(data)
@@ -920,11 +908,7 @@ CoreCommandRouter.prototype.restorePlaylist = function (req) {
       var songs = backup[i].content
       fs.outputJsonSync(path + name, songs)
     }
-  } else if (
-    req.type == 'favourites' ||
-    req.type == 'radio-favourites' ||
-    req.type == 'my-web-radio'
-  ) {
+  } else if (req.type == 'favourites' || req.type == 'radio-favourites' || req.type == 'my-web-radio') {
     path = self.playListManager.favouritesPlaylistFolder + req.type
     try {
       var fav = fs.readJsonSync(path)
@@ -1213,10 +1197,7 @@ CoreCommandRouter.prototype.pushMultiroomDevices = function (data) {
 CoreCommandRouter.prototype.updateMultiroomSyncOutput = function (data) {
   // Send this to all plugins that require this information
   var audioOutputPlugin = this.pluginManager.getPlugin('audio_interface', 'multiroom')
-  if (
-    audioOutputPlugin != undefined &&
-    typeof audioOutputPlugin.updateMultiroomSyncOutput === 'function'
-  ) {
+  if (audioOutputPlugin != undefined && typeof audioOutputPlugin.updateMultiroomSyncOutput === 'function') {
     audioOutputPlugin.updateMultiroomSyncOutput(data)
   }
 }
@@ -1224,10 +1205,7 @@ CoreCommandRouter.prototype.updateMultiroomSyncOutput = function (data) {
 CoreCommandRouter.prototype.getMultiroomSyncOutput = function (data) {
   // Send this to all plugins that require this information
   var audioOutputPlugin = this.pluginManager.getPlugin('audio_interface', 'multiroom')
-  if (
-    audioOutputPlugin != undefined &&
-    typeof audioOutputPlugin.getMultiroomSyncOutput === 'function'
-  ) {
+  if (audioOutputPlugin != undefined && typeof audioOutputPlugin.getMultiroomSyncOutput === 'function') {
     audioOutputPlugin.getMultiroomSyncOutput(data)
   }
 }
@@ -1235,10 +1213,7 @@ CoreCommandRouter.prototype.getMultiroomSyncOutput = function (data) {
 CoreCommandRouter.prototype.enableMultiroomSyncOutput = function (data) {
   // Send this to all plugins that require this information
   var audioOutputPlugin = this.pluginManager.getPlugin('audio_interface', 'multiroom')
-  if (
-    audioOutputPlugin != undefined &&
-    typeof audioOutputPlugin.enableMultiroomSyncOutput === 'function'
-  ) {
+  if (audioOutputPlugin != undefined && typeof audioOutputPlugin.enableMultiroomSyncOutput === 'function') {
     audioOutputPlugin.enableMultiroomSyncOutput(data)
   }
 }
@@ -1246,10 +1221,7 @@ CoreCommandRouter.prototype.enableMultiroomSyncOutput = function (data) {
 CoreCommandRouter.prototype.disableMultiroomSyncOutput = function (data) {
   // Send this to all plugins that require this information
   var audioOutputPlugin = this.pluginManager.getPlugin('audio_interface', 'multiroom')
-  if (
-    audioOutputPlugin != undefined &&
-    typeof audioOutputPlugin.disableMultiroomSyncOutput === 'function'
-  ) {
+  if (audioOutputPlugin != undefined && typeof audioOutputPlugin.disableMultiroomSyncOutput === 'function') {
     audioOutputPlugin.disableMultiroomSyncOutput(data)
   }
 }
@@ -1283,19 +1255,9 @@ CoreCommandRouter.prototype.pushAirplay = function (data) {
 CoreCommandRouter.prototype.shutdown = function () {
   var self = this
 
-  if (
-    self.standByHandler &&
-    self.standByHandler.category &&
-    self.standByHandler.name &&
-    self.standByHandler.method
-  ) {
+  if (self.standByHandler && self.standByHandler.category && self.standByHandler.name && self.standByHandler.method) {
     self.logger.info('Executing Standby mode with handler plugin ' + self.standByHandler.name)
-    self.executeOnPlugin(
-      self.standByHandler.category,
-      self.standByHandler.name,
-      self.standByHandler.method,
-      ''
-    )
+    self.executeOnPlugin(self.standByHandler.category, self.standByHandler.name, self.standByHandler.method, '')
   } else {
     self.pluginManager
       .onVolumioShutdown()
@@ -1356,9 +1318,7 @@ CoreCommandRouter.prototype.explodeUriFromService = function (service, uri) {
       })
       .fail((error) => {
         // If explodeUri Fails we resolve an empty promise, in order not to lock the playback progression
-        this.logger.error(
-          'Commandrouter: Cannot explode uri ' + uri + ' from service ' + service + ': ' + error
-        )
+        this.logger.error('Commandrouter: Cannot explode uri ' + uri + ' from service ' + service + ': ' + error)
         promise.resolve()
       })
   } else {
@@ -1579,10 +1539,7 @@ CoreCommandRouter.prototype.volumioToggleRandomRepeat = function () {
   let newRepeat = !(repeat && repeatSingle)
   let newRepeatSingle = repeat && !repeatSingle
   let newRandom = !newRepeat && !newRepeatSingle ? !random : random
-  return libQ.all([
-    this.stateMachine.setRepeat(newRepeat, newRepeatSingle),
-    this.stateMachine.setRandom(newRandom),
-  ])
+  return libQ.all([this.stateMachine.setRepeat(newRepeat, newRepeatSingle), this.stateMachine.setRandom(newRandom)])
 }
 
 CoreCommandRouter.prototype.repeatToggle = function () {
@@ -1624,11 +1581,7 @@ CoreCommandRouter.prototype.volumioSaveQueueToPlaylist = function (name) {
   this.pushConsoleMessage('CoreCommandRouter::volumioSaveQueueToPlaylist')
 
   var queueArray = this.stateMachine.getQueue()
-  var defer = this.playListManager.commonAddItemsToPlaylist(
-    this.playListManager.playlistFolder,
-    name,
-    queueArray
-  )
+  var defer = this.playListManager.commonAddItemsToPlaylist(this.playListManager.playlistFolder, name, queueArray)
 
   defer
     .then(function () {
@@ -1710,9 +1663,7 @@ CoreCommandRouter.prototype.loadI18nStrings = function () {
             if (!this.i18nStrings[locale]) {
               this.i18nStrings[locale] = pluginI18nStrings[locale]
             } else {
-              this.logger.info(
-                'Plugin ' + name + ' has duplicated i18n key ' + locale + '. It is ignored.'
-              )
+              this.logger.info('Plugin ' + name + ' has duplicated i18n key ' + locale + '. It is ignored.')
             }
           }
         }
@@ -1892,11 +1843,7 @@ CoreCommandRouter.prototype.safeRemoveDrive = function (data) {
   exec('/usr/bin/sudo /bin/umount /mnt/USB/' + data, function (error) {
     if (error !== null) {
       self.pushConsoleMessage(error)
-      self.pushToastMessage(
-        'error',
-        data,
-        self.getI18nString('SYSTEM.CANNOT_REMOVE_MEDIA') + ': ' + error
-      )
+      self.pushToastMessage('error', data, self.getI18nString('SYSTEM.CANNOT_REMOVE_MEDIA') + ': ' + error)
     } else {
       self.pushToastMessage(
         'success',
@@ -2086,25 +2033,16 @@ CoreCommandRouter.prototype.addPluginRestEndpoint = function (data) {
           updated = true
           endpoint = data
           return self.logger.info(
-            'Updating ' +
-              data.endpoint +
-              ' REST Endpoint for plugin: ' +
-              data.type +
-              '/' +
-              data.name
+            'Updating ' + data.endpoint + ' REST Endpoint for plugin: ' + data.type + '/' + data.name
           )
         }
       }
       if (!updated) {
-        self.logger.info(
-          'Adding ' + data.endpoint + ' REST Endpoint for plugin: ' + data.type + '/' + data.name
-        )
+        self.logger.info('Adding ' + data.endpoint + ' REST Endpoint for plugin: ' + data.type + '/' + data.name)
         self.pluginsRestEndpoints.push(data)
       }
     } else {
-      self.logger.info(
-        'Adding ' + data.endpoint + ' REST Endpoint for plugin: ' + data.type + '/' + data.name
-      )
+      self.logger.info('Adding ' + data.endpoint + ' REST Endpoint for plugin: ' + data.type + '/' + data.name)
       self.pluginsRestEndpoints.push(data)
     }
   } else {
@@ -2210,10 +2148,7 @@ CoreCommandRouter.prototype.enableAudioOutput = function (data) {
 
 CoreCommandRouter.prototype.disableAudioOutput = function (id) {
   var audioOutputPlugin = this.pluginManager.getPlugin('audio_interface', 'outputs')
-  if (
-    audioOutputPlugin != undefined &&
-    typeof audioOutputPlugin.disableAudioOutput === 'function'
-  ) {
+  if (audioOutputPlugin != undefined && typeof audioOutputPlugin.disableAudioOutput === 'function') {
     return audioOutputPlugin.disableAudioOutput(id)
   } else {
     this.logger.error('WARNING: No Audio Output plugin found')
@@ -2222,10 +2157,7 @@ CoreCommandRouter.prototype.disableAudioOutput = function (id) {
 
 CoreCommandRouter.prototype.setAudioOutputVolume = function (data) {
   var audioOutputPlugin = this.pluginManager.getPlugin('audio_interface', 'outputs')
-  if (
-    audioOutputPlugin != undefined &&
-    typeof audioOutputPlugin.setAudioOutputVolume === 'function'
-  ) {
+  if (audioOutputPlugin != undefined && typeof audioOutputPlugin.setAudioOutputVolume === 'function') {
     return audioOutputPlugin.setAudioOutputVolume(data)
   } else {
     this.logger.error('WARNING: No Audio Output plugin found')
@@ -2266,9 +2198,7 @@ CoreCommandRouter.prototype.setOauthData = function (data) {
   if (thisPlugin != undefined && typeof thisPlugin.oauthLogin === 'function') {
     return thisPlugin.oauthLogin(data)
   } else {
-    self.logger.error(
-      'Could not execute OAUTH Login: no function for plugin ' + pluginCategory + ' ' + pluginName
-    )
+    self.logger.error('Could not execute OAUTH Login: no function for plugin ' + pluginCategory + ' ' + pluginName)
   }
 }
 
