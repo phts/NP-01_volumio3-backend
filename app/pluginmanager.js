@@ -100,72 +100,72 @@ PluginManager.prototype.startPlugins = function () {
   self.logger.info('-------------------------------------------');
 
   var loadPromise = self.loadCorePlugins();
-  
+
   var loadComplete = false;
-  
+
   var loadDefer = libQ.defer();
-  
+
   loadPromise.fin(() => {
     if(!loadComplete) {
       self.logger.info("Completed loading Core Plugins");
       loadComplete = true;
       loadDefer.resolve({});
-    } 
+    }
   });
-  
+
   // 30 second delay to continue startup if one or more plugins freeze in onVolumioStart
   libQ.delay(30000)
     .then(() => {
       if(!loadComplete) {
         loadComplete = true;
-        
+
         var plugins = self.corePlugins.values();
         for(var i = 0; i < plugins.length; i++) {
           if(!plugins[i].volumioStart) {
             self.logger.error("Plugin " + plugins[i].category + " " + plugins[i].name + " failed to complete 'onVolumioStart' in a timely fashion");
           }
         }
-        
+
         loadDefer.resolve({});
       }
     });
-  
-  
+
+
   return loadDefer.promise
   .then(() => {
-    // Once all the plugins are loaded it is time to rebuild 
+    // Once all the plugins are loaded it is time to rebuild
     // the ALSA config so that the plugins can use it
     return self.coreCommand.rebuildALSAConfiguration();
   })
   .then(() => {
     var startDefer = libQ.defer();
     var startPromise = self.startCorePlugins();
-    
+
     var startComplete = false;
-    
+
     startPromise.fin(() => {
       if(!startComplete) {
         startComplete = true;
         self.logger.info("Completed starting Core Plugins");
         startDefer.resolve({});
-      } 
+      }
     });
-    
+
     // 30 second delay to continue startup if one or more plugins freeze in onStart
     libQ.delay(30000)
       .then(() => {
         if(!startComplete) {
           startComplete = true;
-          
+
           var plugins = self.corePlugins.values();
           for(var i = 0; i < plugins.length; i++) {
             var status = self.config.get(plugins[i].category + '.' + plugins[i].name + '.status');
-            
+
             if(status != 'STARTED') {
               self.logger.error("Plugin " + plugins[i].category + " " + plugins[i].name + " failed to complete 'onStart' in a timely fashion");
             }
           }
-          
+
           startDefer.resolve({});
         }
       });
@@ -385,22 +385,22 @@ PluginManager.prototype.isEnabled = function (category, pluginName) {
 
 PluginManager.prototype.startCorePlugin = function (category, name) {
   var self = this;
-  
+
   var plugin = self.getPlugin(category, name);
 
   if (plugin) {
     if (plugin.onStart !== undefined) {
       self.config.set(category + '.' + name + '.status', 'STARTING');
-	  
+
       var myPromise = null;
-	  
+
       try {
 		  myPromise = plugin.onStart();
 	  } catch (error) {
 		  self.logger.error('Plugin ' + name + ' failed to start! ' + error);
 		  myPromise = libQ.reject(error);
 	  }
-      
+
       if (Object.prototype.toString.call(myPromise) != Object.prototype.toString.call(libQ.resolve())) {
         // Handle non-compliant onStart(): push an error message and disable plugin
         self.coreCommand.pushToastMessage('error', name + ' Plugin', self.coreCommand.getI18nString('PLUGINS.PLUGIN_START_ERROR'));
@@ -808,19 +808,19 @@ PluginManager.prototype.installPlugin = function (url) {
         .then(self.checkPluginDependencies.bind(self))
         .then(function (e) {
           currentMessage = self.coreCommand.getI18nString('PLUGINS.CHECKING_DEPENDENCIES');
-          
+
           if(e.message) {
               currentMessage += ' ' + e.message;
           }
-          
+
           advancedlog = advancedlog + '<br>' + currentMessage;
-          
+
           self.pushMessage('installPluginStatus', {'progress': 45, 'message': currentMessage, 'title': modaltitle, 'advancedLog': advancedlog});
-          
+
           if(e.success === 'failed') {
               return libQ.reject(e.message);
           } else {
-              return e.folder;      
+              return e.folder;
           }
         })
         .then(self.checkPluginDoesntExist.bind(self))
@@ -974,19 +974,19 @@ PluginManager.prototype.updatePlugin = function (data) {
         .then(self.checkPluginDependencies.bind(self))
         .then(function (e) {
           currentMessage = self.coreCommand.getI18nString('PLUGINS.CHECKING_DEPENDENCIES');
-          
+
           if(e.message) {
               currentMessage += ' ' + e.message;
           }
-          
+
           advancedlog = advancedlog + '<br>' + currentMessage;
-          
+
           self.pushMessage('installPluginStatus', {'progress': 45, 'message': currentMessage, 'title': modaltitle, 'advancedLog': advancedlog});
-          
+
           if(e.success === 'failed') {
               return libQ.reject(e.message);
           } else {
-              return e.folder;      
+              return e.folder;
           }
         })
         .then(self.renameFolder.bind(self))
@@ -1139,13 +1139,13 @@ PluginManager.prototype.unzipPackage = function () {
 PluginManager.prototype.checkPluginDependencies = function (folder) {
   var self = this;
   var pendingResult = libQ.resolve({ success: 'success', message: '', folder: folder});
-  
+
   self.logger.info('Check plugin dependencies');
 
   var package_json = self.getPackageJson(folder);
-  
+
   if(package_json.engines) {
-    
+
     pendingResult = pendingResult
     .then((result) => {
         if(package_json.engines.node) {
@@ -1159,7 +1159,7 @@ PluginManager.prototype.checkPluginDependencies = function (folder) {
                 result.message += 'Node version ' + nodeVersion + ' not usable with plugin. ';
             }
         }
-        
+
         if(package_json.engines.volumio) {
             result.volumioCheck = true;
             return self.coreCommand.getSystemVersion()
@@ -1180,10 +1180,10 @@ PluginManager.prototype.checkPluginDependencies = function (folder) {
         return result;
     });
   }
-  
+
   return pendingResult.then((result) => {
         if(result.success === 'failed') {
-            result.message = 'Plugin failed the dependency check ' + result.message + 
+            result.message = 'Plugin failed the dependency check ' + result.message +
                 'The plugin cannot be installed on this version of Volumio.';
         } else {
             if(!result.nodeCheck) {
@@ -1207,20 +1207,20 @@ PluginManager.prototype.checkPluginDependencies = function (folder) {
 PluginManager.prototype.listPluginsBrokenByNewVersion = function (newVolumioVersion) {
   var self = this;
   var result = [];
-  
+
   var plugins = self.getPluginsMatrix();
-  
+
   for (var i = 0; i < plugins.length; i++) {
 
     let category = plugins[i].cName;
-    
+
     for(var j = 0; j < plugins[i].catPlugin.length; j++) {
 
       let plugin = plugins[i].catPlugin[j];
       let folder = self.findPluginFolder(category, plugin.name);
-      
+
       var package_json = self.getPackageJson(folder);
-      
+
       if(package_json && package_json.engines && package_json.engines.volumio) {
         if(!semver.satisfies(semver.coerce(newVolumioVersion, { loose: true }), package_json.engines.volumio)) {
           result.push(category + '/' + plugin.name);
@@ -1672,7 +1672,7 @@ PluginManager.prototype.getAvailablePlugins = function () {
 
   if (isVolumioHardware === 'none') {
       self.detectVolumioHardware();
-  } 
+  }
 
   var installed = self.getInstalledPlugins();
   if (installed != undefined) {
@@ -1689,9 +1689,9 @@ PluginManager.prototype.getAvailablePlugins = function () {
   if(fs.existsSync("/data/testplugins")){
     url = 'https://plugins.volumio.workers.dev/pluginsv2/variant/' + variant + '/' + os + '/' + arch;
   }
-  
+
   var loggedIn = this.coreCommand.getMyVolumioStatus();
-  
+
   loggedIn.then(loggedIn => {
     if (!loggedIn.loggedIn){
       defer.resolve({'NotAuthorized': true})
@@ -1714,7 +1714,7 @@ PluginManager.prototype.getAvailablePlugins = function () {
               }
             };
           });
-        } else {      
+        } else {
           defer.resolve({'NotAuthorized': true})
         }
       })
@@ -1727,9 +1727,9 @@ PluginManager.prototype.getAvailablePlugins = function () {
     defer.resolve({'NotAuthorized': true})
   })
 
-  
-  
-  function pushAvailablePlugins (response) {    
+
+
+  function pushAvailablePlugins (response) {
     for (var i = 0; i < response.categories.length; i++) {
       var plugins = response.categories[i].plugins;
       for (var a = 0; a < plugins.length; a++) {
@@ -1743,7 +1743,7 @@ PluginManager.prototype.getAvailablePlugins = function () {
         } else {
           thisPlugin.url = 'https://plugins.volumio.workers.dev/pluginsv2/downloadLatestStable/' + plugins[a].name + '/' + variant + '/' + os + '/' + arch
         }
-        
+
         for (var c = 0; c < myplugins.length; c++) {
           if (myplugins[c].prettyName === availableName) {
             thisPlugin.installed = true;
@@ -1791,7 +1791,7 @@ PluginManager.prototype.getPluginDetails = function (data) {
           }
         };
       });
-  });  
+  });
 
   function pushDetails (response) {
     var responseData = {
@@ -1807,7 +1807,7 @@ PluginManager.prototype.getPluginDetails = function (data) {
       if(version.channel === 'stable' || allowBeta){
         version.variants.forEach((versionVariant) => {
           if (versionVariant.variant === variant + '/' + os + '/' + arch) {
-            responseData.buttons.push(            
+            responseData.buttons.push(
                 {
                   name: 'Install v' + version.version + ' (' + version.channel + ')',
                   class: 'btn btn-warning',
@@ -1819,11 +1819,11 @@ PluginManager.prototype.getPluginDetails = function (data) {
         });
       }
     })
-    responseData.buttons.push(         
+    responseData.buttons.push(
       {
         name: self.coreCommand.getI18nString('COMMON.CLOSE'),
         class: 'btn btn-warning'
-      }   
+      }
     );
     defer.resolve(responseData);
   }
@@ -2069,7 +2069,7 @@ PluginManager.prototype.checkConfigFileEmpty = function (destConfigurationFile) 
 PluginManager.prototype.detectVolumioHardware = function () {
     var self = this;
 
-    //TODO: Re-implement volumio products 
+    //TODO: Re-implement volumio products
     // isVolumioHardware = self.coreCommand.executeOnPlugin('system_controller', 'my_volumio', 'detectVolumioHardware', '');
     // if (isVolumioHardware === true) {
     //   variant = 'volumioproducts';
