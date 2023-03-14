@@ -62,6 +62,7 @@ function parseMpdOutput(lines, startFrom) {
     }
   }
   res.duration = res.duration ? parseInt(res.duration) : 0
+  res.tracknumber = res.tracknumber ? parseInt(res.tracknumber) : 0
   if (!res.title) {
     res.title = filename
   }
@@ -260,7 +261,7 @@ ControllerMpd.prototype.parseListAllInfoResult = function (sInput) {
         name: title,
         genres: [],
         performers: albumartist ? albumartist.split(',').map((x) => x.trim()) : [],
-        tracknumber: tracknumber ? Number(tracknumber) : 0,
+        tracknumber,
         year,
         duration,
       })
@@ -1520,10 +1521,6 @@ ControllerMpd.prototype.lsInfo = function (uri) {
               } else if (line.indexOf('file:') === 0) {
                 const {path, artist, album, title, year, tracknumber, duration, genre} = parseMpdOutput(lines, i)
                 const albumart = self.getAlbumArt('', self.getParentFolder('/mnt/' + path), 'music')
-                let tracknumberInt
-                if (tracknumber) {
-                  tracknumberInt = parseInt(tracknumber.split('/')[0])
-                }
                 list.push({
                   service: 'mpd',
                   type: 'song',
@@ -1531,10 +1528,10 @@ ControllerMpd.prototype.lsInfo = function (uri) {
                   artist,
                   album,
                   uri: s0 + path,
-                  year: year ? parseInt(year) : '',
+                  year,
                   albumart,
                   genre,
-                  tracknumber: tracknumberInt,
+                  tracknumber,
                   duration,
                   composer: artist,
                 })
