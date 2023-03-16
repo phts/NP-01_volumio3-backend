@@ -85,6 +85,7 @@ class CoreStateMachine {
         duration: this.volatileState.duration,
         samplerate: this.volatileState.samplerate,
         bitdepth: this.volatileState.bitdepth,
+        bitrate: this.volatileState.bitrate,
         channels: this.volatileState.channels,
         random: this.volatileState.random,
         repeat: this.volatileState.repeat,
@@ -179,6 +180,7 @@ class CoreStateMachine {
           duration: trackBlock.duration,
           samplerate: trackBlock.samplerate,
           bitdepth: trackBlock.bitdepth,
+          bitrate: trackBlock.bitrate,
           channels: trackBlock.channels,
           random: this.currentRandom,
           repeat: this.currentRepeat,
@@ -213,6 +215,7 @@ class CoreStateMachine {
       samplerate: '',
       channels: '',
       bitdepth: '',
+      bitrate: '',
       service: 'mpd',
       volume: this.currentVolume,
       dbVolume: this.currentDbVolume,
@@ -710,6 +713,9 @@ class CoreStateMachine {
 
               if (stateService.bitdepth !== undefined && trackBlock.bitdepth === undefined) {
                 trackBlock.bitdepth = stateService.bitdepth
+              }
+              if (!trackBlock.bitrate && stateService.bitrate) {
+                trackBlock.bitrate = stateService.bitrate
               }
 
               if (stateService.channels !== undefined && trackBlock.channels === undefined) {
