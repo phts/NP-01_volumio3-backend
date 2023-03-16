@@ -268,6 +268,7 @@ class ControllerMpd {
           collectedState.tracknumber = trackinfo.tracknumber
           collectedState.uri = trackinfo.uri
           collectedState.trackType = trackinfo.trackType.split('?')[0]
+          collectedState.bitrate = trackinfo.bitrate
           return collectedState
         })
         // Else return null track info
