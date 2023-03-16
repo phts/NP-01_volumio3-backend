@@ -465,49 +465,49 @@ class ControllerMpd {
     }
 
     // Pull audio metrics
-    var nBitDepth = null
-    var nSampleRate = null
-    var nChannels = null
+    let bitdepth = null
+    let samplerate = null
+    let channels = null
     if ('audio' in objState) {
-      var objMetrics = objState.audio.split(':')
-      var nSampleRateRaw = Number(objMetrics[0]) / 1000
-      nBitDepth = Number(objMetrics[1]) + ' bit'
-      nChannels = Number(objMetrics[2])
+      const objMetrics = objState.audio.split(':')
+      samplerate = Number(objMetrics[0]) / 1000
+      bitdepth = Number(objMetrics[1]) + ' bit'
+      channels = Number(objMetrics[2])
       if (objMetrics[1] === 'f') {
-        nBitDepth = '32 bit'
+        samplerate = samplerate + ' kHz'
+        bitdepth = '32 bit'
       } else if (objMetrics[0] === 'dsd64') {
-        var nSampleRateRaw = '2.82 MHz'
-        nBitDepth = '1 bit'
-        nChannels = 2
+        samplerate = '2.82 MHz'
+        bitdepth = '1 bit'
+        channels = 2
       } else if (objMetrics[0] === 'dsd128') {
-        var nSampleRateRaw = '5.64 MHz'
-        nBitDepth = '1 bit'
-        nChannels = 2
+        samplerate = '5.64 MHz'
+        bitdepth = '1 bit'
+        channels = 2
       } else if (objMetrics[0] === 'dsd256') {
-        var nSampleRateRaw = '11.28 MHz'
-        nBitDepth = '1 bit'
-        nChannels = 2
+        samplerate = '11.28 MHz'
+        bitdepth = '1 bit'
+        channels = 2
       } else if (objMetrics[0] === 'dsd512') {
-        var nSampleRateRaw = '22.58 MHz'
-        nBitDepth = '1 bit'
-        nChannels = 2
+        samplerate = '22.58 MHz'
+        bitdepth = '1 bit'
+        channels = 2
       } else if (objMetrics[1] === 'dsd') {
-        if (nSampleRateRaw === 352.8) {
-          var nSampleRateRaw = '2.82 MHz'
-          nBitDepth = '1 bit'
-        } else if (nSampleRateRaw === 705.6) {
-          var nSampleRateRaw = '5.64 MHz'
-          nBitDepth = '1 bit'
-        } else if (nSampleRateRaw === 1411.2) {
-          var nSampleRateRaw = '11.2 MHz'
-          nBitDepth = '1 bit'
+        if (samplerate === 352.8) {
+          samplerate = '2.82 MHz'
+          bitdepth = '1 bit'
+        } else if (samplerate === 705.6) {
+          samplerate = '5.64 MHz'
+          bitdepth = '1 bit'
+        } else if (samplerate === 1411.2) {
+          samplerate = '11.2 MHz'
+          bitdepth = '1 bit'
         } else {
-          var nSampleRateRaw = nSampleRateRaw + ' kHz'
+          samplerate = samplerate + ' kHz'
         }
       } else {
-        var nSampleRateRaw = nSampleRateRaw + ' kHz'
+        samplerate = samplerate + ' kHz'
       }
-      nSampleRate = nSampleRateRaw
     }
     var random = null
     if ('random' in objState) {
@@ -541,9 +541,9 @@ class ControllerMpd {
       position: nPosition,
       seek: nSeek,
       duration: nDuration,
-      samplerate: nSampleRate,
-      bitdepth: nBitDepth,
-      channels: nChannels,
+      samplerate,
+      bitdepth,
+      channels,
       random: random,
       updatedb: updatedb,
       repeat: repeat,
