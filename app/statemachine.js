@@ -266,21 +266,6 @@ class CoreStateMachine {
     })
   }
 
-  pause() {
-    this.commandRouter.pushConsoleMessage('CoreStateMachine::pause')
-
-    if (this.currentStatus === 'play') {
-      // Play -> Pause transition
-      if (this.currentTrackType === 'webradio') {
-        this.currentStatus = 'stop'
-        return this.serviceStop()
-      } else {
-        this.currentStatus = 'pause'
-        return this.servicePause()
-      }
-    }
-  }
-
   updateTrackBlock() {
     this.commandRouter.pushConsoleMessage('CoreStateMachine::updateTrackBlock')
     this.currentTrackBlock = this.playQueue.getTrackBlock(this.currentPosition)
