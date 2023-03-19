@@ -1141,6 +1141,7 @@ class CoreStateMachine {
       this.stopPlaybackTimer()
       return this.servicePause()
     }
+    return libQ.resolve()
   }
 
   ffwdRew(millisecs) {
