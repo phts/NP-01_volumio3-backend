@@ -532,7 +532,7 @@ class ControllerMpd {
     var bitrate = null
     if ('bitrate' in objState) {
       if (objState.bitrate !== '0') {
-        bitrate = objState.bitrate + ' Kbps'
+        bitrate = objState.bitrate + ' kbps'
       }
     }
 
