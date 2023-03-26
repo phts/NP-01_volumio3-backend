@@ -312,7 +312,7 @@ class CoreStateMachine {
       self.currentDbVolume = null
       self.currentMute = null
       self.currentUpdate = false
-      self.getcurrentVolume()
+      self.getCurrentVolume()
     })
   }
 
@@ -439,9 +439,9 @@ class CoreStateMachine {
     this.pushState().fail(this.pushError.bind(this))
   }
 
-  getcurrentVolume() {
+  getCurrentVolume() {
     var self = this
-    this.commandRouter.pushConsoleMessage('CoreStateMachine::getcurrentVolume')
+    this.commandRouter.pushConsoleMessage('CoreStateMachine::getCurrentVolume')
     this.commandRouter.volumioretrievevolume().then((volumeData) => {
       self.currentVolume = volumeData.vol
       if (undefined != volumeData.dbVolume) self.currentDbVolume = volumeData.dbVolume
@@ -460,7 +460,7 @@ class CoreStateMachine {
     var promise = libQ.defer()
 
     var state = this.getState()
-    self.saveCurrenState(state)
+    self.saveCurrentState(state)
 
     state.pushSource = source
 
@@ -473,7 +473,7 @@ class CoreStateMachine {
     return promise.promise
   }
 
-  saveCurrenState(state) {
+  saveCurrentState(state) {
     var self = this
 
     let newStateToString = JSON.stringify(state)

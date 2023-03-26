@@ -145,7 +145,7 @@ class CoreCommandRouter {
 
   retrieveVolumeLevels() {
     this.pushConsoleMessage('CoreCommandRouter::volumioRetrieveVolumeLevels')
-    return this.stateMachine.getcurrentVolume()
+    return this.stateMachine.getCurrentVolume()
   }
 
   setStartupVolume() {
