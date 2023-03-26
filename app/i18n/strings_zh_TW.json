@@ -56,8 +56,6 @@
         "WEB_ALBUMART_SIZE_DOC": "選擇從網路下載專輯封面的檔案大小：高畫質需要較長讀取時間。較低畫質對讀取時間有幫助。"
     },
     "COMMON": {
-        "ADD_QUEUE_TEXT_1": "已經加 ",
-        "ADD_QUEUE_TEXT_2": " 到貯列中",
         "ADD_QUEUE_TITLE": "加到播放貯列",
         "ALBUM": "專輯",
         "ALBUMS": "專輯",
@@ -104,8 +102,6 @@
         "PLAY_TEXT": "開始播放 ",
         "PLAY_TITLE": "播放",
         "REMOVE_FAIL": "",
-        "REMOVE_QUEUE_TEXT_1": "刪除 ",
-        "REMOVE_QUEUE_TEXT_2": " 從貯列中",
         "REMOVE_QUEUE_TITLE": "刪除",
         "RESCAN_DB": "重建音樂資料庫",
         "RESTART": "重新啟動",
@@ -287,7 +283,6 @@
         "VOLUME_OPTIONS": "音量選項"
     },
     "PLAYLIST": {
-        "ADDED_TITLE": "已加入",
         "ADDED_TO_FAVOURITES": " 加到最愛清單 ",
         "ADDED_TO_PLAYLIST": " 加到播放清單 ",
         "REMOVE_ERROR": "錯誤：無法刪除",

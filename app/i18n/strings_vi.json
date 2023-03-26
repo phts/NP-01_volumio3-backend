@@ -56,8 +56,6 @@
         "WEB_ALBUMART_SIZE_DOC": "Chọn kích thước bìa album download từ web:Chất lượng cao hơn đồng nghĩa với việc tải ảnh chậm hơn. Ảnh chất lượng thấp sẽ tải nhanh hơn."
     },
     "COMMON": {
-        "ADD_QUEUE_TEXT_1": "Đã thêm ",
-        "ADD_QUEUE_TEXT_2": " Tới danh sách đợi",
         "ADD_QUEUE_TITLE": "Thêm vào danh sách đợi",
         "ALBUM": "Album",
         "ALBUMS": "Các Album nhạc",
@@ -104,8 +102,6 @@
         "PLAY_TEXT": "Đã bắt đầu chơi nhạc của ",
         "PLAY_TITLE": "Play",
         "REMOVE_FAIL": "Không thể xóa",
-        "REMOVE_QUEUE_TEXT_1": "Xóa ",
-        "REMOVE_QUEUE_TEXT_2": " Từ danh sách đợi",
         "REMOVE_QUEUE_TITLE": "Xóa",
         "RESCAN_DB": "Thiết lập lại thư viện nhạc",
         "RESTART": "Khởi động lại",
@@ -287,7 +283,6 @@
         "VOLUME_OPTIONS": "Điều chỉnh âm lượng"
     },
     "PLAYLIST": {
-        "ADDED_TITLE": "Đã thêm",
         "ADDED_TO_FAVOURITES": " Tới yêu thích ",
         "ADDED_TO_PLAYLIST": " Tới danh sách ",
         "REMOVE_ERROR": "Không thể xóa",

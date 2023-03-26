@@ -56,8 +56,6 @@
         "WEB_ALBUMART_SIZE_DOC": ""
     },
     "COMMON": {
-        "ADD_QUEUE_TEXT_1": "Lisätty ",
-        "ADD_QUEUE_TEXT_2": " jonoon",
         "ADD_QUEUE_TITLE": "Lisää jonoon",
         "ALBUM": "",
         "ALBUMS": "",
@@ -104,8 +102,6 @@
         "PLAY_TEXT": "Soittaminen aloitettu ",
         "PLAY_TITLE": "Soita",
         "REMOVE_FAIL": "",
-        "REMOVE_QUEUE_TEXT_1": "Poista ",
-        "REMOVE_QUEUE_TEXT_2": " jonosta",
         "REMOVE_QUEUE_TITLE": "Poista",
         "RESCAN_DB": "",
         "RESTART": "Käynnistä uudelleen",
@@ -287,7 +283,6 @@
         "VOLUME_OPTIONS": "Äänenvoimakkuuden valinnat"
     },
     "PLAYLIST": {
-        "ADDED_TITLE": "Lisätty",
         "ADDED_TO_FAVOURITES": " Suosikkeihin ",
         "ADDED_TO_PLAYLIST": " soittolistaan ",
         "REMOVE_ERROR": "Ei voi poistaa",

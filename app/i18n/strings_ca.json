@@ -56,8 +56,6 @@
         "WEB_ALBUMART_SIZE_DOC": "Selecciona la mida de la caràtula de l'àlbum descarregada del web: una major qualitat requereix temps de càrrega més llargs. Els valors més baixos poden millorar els temps de càrrega."
     },
     "COMMON": {
-        "ADD_QUEUE_TEXT_1": "Afegit ",
-        "ADD_QUEUE_TEXT_2": " a la cua",
         "ADD_QUEUE_TITLE": "Afegir a la cua",
         "ALBUM": "Àlbum",
         "ALBUMS": "Àlbums",
@@ -104,8 +102,6 @@
         "PLAY_TEXT": "En reproducció ",
         "PLAY_TITLE": "Reproduir",
         "REMOVE_FAIL": "No s'ha pogut eliminar",
-        "REMOVE_QUEUE_TEXT_1": "Eliminar ",
-        "REMOVE_QUEUE_TEXT_2": " de la cua",
         "REMOVE_QUEUE_TITLE": "Eliminar",
         "RESCAN_DB": "Recreació de la base de dades musical",
         "RESTART": "Reiniciar",
@@ -306,7 +302,6 @@
         "SQ_QUALITY_DESC": "Selecciona la qualitat musical desitjada"
     },
     "PLAYLIST": {
-        "ADDED_TITLE": "Afegit",
         "ADDED_TO_FAVOURITES": " a Favorits ",
         "ADDED_TO_PLAYLIST": " a la llista de reproducció ",
         "REMOVE_ERROR": "No es pot eliminar",

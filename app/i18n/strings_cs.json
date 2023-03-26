@@ -56,8 +56,6 @@
         "WEB_ALBUMART_SIZE_DOC": "Volba velikost obrázku obálky ke stažení z internetu."
     },
     "COMMON": {
-        "ADD_QUEUE_TEXT_1": "Přidáno ",
-        "ADD_QUEUE_TEXT_2": " do fronty",
         "ADD_QUEUE_TITLE": "Přidat do fronty",
         "ALBUM": "Album",
         "ALBUMS": "Alba",
@@ -104,8 +102,6 @@
         "PLAY_TEXT": "Zahájeno přehrávání ",
         "PLAY_TITLE": "Přehrát",
         "REMOVE_FAIL": "",
-        "REMOVE_QUEUE_TEXT_1": "Odstranit ",
-        "REMOVE_QUEUE_TEXT_2": " z fronty",
         "REMOVE_QUEUE_TITLE": "Odstranit",
         "RESCAN_DB": "Znovuvytvoření databáze hudby",
         "RESTART": "Restart",
@@ -287,7 +283,6 @@
         "VOLUME_OPTIONS": "Možnosti hlasitosti"
     },
     "PLAYLIST": {
-        "ADDED_TITLE": "Přidáno",
         "ADDED_TO_FAVOURITES": " do Oblíbených ",
         "ADDED_TO_PLAYLIST": " do seznamu ",
         "REMOVE_ERROR": "Nelze odstranit",

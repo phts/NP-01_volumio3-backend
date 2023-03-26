@@ -59,9 +59,7 @@
     "WEB_ALBUMART_SIZE_DOC": "Выберите размер обложки альбома, загружаемой из интернета: более высокое качество требует более длительного времени загрузки, более низкие значения могут улучшить время загрузки."
   },
   "COMMON": {
-    "ADD_QUEUE_TEXT_1": "Добавлено ",
-    "ADD_QUEUE_TEXT_2": " в очередь",
-    "ADD_QUEUE_TITLE": "Добавить в очередь",
+    "ADD_QUEUE_TITLE": "Добавлено в очередь",
     "ALBUM": "Альбом",
     "ALBUMS": "Альбомы",
     "ARTIST": "Исполнитель",
@@ -110,9 +108,7 @@
     "PLAY_TEXT": "Играет песня ",
     "PLAY_TITLE": "Играет",
     "REMOVE_FAIL": "Невозможно удалить",
-    "REMOVE_QUEUE_TEXT_1": "Удалить ",
-    "REMOVE_QUEUE_TEXT_2": " из очереди",
-    "REMOVE_QUEUE_TITLE": "Удалить",
+    "REMOVE_QUEUE_TITLE": "Удалено из очереди",
     "RESCAN_DB": "Повторное создание музыкальной базы данных",
     "RESTART": "Перезагрузка",
     "SAVE": "Сохранить",
@@ -309,9 +305,8 @@
     "VOLUME_OPTIONS": "Настройки громкости"
   },
   "PLAYLIST": {
-    "ADDED_TITLE": "Добавлено",
-    "ADDED_TO_FAVOURITES": " в избранное ",
-    "ADDED_TO_PLAYLIST": " в плейлист ",
+    "ADDED_TO_FAVOURITES": "Добавлено в избранное",
+    "ADDED_TO_PLAYLIST": "Добавлено в плейлист",
     "REMOVE_ERROR": "Невозможно удалить",
     "REMOVE_SUCCESS": "Удалено"
   },
@@ -443,6 +438,7 @@
     "UPDATE": "Обновить"
   },
   "WEBRADIO": {
+    "ADDED_TO_MY_WEBRADIOS": "Добавлено в мои веб-радио",
     "BEST_RADIOS": "Лучшие",
     "BY_COUNTRY_RADIOS": "По стране",
     "BY_GENRE_RADIOS": "По жанру",

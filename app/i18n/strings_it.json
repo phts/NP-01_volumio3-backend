@@ -56,8 +56,6 @@
         "WEB_ALBUMART_SIZE_DOC": "Imposta la dimensione delle copertine scaricate: maggiore la qualità, maggiore il tempo di caricamento. Se la navigazione appare lenta, diminuire la qualità"
     },
     "COMMON": {
-        "ADD_QUEUE_TEXT_1": "Aggiunta ",
-        "ADD_QUEUE_TEXT_2": " alla coda",
         "ADD_QUEUE_TITLE": "Aggiungi alla coda",
         "ALBUM": "Album",
         "ALBUMS": "Album",
@@ -104,8 +102,6 @@
         "PLAY_TEXT": "Iniziata la riproduzione di ",
         "PLAY_TITLE": "Riproduzione",
         "REMOVE_FAIL": "Rimozione non riuscita",
-        "REMOVE_QUEUE_TEXT_1": "Rimossa ",
-        "REMOVE_QUEUE_TEXT_2": " dalla coda",
         "REMOVE_QUEUE_TITLE": "Rimozione dalla code",
         "RESCAN_DB": "Nuova scansione del database cominciata",
         "RESTART": "Riavvia",
@@ -290,7 +286,6 @@
         "VOLUME_OPTIONS": "Opzioni del volume"
     },
     "PLAYLIST": {
-        "ADDED_TITLE": "Aggiunta",
         "ADDED_TO_FAVOURITES": " ai preferiti ",
         "ADDED_TO_PLAYLIST": " alla Playlist ",
         "REMOVE_ERROR": "Impossibile rimouovere",

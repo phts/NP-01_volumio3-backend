@@ -56,8 +56,6 @@
         "WEB_ALBUMART_SIZE_DOC": ""
     },
     "COMMON": {
-        "ADD_QUEUE_TEXT_1": "Προστέθηκε ",
-        "ADD_QUEUE_TEXT_2": " στη λίστα",
         "ADD_QUEUE_TITLE": "Προστέθηκε στη λίστα",
         "ALBUM": "",
         "ALBUMS": "",
@@ -104,8 +102,6 @@
         "PLAY_TEXT": "Ξεκίνησε η αναπαραγωγή του ",
         "PLAY_TITLE": "Αναπαραγωγή",
         "REMOVE_FAIL": "",
-        "REMOVE_QUEUE_TEXT_1": "Αφαίρεση ",
-        "REMOVE_QUEUE_TEXT_2": " από τη λίστα",
         "REMOVE_QUEUE_TITLE": "Αφαίρεση",
         "RESCAN_DB": "",
         "RESTART": "Επανεκκίνηση",
@@ -287,7 +283,6 @@
         "VOLUME_OPTIONS": "Επιλογές έντασης"
     },
     "PLAYLIST": {
-        "ADDED_TITLE": "Προστέθηκε",
         "ADDED_TO_FAVOURITES": " στα αγαπημένα ",
         "ADDED_TO_PLAYLIST": " στην λίστα αναπαραγωγής ",
         "REMOVE_ERROR": "Δεν είναι δυνατή η αφαίρεση",

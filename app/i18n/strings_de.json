@@ -56,8 +56,6 @@
         "WEB_ALBUMART_SIZE_DOC": "Größe der Albencover auswählen. Je größer die Qualität, desto länger die Downloadzeit. Sollten sich die Ladezeiten verlängern, sollte diese Einstellung auf eine niedrigere Stufe gesetzt werden."
     },
     "COMMON": {
-        "ADD_QUEUE_TEXT_1": "Füge ",
-        "ADD_QUEUE_TEXT_2": " zu Warteschlange hinzu",
         "ADD_QUEUE_TITLE": "Zu Warteschlange hinzufügen",
         "ALBUM": "Album",
         "ALBUMS": "Alben",
@@ -104,8 +102,6 @@
         "PLAY_TEXT": "Wiedergabe gestartet von ",
         "PLAY_TITLE": "Wiedergeben",
         "REMOVE_FAIL": "Entfernen fehlgeschlagen",
-        "REMOVE_QUEUE_TEXT_1": "Entferne ",
-        "REMOVE_QUEUE_TEXT_2": " aus Warteschlange",
         "REMOVE_QUEUE_TITLE": "Entfernen",
         "RESCAN_DB": "Musikdatenbank neu aufbauen",
         "RESTART": "Neu starten",
@@ -305,7 +301,6 @@
         "SQ_HIGHEST_POSSIBLE": "Bestmöglich"
     },
     "PLAYLIST": {
-        "ADDED_TITLE": "Hinzugefügt",
         "ADDED_TO_FAVOURITES": " zu Favoriten ",
         "ADDED_TO_PLAYLIST": " zu Wiedergabeliste ",
         "REMOVE_ERROR": "Kann nicht entfernt werden",

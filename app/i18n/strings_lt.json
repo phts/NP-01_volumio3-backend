@@ -72,8 +72,6 @@
         "LOGOUT_SUCCESS": "Išsijungta sėkmingai",
         "MATCHING": "tinkami",
         "MUSIC_LIBRARY": "Muzikos biblioteka",
-        "ADD_QUEUE_TEXT_1": "Įtraukta ",
-        "ADD_QUEUE_TEXT_2": " į eilę",
         "ADD_QUEUE_TITLE": "Įtraukti į eilę",
         "MY_MUSIC": "Mano muzika",
         "NONE": "Nieko",
@@ -84,8 +82,6 @@
         "PLAY_TEXT": "Pradėta groti ",
         "PLAY_TITLE": "Groti",
         "REMOVE_FAIL": "Nepavyksta pašalinti",
-        "REMOVE_QUEUE_TEXT_1": "Pašalinti ",
-        "REMOVE_QUEUE_TEXT_2": " iš eilės",
         "REMOVE_QUEUE_TITLE": "pašalinti",
         "RESCAN_DB": "Iš naujo kuriama įrašų duomenų bazė",
         "RESTART": "Paleisti iš naujo",
@@ -194,7 +190,6 @@
         "SYSTEM": "Sistema"
     },
     "PLAYLIST": {
-        "ADDED_TITLE": "Įtraukta",
         "ADDED_TO_FAVOURITES": " į Mėgstamiausius ",
         "ADDED_TO_PLAYLIST": " į grojaraštį ",
         "REMOVE_ERROR": "Nepavyksta pašalinti",

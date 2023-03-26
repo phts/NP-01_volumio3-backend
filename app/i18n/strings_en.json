@@ -59,9 +59,7 @@
     "WEB_ALBUMART_SIZE_DOC": "Choose the size of Album art downloaded from web: higher quality requires longer load times. Lower values may improve load times."
   },
   "COMMON": {
-    "ADD_QUEUE_TEXT_1": "Added ",
-    "ADD_QUEUE_TEXT_2": " to queue",
-    "ADD_QUEUE_TITLE": "Add to queue",
+    "ADD_QUEUE_TITLE": "Added to queue",
     "ALBUM": "Album",
     "ALBUMS": "Albums",
     "ARTIST": "Artist",
@@ -109,9 +107,7 @@
     "PLAY_TEXT": "Started playback of ",
     "PLAY_TITLE": "Play",
     "REMOVE_FAIL": "Could not remove",
-    "REMOVE_QUEUE_TEXT_1": "Remove ",
-    "REMOVE_QUEUE_TEXT_2": " from queue",
-    "REMOVE_QUEUE_TITLE": "Remove",
+    "REMOVE_QUEUE_TITLE": "Removed from queue",
     "RESCAN_DB": "Re-creating Music Database",
     "RESTART": "Restart",
     "SAVE": "Save",
@@ -309,10 +305,9 @@
     "SQ_HIGHEST_POSSIBLE": "Highest Possible"
   },
   "PLAYLIST": {
-    "ADDED_TITLE": "Added",
-    "ADDED_TO_FAVOURITES": " to Favorites ",
-    "ADDED_TO_PLAYLIST": " to playlist ",
-    "REMOVE_ERROR": "Cannot Remove",
+    "ADDED_TO_FAVOURITES": "Added to favorites",
+    "ADDED_TO_PLAYLIST": "Added to playlist",
+    "REMOVE_ERROR": "Cannot remove",
     "REMOVE_SUCCESS": "Removed"
   },
   "PLUGINS": {
@@ -443,6 +438,7 @@
     "UPDATE": "Update"
   },
   "WEBRADIO": {
+    "ADDED_TO_MY_WEBRADIOS": "Added to my web radios",
     "BEST_RADIOS": "Best Radios",
     "BY_COUNTRY_RADIOS": "By country",
     "BY_GENRE_RADIOS": "By genre",

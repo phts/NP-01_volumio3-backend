@@ -56,8 +56,6 @@
         "WEB_ALBUMART_SIZE_DOC": "Izaberite veličinu slike albuma preuzete s interneta: veća kvaliteta zahtijeva dulje vrijeme učitavanja. Niže vrijednosti mogu poboljšati vrijeme učitavanja."
     },
     "COMMON": {
-        "ADD_QUEUE_TEXT_1": "Dodano ",
-        "ADD_QUEUE_TEXT_2": " u red",
         "ADD_QUEUE_TITLE": "Dodaj u red",
         "ALBUM": "Album",
         "ALBUMS": "Albumi",
@@ -104,8 +102,6 @@
         "PLAY_TEXT": "Počela je reprodukcija datoteke ",
         "PLAY_TITLE": "Reproduciram",
         "REMOVE_FAIL": "Uklanjanje nije uspjelo",
-        "REMOVE_QUEUE_TEXT_1": "Ukloni ",
-        "REMOVE_QUEUE_TEXT_2": " iz reda",
         "REMOVE_QUEUE_TITLE": "Ukloni",
         "RESCAN_DB": "Ponovno stvaranje glazbene baze podataka",
         "RESTART": "Ponovno pokretanje",
@@ -287,7 +283,6 @@
         "VOLUME_OPTIONS": "Opcije glasnoće"
     },
     "PLAYLIST": {
-        "ADDED_TITLE": "Dodano",
         "ADDED_TO_FAVOURITES": " u omiljene ",
         "ADDED_TO_PLAYLIST": " na popis za reprodukciju ",
         "REMOVE_ERROR": "Uklanjanje nije moguće",

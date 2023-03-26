@@ -56,8 +56,6 @@
         "WEB_ALBUMART_SIZE_DOC": ""
     },
     "COMMON": {
-        "ADD_QUEUE_TEXT_1": "Додано ",
-        "ADD_QUEUE_TEXT_2": " в чергу",
         "ADD_QUEUE_TITLE": "Додавання в чергу",
         "ALBUM": "Альбом",
         "ALBUMS": "",
@@ -104,8 +102,6 @@
         "PLAY_TEXT": "Відтворюється пісня ",
         "PLAY_TITLE": ">",
         "REMOVE_FAIL": "",
-        "REMOVE_QUEUE_TEXT_1": "Видалено ",
-        "REMOVE_QUEUE_TEXT_2": " з черги",
         "REMOVE_QUEUE_TITLE": "x",
         "RESCAN_DB": "",
         "RESTART": "Перезапуск",
@@ -287,7 +283,6 @@
         "VOLUME_OPTIONS": "Налаштування гучності"
     },
     "PLAYLIST": {
-        "ADDED_TITLE": "Додати",
         "ADDED_TO_FAVOURITES": " до Обраного ",
         "ADDED_TO_PLAYLIST": " до списку відтворення ",
         "REMOVE_ERROR": "Не може бути видалено",

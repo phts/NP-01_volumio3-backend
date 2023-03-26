@@ -56,8 +56,6 @@
         "WEB_ALBUMART_SIZE_DOC": "인터넷을 통해서 다운로드 받을 앨범아트 크기: 고화질 일 수록 로딩 시간이 길고, 저화질일 수록 로딩 시간이 향상됩니다."
     },
     "COMMON": {
-        "ADD_QUEUE_TEXT_1": "추가됨 ",
-        "ADD_QUEUE_TEXT_2": " 대기열로",
         "ADD_QUEUE_TITLE": "대기열에 추가",
         "ALBUM": "앨범",
         "ALBUMS": "앨범",
@@ -104,8 +102,6 @@
         "PLAY_TEXT": "다음곡 플레이 시작 ",
         "PLAY_TITLE": "플레이",
         "REMOVE_FAIL": "제거 실패",
-        "REMOVE_QUEUE_TEXT_1": "제거 ",
-        "REMOVE_QUEUE_TEXT_2": " 대기열에서",
         "REMOVE_QUEUE_TITLE": "제거",
         "RESCAN_DB": "데이터베이스 재생성 중",
         "RESTART": "재시작",
@@ -305,7 +301,6 @@
         "SQ_HI_RES": "Hi-Res(고음질)"
     },
     "PLAYLIST": {
-        "ADDED_TITLE": "추가 ->",
         "ADDED_TO_FAVOURITES": " 즐겨찾기 ",
         "ADDED_TO_PLAYLIST": " 플레이리스트 ",
         "REMOVE_ERROR": "제거할 수 없음",

@@ -56,8 +56,6 @@
         "WEB_ALBUMART_SIZE_DOC": "选择从网络获取专辑图像的大小：高品质的图像需要更多下载时间，反之低品质则花费时间少"
     },
     "COMMON": {
-        "ADD_QUEUE_TEXT_1": "已添加 ",
-        "ADD_QUEUE_TEXT_2": " 到队列",
         "ADD_QUEUE_TITLE": "添加到队列",
         "ALBUM": "专辑",
         "ALBUMS": "专辑",
@@ -104,8 +102,6 @@
         "PLAY_TEXT": "开始播放 ",
         "PLAY_TITLE": "播放",
         "REMOVE_FAIL": "",
-        "REMOVE_QUEUE_TEXT_1": "删除 ",
-        "REMOVE_QUEUE_TEXT_2": " 从队列",
         "REMOVE_QUEUE_TITLE": "删除",
         "RESCAN_DB": "重新扫描音乐",
         "RESTART": "重启",
@@ -287,7 +283,6 @@
         "VOLUME_OPTIONS": "音量选项"
     },
     "PLAYLIST": {
-        "ADDED_TITLE": "已添加",
         "ADDED_TO_FAVOURITES": " 到收藏夹 ",
         "ADDED_TO_PLAYLIST": " 到播放列表 ",
         "REMOVE_ERROR": "不能删除",

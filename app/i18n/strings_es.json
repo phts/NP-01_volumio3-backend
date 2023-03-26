@@ -56,8 +56,6 @@
         "WEB_ALBUMART_SIZE_DOC": "Selecciona el tamaño de la carátula del álbum descargada de la web: una mayor calidad requiere tiempos de carga más largos. Los valores más bajos pueden mejorar los tiempos de carga."
     },
     "COMMON": {
-        "ADD_QUEUE_TEXT_1": "Añadido ",
-        "ADD_QUEUE_TEXT_2": " a la cola",
         "ADD_QUEUE_TITLE": "Añadir a la cola",
         "ALBUM": "Álbum",
         "ALBUMS": "Álbumes",
@@ -104,8 +102,6 @@
         "PLAY_TEXT": "Reproduciendo ",
         "PLAY_TITLE": "Reproducir",
         "REMOVE_FAIL": "No se pudo eliminar",
-        "REMOVE_QUEUE_TEXT_1": "Eliminar ",
-        "REMOVE_QUEUE_TEXT_2": " de la cola",
         "REMOVE_QUEUE_TITLE": "Eliminar",
         "RESCAN_DB": "Recreación de la base de datos musical",
         "RESTART": "Reiniciar",
@@ -305,7 +301,6 @@
         "SQ_QUALITY_DESC": "Selecciona la calidad músical deseada"
     },
     "PLAYLIST": {
-        "ADDED_TITLE": "Añadido",
         "ADDED_TO_FAVOURITES": " a Favoritos ",
         "ADDED_TO_PLAYLIST": " a la lista de reproducción ",
         "REMOVE_ERROR": "No se puede eliminar",

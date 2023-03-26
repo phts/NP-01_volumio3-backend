@@ -56,8 +56,6 @@
         "WEB_ALBUMART_SIZE_DOC": "Choix de la taille de l'image pour la pochette. Si trop lent, utiliser une taille plus réduite."
     },
     "COMMON": {
-        "ADD_QUEUE_TEXT_1": "Ajouté ",
-        "ADD_QUEUE_TEXT_2": " à la queue",
         "ADD_QUEUE_TITLE": "Ajouté à la queue",
         "ALBUM": "Album",
         "ALBUMS": "Albums",
@@ -104,8 +102,6 @@
         "PLAY_TEXT": "Début de lecture de ",
         "PLAY_TITLE": "Jouer",
         "REMOVE_FAIL": "Impossible de retirer",
-        "REMOVE_QUEUE_TEXT_1": "Supprimer ",
-        "REMOVE_QUEUE_TEXT_2": " de la queue",
         "REMOVE_QUEUE_TITLE": "Supprimer",
         "RESCAN_DB": "Reconstruction de la base de données",
         "RESTART": "Redémarrer",
@@ -305,7 +301,6 @@
         "SQ_QUALITY_DESC": "Choisissez la qualité désirée"
     },
     "PLAYLIST": {
-        "ADDED_TITLE": "Ajouté",
         "ADDED_TO_FAVOURITES": " aux favoris ",
         "ADDED_TO_PLAYLIST": " à la playlist ",
         "REMOVE_ERROR": "Impossible de supprimer",

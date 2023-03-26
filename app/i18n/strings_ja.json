@@ -56,8 +56,6 @@
         "WEB_ALBUMART_SIZE_DOC": ""
     },
     "COMMON": {
-        "ADD_QUEUE_TEXT_1": "追加済み ",
-        "ADD_QUEUE_TEXT_2": " キューに",
         "ADD_QUEUE_TITLE": "キューに追加",
         "ALBUM": "アルバム",
         "ALBUMS": "アルバム",
@@ -104,8 +102,6 @@
         "PLAY_TEXT": "開始されたプレイバック",
         "PLAY_TITLE": "再生",
         "REMOVE_FAIL": "",
-        "REMOVE_QUEUE_TEXT_1": "削除 ",
-        "REMOVE_QUEUE_TEXT_2": " キューから",
         "REMOVE_QUEUE_TITLE": "削除",
         "RESCAN_DB": "音楽データベースの再作成中",
         "RESTART": "再起動",
@@ -287,7 +283,6 @@
         "VOLUME_OPTIONS": "音量オプション"
     },
     "PLAYLIST": {
-        "ADDED_TITLE": "追加済み",
         "ADDED_TO_FAVOURITES": " お好みに ",
         "ADDED_TO_PLAYLIST": " プレイリストに ",
         "REMOVE_ERROR": "削除できない",

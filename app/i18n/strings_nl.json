@@ -56,8 +56,6 @@
         "WEB_ALBUMART_SIZE_DOC": "Kies de grootte van albumillustraties gedownload van internet: hogere kwaliteit vereist langere laadtijden. Lagere waarden kunnen de laadtijden verbeteren."
     },
     "COMMON": {
-        "ADD_QUEUE_TEXT_1": "Toegevoegd ",
-        "ADD_QUEUE_TEXT_2": " aan wachtrij",
         "ADD_QUEUE_TITLE": "Toegevoegd aan wachtrij",
         "ALBUM": "Album",
         "ALBUMS": "Albums",
@@ -104,8 +102,6 @@
         "PLAY_TEXT": "Begonnen met afspelen van ",
         "PLAY_TITLE": "Afspelen",
         "REMOVE_FAIL": "Kon niet verwijderen",
-        "REMOVE_QUEUE_TEXT_1": "Verwijder ",
-        "REMOVE_QUEUE_TEXT_2": " van wachtrij",
         "REMOVE_QUEUE_TITLE": "Verwijderen",
         "RESCAN_DB": "Opnieuw aanmaken van muziek database",
         "RESTART": "Herstart",
@@ -305,7 +301,6 @@
         "SQ_MP3_320": "MP3 (320 kbit/s)"
     },
     "PLAYLIST": {
-        "ADDED_TITLE": "Toegevoegd",
         "ADDED_TO_FAVOURITES": " aan favorieten ",
         "ADDED_TO_PLAYLIST": " aan afspeellijst ",
         "REMOVE_ERROR": "Kon niet verwijderd worden",

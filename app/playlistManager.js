@@ -48,14 +48,9 @@ class PlaylistManager {
 
   deletePlaylist(name) {
     var self = this
-
     var defer = libQ.defer()
-
     self.commandRouter.pushConsoleMessage('Deleting playlist ' + name)
-
-    var playlist = []
     var filePath = self.playlistFolder + name
-
     fs.exists(filePath, function (exists) {
       if (!exists) {
         defer.resolve({success: false, reason: 'Playlist does not exist'})
@@ -95,15 +90,12 @@ class PlaylistManager {
   }
 
   addToPlaylist(name, service, uri) {
-    var self = this
-
-    // self.commandRouter.pushConsoleMessage('Adding uri '+uri+' to playlist '+name);
-    self.commandRouter.pushToastMessage(
+    this.commandRouter.pushToastMessage(
       'success',
-      self.commandRouter.getI18nString('PLAYLIST.ADDED_TITLE'),
-      uri + self.commandRouter.getI18nString('PLAYLIST.ADDED_TO_PLAYLIST') + name
+      `${this.commandRouter.getI18nString('PLAYLIST.ADDED_TO_PLAYLIST')} "${name}"`,
+      uri
     )
-    return self.commonAddToPlaylist(self.playlistFolder, name, service, uri)
+    return this.commonAddToPlaylist(this.playlistFolder, name, service, uri)
   }
 
   addItemsToPlaylist(name, data) {
@@ -196,19 +188,11 @@ class PlaylistManager {
   addToFavourites(service, uri, title) {
     var self = this
 
-    if (title) {
-      self.commandRouter.pushToastMessage(
-        'success',
-        self.commandRouter.getI18nString('PLAYLIST.ADDED_TITLE'),
-        title + self.commandRouter.getI18nString('PLAYLIST.ADDED_TO_FAVOURITES')
-      )
-    } else {
-      self.commandRouter.pushToastMessage(
-        'success',
-        self.commandRouter.getI18nString('PLAYLIST.ADDED_TITLE'),
-        uri + self.commandRouter.getI18nString('PLAYLIST.ADDED_TO_FAVOURITES')
-      )
-    }
+    self.commandRouter.pushToastMessage(
+      'success',
+      self.commandRouter.getI18nString('PLAYLIST.ADDED_TO_FAVOURITES'),
+      title || uri
+    )
 
     if (service === 'webradio') {
       return self.commonAddToPlaylist(self.favouritesPlaylistFolder, 'radio-favourites', service, uri, title)
@@ -330,9 +314,7 @@ class PlaylistManager {
                 defer.resolve({success: true})
                 self.commandRouter.pushToastMessage(
                   'success',
-                  self.commandRouter.getI18nString('WEBRADIO.WEBRADIO') +
-                    ' ' +
-                    self.commandRouter.getI18nString('PLAYLIST.ADDED_TITLE'),
+                  self.commandRouter.getI18nString('WEBRADIO.ADDED_TO_MY_WEBRADIOS'),
                   radio_name
                 )
               })
@@ -724,7 +706,7 @@ class PlaylistManager {
           self.commandRouter.pushToastMessage(
             'success',
             self.commandRouter.getI18nString('PLAYLIST.REMOVE_SUCCESS'),
-            name + ' ' + self.commandRouter.getI18nString('PLAYLIST.REMOVE_SUCCESS')
+            name
           )
           defer.resolve(playlists)
         }

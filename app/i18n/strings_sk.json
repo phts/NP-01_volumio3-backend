@@ -56,8 +56,6 @@
         "WEB_ALBUMART_SIZE_DOC": "Voľba veľkosti obrázku obálky sťahovaného z internetu"
     },
     "COMMON": {
-        "ADD_QUEUE_TEXT_1": "Pridáné ",
-        "ADD_QUEUE_TEXT_2": " do zoznamu skladieb",
         "ADD_QUEUE_TITLE": "Pridať do zoznam skladieb",
         "ALBUM": "Album",
         "ALBUMS": "Albumy",
@@ -104,8 +102,6 @@
         "PLAY_TEXT": "Sputené prehrávanie ",
         "PLAY_TITLE": "Prehrať",
         "REMOVE_FAIL": "Nemožno odobrať",
-        "REMOVE_QUEUE_TEXT_1": "Odobrať ",
-        "REMOVE_QUEUE_TEXT_2": " zo zoznamu skladieb",
         "REMOVE_QUEUE_TITLE": "Odobrať",
         "RESCAN_DB": "Vytváram hudobnú databázu",
         "RESTART": "Reštart",
@@ -287,7 +283,6 @@
         "VOLUME_OPTIONS": "Nastavenie hlasitosti"
     },
     "PLAYLIST": {
-        "ADDED_TITLE": "Pridaný",
         "ADDED_TO_FAVOURITES": " do obľúbených ",
         "ADDED_TO_PLAYLIST": " do playlistu ",
         "REMOVE_ERROR": "Nedá sa odobrať",

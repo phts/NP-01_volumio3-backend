@@ -95,13 +95,7 @@ class CorePlayQueue {
     if (item[0] && item[0].name) {
       name = item[0].name
     }
-    this.commandRouter.pushToastMessage(
-      'success',
-      this.commandRouter.getI18nString('COMMON.REMOVE_QUEUE_TITLE'),
-      this.commandRouter.getI18nString('COMMON.REMOVE_QUEUE_TEXT_1') +
-        name +
-        this.commandRouter.getI18nString('COMMON.REMOVE_QUEUE_TEXT_2')
-    )
+    this.commandRouter.pushToastMessage('success', this.commandRouter.getI18nString('COMMON.REMOVE_QUEUE_TITLE'), name)
 
     var defer = libQ.defer()
     this.commandRouter

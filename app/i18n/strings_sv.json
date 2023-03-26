@@ -56,8 +56,6 @@
         "WEB_ALBUMART_SIZE_DOC": "Välj storlek för skivomslag som laddas ner från webben: högre kvalitet kräver längre inläsningstid. Lägre värden kan förbättra inläsningstiden."
     },
     "COMMON": {
-        "ADD_QUEUE_TEXT_1": "Lade till ",
-        "ADD_QUEUE_TEXT_2": " i kön",
         "ADD_QUEUE_TITLE": "Lägg till i kön",
         "ALBUM": "Album",
         "ALBUMS": "Album",
@@ -104,8 +102,6 @@
         "PLAY_TEXT": "Startade uppspelning av ",
         "PLAY_TITLE": "Spela",
         "REMOVE_FAIL": "Det gick inte att ta bort",
-        "REMOVE_QUEUE_TEXT_1": "Ta bort ",
-        "REMOVE_QUEUE_TEXT_2": " från kön",
         "REMOVE_QUEUE_TITLE": "Ta bort",
         "RESCAN_DB": "Återskapar musikdatabasen",
         "RESTART": "Starta om",
@@ -290,7 +286,6 @@
         "VOLUME_OPTIONS": "Volymalternativ"
     },
     "PLAYLIST": {
-        "ADDED_TITLE": "Lade till",
         "ADDED_TO_FAVOURITES": " till favoriter ",
         "ADDED_TO_PLAYLIST": " till spellistan ",
         "REMOVE_ERROR": "Kan inte ta bort",

@@ -56,8 +56,6 @@
         "WEB_ALBUMART_SIZE_DOC": "Web'den indirilen Albüm resmi boyutunu seçin: daha yüksek kalite daha uzun süreleri gerektirir. Düşük değerler yükleme sürelerini iyileştirebilir."
     },
     "COMMON": {
-        "ADD_QUEUE_TEXT_1": "Eklendi ",
-        "ADD_QUEUE_TEXT_2": " kuyruğa",
         "ADD_QUEUE_TITLE": "Kuyruğa ekle ",
         "ALBUM": "Albüm",
         "ALBUMS": "Albümler",
@@ -104,8 +102,6 @@
         "PLAY_TEXT": "Oynatmaya başladı ",
         "PLAY_TITLE": "Oynat/Çal",
         "REMOVE_FAIL": "Kaldırılamadı",
-        "REMOVE_QUEUE_TEXT_1": "Kaldır ",
-        "REMOVE_QUEUE_TEXT_2": " kuyruktan",
         "REMOVE_QUEUE_TITLE": "Kaldır",
         "RESCAN_DB": "Müzik Veritabanı yeniden oluşturuluyor",
         "RESTART": "Tekrar Başlat",
@@ -287,7 +283,6 @@
         "VOLUME_OPTIONS": "Ses Seçenekleri"
     },
     "PLAYLIST": {
-        "ADDED_TITLE": "Eklendi",
         "ADDED_TO_FAVOURITES": " Favorilere ",
         "ADDED_TO_PLAYLIST": " çalma listesine ",
         "REMOVE_ERROR": "Kaldırılamıyor",

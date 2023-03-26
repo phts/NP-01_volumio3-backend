@@ -56,8 +56,6 @@
         "WEB_ALBUMART_SIZE_DOC": "Válassza ki az internetről letöltendő albumborító méretét. A magasabb minőség hoszabb betöltési idővel jár."
     },
     "COMMON": {
-        "ADD_QUEUE_TEXT_1": "Hozzáadva ",
-        "ADD_QUEUE_TEXT_2": " a lejátszási sorhoz",
         "ADD_QUEUE_TITLE": "Hozzáadás a lejátszási sorhoz",
         "ALBUM": "Album",
         "ALBUMS": "Albumok",
@@ -104,8 +102,6 @@
         "PLAY_TEXT": "A lejátszás elindult ",
         "PLAY_TITLE": "Lejátszás",
         "REMOVE_FAIL": "Nem sikerült eltávolítani",
-        "REMOVE_QUEUE_TEXT_1": "A következő ",
-        "REMOVE_QUEUE_TEXT_2": " eltávolítása a lejátszási listából",
         "REMOVE_QUEUE_TITLE": "Eltávolítás",
         "RESCAN_DB": "Zenei adatbázis újbóli létrehozása",
         "RESTART": "Újraindítás",
@@ -305,7 +301,6 @@
         "SQ_HIGHEST_POSSIBLE": "Lehető Legmagasabb"
     },
     "PLAYLIST": {
-        "ADDED_TITLE": "Hozzáadva",
         "ADDED_TO_FAVOURITES": " a Kedvencekhez ",
         "ADDED_TO_PLAYLIST": " a lejátszási listához ",
         "REMOVE_ERROR": "Nem lehet eltávolítani",

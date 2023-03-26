@@ -88,7 +88,7 @@ class ControllerMpd {
 
   add(data) {
     var self = this
-    this.commandRouter.pushToastMessage('success', data + self.commandRouter.getI18nString('COMMON.ADD_QUEUE_TEXT_1'))
+    this.commandRouter.pushToastMessage('success', self.commandRouter.getI18nString('COMMON.ADD_QUEUE_TITLE'), data)
     return this.sendMpdCommand('add', [data])
   }
 
@@ -153,11 +153,7 @@ class ControllerMpd {
     var self = this
 
     this.logger.info('ControllerMpd::addPlay')
-    this.commandRouter.pushToastMessage(
-      'Success',
-      '',
-      fileName + self.commandRouter.getI18nString('COMMON.ADD_QUEUE_TEXT_1')
-    )
+    this.commandRouter.pushToastMessage('Success', self.commandRouter.getI18nString('COMMON.ADD_QUEUE_TITLE'), fileName)
 
     // Add playlists and cue with load command
     if (fileName.endsWith('.cue') || fileName.endsWith('.pls') || fileName.endsWith('.m3u')) {

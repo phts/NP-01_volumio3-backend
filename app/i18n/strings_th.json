@@ -56,8 +56,6 @@
     "WEB_ALBUMART_SIZE_DOC": "เลือกขนาดของปกอัลบั้มที่ดาวน์โหลดจากเว็บ: คุณภาพที่สูงขึ้นต้องใช้เวลาโหลดนานขึ้น ค่าที่ต่ำกว่าอาจช่วยปรับปรุงเวลาในการโหลด"
   },
   "COMMON": {
-    "ADD_QUEUE_TEXT_1": "เพิ่ม ",
-    "ADD_QUEUE_TEXT_2": " ในคิว",
     "ADD_QUEUE_TITLE": "เพิ่มในคิว",
     "ALBUM": "อัลบั้ม",
     "ALBUMS": "อัลบั้ม",
@@ -105,8 +103,6 @@
     "PLAY_TEXT": "เริ่มเล่นของ ",
     "PLAY_TITLE": "เล่น",
     "REMOVE_FAIL": "ลบไม่ได้",
-    "REMOVE_QUEUE_TEXT_1": "ลบ ",
-    "REMOVE_QUEUE_TEXT_2": " จากคิว",
     "REMOVE_QUEUE_TITLE": "ลบ",
     "RESCAN_DB": "การสร้างฐานข้อมูลเพลงใหม่",
     "RESTART": "เริ่มต้นใหม่",
@@ -305,7 +301,6 @@
     "SQ_HIGHEST_POSSIBLE": "สูงสุดที่เป็นไปได้"
   },
   "PLAYLIST": {
-    "ADDED_TITLE": "เพิ่ม",
     "ADDED_TO_FAVOURITES": " ไปยังรายการโปรด ",
     "ADDED_TO_PLAYLIST": " ไปที่เพลย์ลิสต์ ",
     "REMOVE_ERROR": "ลบไม่ได้",

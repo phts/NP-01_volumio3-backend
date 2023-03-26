@@ -56,8 +56,6 @@
         "WEB_ALBUMART_SIZE_DOC": ""
     },
     "COMMON": {
-        "ADD_QUEUE_TEXT_1": "Adicionado ",
-        "ADD_QUEUE_TEXT_2": " lista de espera",
         "ADD_QUEUE_TITLE": "Adicionar á lista de espera",
         "ALBUM": "",
         "ALBUMS": "Álbuns",
@@ -104,8 +102,6 @@
         "PLAY_TEXT": "Reprodução iniciada de",
         "PLAY_TITLE": "Reproduzir",
         "REMOVE_FAIL": "",
-        "REMOVE_QUEUE_TEXT_1": "Remover ",
-        "REMOVE_QUEUE_TEXT_2": " da lista de espera",
         "REMOVE_QUEUE_TITLE": "Remover",
         "RESCAN_DB": "",
         "RESTART": "Recomeçar",
@@ -287,7 +283,6 @@
         "VOLUME_OPTIONS": "Definições de Volume"
     },
     "PLAYLIST": {
-        "ADDED_TITLE": "Adicionada",
         "ADDED_TO_FAVOURITES": " aos Favoritos ",
         "ADDED_TO_PLAYLIST": " á Lista de Reprodução ",
         "REMOVE_ERROR": "Não foi possível remover",

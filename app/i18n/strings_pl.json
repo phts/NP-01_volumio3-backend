@@ -56,8 +56,6 @@
         "WEB_ALBUMART_SIZE_DOC": "Wybierz rozmiar okładki pobieranej z sieci. Wyższa jakość wymaga dłższego czasu na pobranie pliku. Niższe wartości mogą poprawić czas ładowania kosztem jakości."
     },
     "COMMON": {
-        "ADD_QUEUE_TEXT_1": "Dodane ",
-        "ADD_QUEUE_TEXT_2": " do kolejki",
         "ADD_QUEUE_TITLE": "Dodaj do kolejki odtwarzania",
         "ALBUM": "Album",
         "ALBUMS": "Albumy",
@@ -105,8 +103,6 @@
         "PLAY_TEXT": "Rozpoczęto odtwarzanie ",
         "PLAY_TITLE": "Odtwarzaj",
         "REMOVE_FAIL": "Nie można usunąć",
-        "REMOVE_QUEUE_TEXT_1": "Usuń ",
-        "REMOVE_QUEUE_TEXT_2": " z kolejki",
         "REMOVE_QUEUE_TITLE": "Usuń",
         "RESCAN_DB": "Odbuduj bazę muzyki",
         "RESTART": "Uruchom ponownie",
@@ -305,7 +301,6 @@
         "SQ_HIGHEST_POSSIBLE": "Highest Possible"
     },
     "PLAYLIST": {
-        "ADDED_TITLE": "Dodane",
         "ADDED_TO_FAVOURITES": " do Ulubionych ",
         "ADDED_TO_PLAYLIST": " do listy odtwarzania ",
         "REMOVE_ERROR": "Nie można usunąć",
