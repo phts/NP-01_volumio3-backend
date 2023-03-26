@@ -435,6 +435,11 @@ class CoreCommandRouter {
     }
   }
 
+  async playNext(data) {
+    await this.stateMachine.playNext(data)
+    this.pushToastMessage('success', this.getI18nString('COMMON.PLAY_NEXT_ADDED'), data.title || data.uri)
+  }
+
   replaceAndPlay(data) {
     var self = this
     var defer = libQ.defer()

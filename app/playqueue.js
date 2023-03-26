@@ -116,6 +116,13 @@ class CorePlayQueue {
     return defer.promise
   }
 
+  async removeItemsAfterIndex(index) {
+    this.commandRouter.pushConsoleMessage('CorePlayQueue::removeItemsAfterIndex ' + index)
+    this.arrayQueue = this.arrayQueue.slice(0, index + 1)
+    this.saveQueue()
+    await this.commandRouter.volumioPushQueue(this.arrayQueue)
+  }
+
   explodeUriFromCache(service, uri) {
     var self = this
     var defer = libQ.defer()

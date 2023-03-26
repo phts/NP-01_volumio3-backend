@@ -67,6 +67,10 @@ function InterfaceWebUI(context) {
       })
     })
 
+    connWebSocket.on('playNext', function (data) {
+      return self.commandRouter.playNext(data)
+    })
+
     connWebSocket.on('replaceAndPlay', function (data) {
       return self.commandRouter.replaceAndPlay(data)
     })

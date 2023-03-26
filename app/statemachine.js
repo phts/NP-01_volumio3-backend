@@ -993,6 +993,14 @@ class CoreStateMachine {
     }
   }
 
+  async playNext(data) {
+    this.commandRouter.pushConsoleMessage('CoreStateMachine::playNext ' + JSON.stringify(data))
+    await this.playQueue.removeItemsAfterIndex(this.currentPosition)
+    await this.playQueue.addQueueItems(data)
+    this.setRandom(false)
+    this.setRepeat(false, false)
+  }
+
   seek(position) {
     this.commandRouter.pushConsoleMessage('CoreStateMachine::seek')
 
