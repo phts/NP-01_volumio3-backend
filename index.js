@@ -1,10 +1,11 @@
 var path = require('path')
 var fs = require('fs-extra')
-var dotenv = require('dotenv').config({path: path.join(__dirname, '.env')}) // eslint-disable-line
 var execSync = require('child_process').execSync
 var expressInstance = require('./http/index.js')
 var expressApp = expressInstance.app
-/* eslint-disable */
+
+require('dotenv').config({path: path.join(__dirname, '.env')})
+
 global.metrics = {
   start: {},
   time: (label) => {
@@ -20,11 +21,8 @@ global.metrics = {
     )
   },
 }
-/* eslint-disable */
-// metrics.start.WebUI = process.hrtime();
 metrics.time('WebUI')
 
-// Using port 3000 for the debug interface
 expressApp.set('port', 3000)
 
 var httpServer = expressApp.listen(expressApp.get('port'), function () {
@@ -52,14 +50,11 @@ expressApp.use(function (err, req, res, next) {
   res.sendFile(path.join(__dirname, '/app/plugins/miscellanea/albumart/default.png'))
 })
 
-var commandRouter = new (require('./app/index.js'))(httpServer) // eslint-disable-line
+new (require('./app/index.js'))(httpServer)
 
-var volumioManifestUIFlagFile = '/data/manifestUI'
 var volumioManifestUIDisabledFile = '/data/disableManifestUI'
 var volumioWizardFlagFile = '/data/wizard'
-
 var volumioManifestUIDir = '/volumio/http/www4'
-
 expressApp.get('/?*', function (req, res) {
   var userAgent = req.get('user-agent')
   if (process.env.NEW_WIZARD === 'true' && fs.existsSync(volumioWizardFlagFile)) {
