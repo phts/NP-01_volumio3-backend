@@ -2,8 +2,18 @@
 
 This is a modification of original [volumio3-backend] which is used by [PHTS NP-01].
 
+Noticeable changes:
+
+- "Play next" command [[9120a3a](https://github.com/volumio/volumio3-backend/commit/9120a3a7f980bfc346914507c0aebeecea6981a2)]
+- Add year, track number into player state
+- New CLI and websocket commands
+- Reset volume, repeat and random state on queue clear (playing other album)
+- Improve stability, performance and fixed bugs
+- [...and more][commits]
+
 [volumio3-backend]: https://github.com/volumio/volumio3-backend
 [PHTS NP-01]: https://tsaryk.com/NP-01
+[commits]: https://github.com/volumio/volumio3-backend/compare/master...phts:NP-01_volumio3-backend:master
 
 <details>
 <summary>README from original repo</summary>
@@ -25,22 +35,22 @@ This is made possible by Volumio’s UI: a web applications that runs on any dev
 ## What's in this repo
 
 This repository contains the source code of Volumio's Backend, which is a Node.Js application which:
-* Manages running processes and daemons for audio playback
-* Manages the system's vitals and configurations such as network, settings, lifecycle
+
+- Manages running processes and daemons for audio playback
+- Manages the system's vitals and configurations such as network, settings, lifecycle
 
 ## Other parts of Volumio
 
 Volumio is made with several components, some of which are open-source. They are:
 
-* [Volumio OS Build System ](https://github.com/volumio/volumio3-os)
-* [Volumio Backend](https://github.com/volumio/volumio3-backend)
-* [Volumio User interface](https://github.com/volumio/Volumio2-UI)
-
+- [Volumio OS Build System ](https://github.com/volumio/volumio3-os)
+- [Volumio Backend](https://github.com/volumio/volumio3-backend)
+- [Volumio User interface](https://github.com/volumio/Volumio2-UI)
 
 ## Resources
 
 Developers are welcome! Check out the resources:
 
-* [Main documentation](https://developers.volumio.com)
+- [Main documentation](https://developers.volumio.com)
 
 </details>
