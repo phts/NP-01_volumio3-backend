@@ -327,19 +327,18 @@ class CoreCommandRouter {
     }
   }
 
-  serviceStop(sService) {
-    if (sService != undefined) {
-      this.pushConsoleMessage('CoreCommandRouter::serviceStop')
-      var thisPlugin = this.getMusicPlugin(sService)
-      if (thisPlugin != undefined && typeof thisPlugin.stop === 'function') {
-        return thisPlugin.stop()
-      } else {
-        this.logger.error('WARNING: No stop method for service ' + sService)
-      }
-    } else {
+  async serviceStop(sService) {
+    if (!sService) {
       this.pushConsoleMessage('Received STOP, but no service to execute it')
-      return libQ.resolve('')
+      return
     }
+    this.pushConsoleMessage('CoreCommandRouter::serviceStop ' + sService)
+    var thisPlugin = this.getMusicPlugin(sService)
+    if (!thisPlugin || typeof thisPlugin.stop !== 'function') {
+      this.logger.error('WARNING: No stop method for service ' + sService)
+      return
+    }
+    return thisPlugin.stop()
   }
 
   servicePause(sService) {
