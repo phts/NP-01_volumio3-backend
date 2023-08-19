@@ -363,7 +363,7 @@ class CoreMusicLibrary {
             promise.reject(error)
           })
       } catch (e) {
-        self.logger.error('Failed to execute browseSource: ' + e)
+        self.logger.error('Failed to execute browseSource, failure: ' + e)
       }
     } else {
       promise.resolve({})
@@ -389,6 +389,8 @@ class CoreMusicLibrary {
       return self.commandRouter.executeOnPlugin('music_service', 'mpd', 'handleBrowseUri', curUri)
     } else if (curUri.startsWith('upnp')) {
       return self.commandRouter.executeOnPlugin('music_service', 'upnp_browser', 'handleBrowseUri', curUri)
+    } else if (curUri.startsWith('globalUri')) {
+      return this.handleGlobalUri(curUri)
     } else {
       for (var i in self.browseSources) {
         var source = self.browseSources[i]
@@ -436,7 +438,6 @@ class CoreMusicLibrary {
 
   search(data) {
     var self = this
-
     var query = {}
     var defer = libQ.defer()
     var deferArray = []
@@ -600,6 +601,12 @@ class CoreMusicLibrary {
           case 'Last_100':
             self.browseSources[i].name = self.commandRouter.getI18nString('COMMON.LAST_100')
             break
+          case 'inputs':
+            self.browseSources[i].name = self.commandRouter.getI18nString('MULTIDEVICE.INPUTS')
+            break
+          case 'upnp':
+            self.browseSources[i].name = self.commandRouter.getI18nString('COMMON.MEDIA_SERVERS')
+            break
           default:
             console.log('Cannot find translation for source' + self.browseSources[i].name)
         }
@@ -700,9 +707,12 @@ class CoreMusicLibrary {
     }
   }
 
-  searchOnPlugin(plugin_type, plugin_name, query) {
+  searchOnPlugin(plugin_type, plugin_name, query, timeout) {
     var self = this
     var searchTimeoutMS = 5000
+    if (timeout !== undefined) {
+      searchTimeoutMS = timeout
+    }
     var alreadyResolved = false
     var defer = libQ.defer()
 
@@ -731,6 +741,327 @@ class CoreMusicLibrary {
     }, searchTimeoutMS)
 
     return defer.promise
+  }
+
+  handleGlobalUri(uri) {
+    var self = this
+
+    // Artist handling
+    if (uri.startsWith('globalUriArtist')) {
+      return self.handleGlobalUriArtist(uri)
+    }
+
+    // Album handling
+    if (uri.startsWith('globalUriAlbum')) {
+      return self.handleGlobalUriAlbum(uri)
+    }
+
+    // Track handling
+    if (uri.startsWith('globalUriTrack')) {
+      return self.handleGlobalUriTrack(uri)
+    }
+  }
+
+  handleGlobalUriArtist(uri) {
+    var self = this
+    var defer = libQ.defer()
+    var found = false
+
+    // URI STRUCTURE: globalUriArtist/artist
+    var artistToSearch = uri.split('/')[1]
+
+    this.executeGlobalSearch({value: artistToSearch}).then(function (results) {
+      for (var i in results) {
+        if (self.matchArtist(artistToSearch, results[i])) {
+          found = true
+          self.executeBrowseSource(results[i].uri).then((data) => {
+            defer.resolve(data)
+          })
+          if (found) {
+            break
+          }
+        }
+      }
+      if (!found) {
+        self.commandRouter.pushToastMessage(
+          'error',
+          self.commandRouter.getI18nString('COMMON.NO_RESULTS'),
+          self.commandRouter.getI18nString('COMMON.ARTIST_NOT_FOUND_IN_YOUR_LIBRARY')
+        )
+        defer.resolve({})
+      }
+    })
+    return defer.promise
+  }
+
+  matchArtist(artistToSearch, item) {
+    var self = this
+
+    var artist = item.artist || item.title
+
+    if (self.isEqualString(artistToSearch, artist)) {
+      return true
+    } else {
+      return false
+    }
+  }
+
+  handleGlobalUriAlbum(uri) {
+    var self = this
+    var defer = libQ.defer()
+    var found = false
+
+    // URI STRUCTURE: globalUriArtist/artist/album
+    var artistToSearch = uri.split('/')[1]
+    var albumToSearch = uri.split('/')[2]
+    var searchString = artistToSearch + ' ' + albumToSearch
+
+    this.executeGlobalSearch({value: searchString}).then(function (results) {
+      for (var i in results) {
+        if (self.matchAlbum(artistToSearch, albumToSearch, results[i])) {
+          found = true
+          self.executeBrowseSource(results[i].uri).then((data) => {
+            defer.resolve(data)
+          })
+          if (found) {
+            break
+          }
+        }
+      }
+      if (!found) {
+        self.commandRouter.pushToastMessage(
+          'error',
+          self.commandRouter.getI18nString('COMMON.NO_RESULTS'),
+          self.commandRouter.getI18nString('COMMON.ALBUM_NOT_FOUND_IN_YOUR_LIBRARY')
+        )
+        defer.resolve({})
+      }
+    })
+    return defer.promise
+  }
+
+  matchAlbum(artistToSearch, albumToSearch, item) {
+    var self = this
+
+    var artist = item.artist || 'undefined'
+    var album = item.album || item.title || 'undefined'
+
+    if (item.type === 'song') {
+      return false
+    }
+
+    if (self.isEqualString(artist, artistToSearch) && self.isEqualString(album, albumToSearch)) {
+      return true
+    } else if (item.uri.includes('tidal://album/') && self.isEqualString(album, albumToSearch)) {
+      // workaround for Tidal not returning artist name in search results, to fix in browse performer
+      return true
+    } else {
+      return false
+    }
+  }
+
+  handleGlobalUriTrack(uri) {
+    var self = this
+    var defer = libQ.defer()
+    var found = false
+
+    // URI STRUCTURE: globalUriTrack/artist/track
+    var artistToSearch = uri.split('/')[1]
+    var trackToSearch = uri.split('/')[2]
+    var searchString = artistToSearch + ' ' + trackToSearch
+    if (artistToSearch !== undefined && trackToSearch !== undefined) {
+      self.matchTrackWithCache(uri).then((result) => {
+        if (result && result.uri) {
+          defer.resolve(result)
+        } else {
+          this.executeGlobalSearch({value: searchString}).then(function (results) {
+            for (var i in results) {
+              if (self.matchTrack(artistToSearch, trackToSearch, results[i])) {
+                found = true
+                var cachedUri = uri + '/' + results[i].service
+                self.saveToCache(cachedUri, results[i])
+                defer.resolve(results[i])
+                break
+              }
+            }
+            if (!found) {
+              defer.resolve({})
+            }
+          })
+        }
+      })
+    } else {
+      defer.resolve({})
+    }
+
+    return defer.promise
+  }
+
+  saveToCache(path, data) {
+    var self = this
+
+    if (
+      data &&
+      data.service &&
+      (data.service === 'tidal' || data.service === 'qobuz' || data.service === 'spotify' || data.service === 'spop')
+    ) {
+      self.commandRouter.setStreamingCacheValue(path, data)
+    }
+  }
+
+  matchTrackWithCache(uri) {
+    var self = this
+    var defer = libQ.defer()
+    var deferArray = []
+
+    var searchableSources = self.getVisibleBrowseSources()
+    for (var i in searchableSources) {
+      var source = searchableSources[i]
+      if (source.uri === 'tidal://') {
+        deferArray.push(self.commandRouter.getStreamingCacheValue(uri + '/tidal'))
+      }
+      if (source.uri === 'qobuz://') {
+        deferArray.push(self.commandRouter.getStreamingCacheValue(uri + '/qobuz'))
+      }
+      if (source.uri === 'spotify') {
+        deferArray.push(self.commandRouter.getStreamingCacheValue(uri + '/spop'))
+      }
+    }
+
+    libQ.all(deferArray).then(function (results) {
+      self.logger.info('All cached search sources collected')
+      if (results && results.length) {
+        var cachedItemsArray = []
+        for (var i in results) {
+          if (results[i] && results[i].uri) {
+            cachedItemsArray.push(results[i])
+          }
+        }
+        if (cachedItemsArray.length) {
+          cachedItemsArray = _.sortBy(cachedItemsArray, 'priorityScore')
+          defer.resolve(results[0])
+        } else {
+          defer.resolve('')
+        }
+      } else {
+        defer.resolve('')
+      }
+    })
+
+    return defer.promise
+  }
+
+  matchTrack(artistToSearch, trackToSearch, item) {
+    var self = this
+
+    var artist = item.artist || 'undefined'
+    var track = item.title || 'undefined'
+
+    if (item.type !== 'song') {
+      return false
+    }
+
+    if (self.isEqualString(artist, artistToSearch) && self.isEqualString(track, trackToSearch)) {
+      return true
+    }
+  }
+
+  isEqualString(a, b) {
+    if (a.toLowerCase().trim() === b.toLowerCase().trim()) {
+      return true
+    } else {
+      return false
+    }
+  }
+
+  executeGlobalSearch(data) {
+    var self = this
+    var defer = libQ.defer()
+    var globalSearchTimeout = 10000
+
+    var safeQuery = data.value.toString().replace(/\n|\r\n|\r/g, '')
+    var query = {value: safeQuery, uri: data.uri}
+
+    var deferArray = []
+    var executed = []
+    var itemsList = []
+
+    var searchableSources = self.getVisibleBrowseSources()
+    for (var i = 0; i < searchableSources.length; i++) {
+      var source = searchableSources[i]
+      var key = source.plugin_type + '_' + source.plugin_name
+      if (executed.indexOf(key) == -1 && source.uri !== 'radio') {
+        executed.push(key)
+        var response
+        response = self.searchOnPlugin(source.plugin_type, source.plugin_name, query, globalSearchTimeout)
+        if (response != undefined) {
+          deferArray.push(response)
+        }
+      }
+    }
+    libQ.all(deferArray).then(function (results) {
+      self.logger.info('All search sources collected, pushing search results')
+      results = _.flatten(results.filter((items) => items))
+      if (results && results.length) {
+        for (var i = 0; i < results.length; i++) {
+          if (results[i] && results[i].items && results[i].items[0] && results[i].items[0].service) {
+            var itemsService = results[i].items[0].service
+            var priorityScore = self.getPriorityWeightsToItems(itemsService)
+            if (results[i] && results[i].items) {
+              results[i].items.forEach((item) => (item.priorityScore = priorityScore))
+              itemsList = itemsList.concat(results[i].items)
+            }
+            if (i + 1 == results.length) {
+              itemsList = _.sortBy(itemsList, 'priorityScore')
+              defer.resolve(itemsList)
+            }
+          }
+        }
+      } else {
+        defer.resolve([])
+      }
+    })
+
+    return defer.promise
+  }
+
+  getPriorityWeightsToItems(service) {
+    // This function provides a priority weight to results based on which service it is from
+    // Lower is higher priority: 0 highest priority, 10 lowest priority
+    // This privileges quality sources to be selected first
+    // TODO Make configurable?
+    // TODO Add different weights? like album, resolution, etc
+    // in this case make sorting descending
+
+    switch (service) {
+      case 'mpd':
+        return 0
+      case 'tidal':
+        return 5
+      case 'qobuz':
+        return 4
+      case 'spop':
+        return 6
+      default:
+        return 10
+    }
+  }
+
+  superSearch(data) {
+    var self = this
+    return self.commandRouter.executeOnPlugin('miscellanea', 'metavolumio', 'superSearch', data)
+  }
+
+  getNullSearchResult() {
+    var searchResult = {
+      navigation: {
+        isSearchResult: true,
+        lists: [],
+      },
+    }
+    var noResultTitle = {availableListViews: ['list'], items: []}
+    searchResult.navigation.lists[0] = noResultTitle
+    return searchResult
   }
 }
 

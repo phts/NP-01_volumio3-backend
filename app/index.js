@@ -1235,6 +1235,12 @@ class CoreCommandRouter {
     return defer.promise
   }
 
+  emitMessageToSpecificClient(id, msg, value) {
+    this.pushConsoleMessage('CoreCommandRouter::emitMessageToSpecificClient ' + msg)
+    var plugin = this.pluginManager.getPlugin('user_interface', 'websocket')
+    plugin.emitMessageToSpecificClient(id, msg, value)
+  }
+
   updatePlugin(data) {
     var self = this
     var defer = libQ.defer()
@@ -1447,7 +1453,13 @@ class CoreCommandRouter {
       if (splitted.length == 1) {
         if (this.i18nStrings[key] !== undefined && this.i18nStrings[key] !== '') {
           return this.i18nStrings[key]
-        } else return this.i18nStringsDefaults[key]
+        } else {
+          if (this.i18nStringsDefaults[key] !== undefined && this.i18nStringsDefaults[key] !== '') {
+            return this.i18nStringsDefaults[key]
+          } else {
+            return key
+          }
+        }
       } else {
         if (
           this.i18nStrings[splitted[0]] !== undefined &&
@@ -1455,7 +1467,17 @@ class CoreCommandRouter {
           this.i18nStrings[splitted[0]][splitted[1]] !== ''
         ) {
           return this.i18nStrings[splitted[0]][splitted[1]]
-        } else return this.i18nStringsDefaults[splitted[0]][splitted[1]]
+        } else {
+          if (
+            this.i18nStringsDefaults[splitted[0]] !== undefined &&
+            this.i18nStringsDefaults[splitted[0]][splitted[1]] !== undefined &&
+            this.i18nStringsDefaults[splitted[0]][splitted[1]] !== ''
+          ) {
+            return this.i18nStringsDefaults[splitted[0]][splitted[1]]
+          } else {
+            return key
+          }
+        }
       }
     } else {
       var emptyString = ''
@@ -1464,7 +1486,6 @@ class CoreCommandRouter {
   }
 
   loadI18nStrings() {
-    var self = this
     var language_code = this.sharedVars.get('language_code')
 
     this.i18nStringsDefaults = fs.readJsonSync(__dirname + '/i18n/strings_en.json')
@@ -2134,6 +2155,64 @@ class CoreCommandRouter {
     var self = this
 
     return self.dspSignalPathElements
+  }
+
+  addTracksForInfinityPlayback(currentLastTrack) {
+    var self = this
+
+    try {
+      var metaVolumioPlugin = self.pluginManager.getPlugin('miscellanea', 'metavolumio')
+      return metaVolumioPlugin.addTracksForInfinityPlayback(currentLastTrack)
+    } catch (e) {}
+  }
+
+  getInfinityPlayback() {
+    var self = this
+
+    try {
+      var metaVolumioPlugin = self.pluginManager.getPlugin('miscellanea', 'metavolumio')
+      return metaVolumioPlugin.getInfinityPlayback()
+    } catch (e) {}
+  }
+
+  setInfinityPlayback(data) {
+    var self = this
+
+    try {
+      var metaVolumioPlugin = self.pluginManager.getPlugin('miscellanea', 'metavolumio')
+      return metaVolumioPlugin.setInfinityPlayback(data)
+    } catch (e) {}
+  }
+
+  getStreamingCacheValue(path) {
+    var self = this
+    var defer = libQ.defer()
+    var metaVolumioPlugin = self.pluginManager.getPlugin('miscellanea', 'metavolumio')
+
+    if (metaVolumioPlugin != undefined) {
+      return metaVolumioPlugin.retrieveFromKvStoreStreaming(path)
+    } else {
+      defer.resolve()
+    }
+    return defer.promise
+  }
+
+  setStreamingCacheValue(path, data) {
+    var self = this
+
+    var metaVolumioPlugin = self.pluginManager.getPlugin('miscellanea', 'metavolumio')
+    if (metaVolumioPlugin != undefined) {
+      return metaVolumioPlugin.saveToKvStoreStreaming(path, data)
+    }
+  }
+
+  reportBackendEvent(event, properties) {
+    var myVolumioPlugin = this.pluginManager.getPlugin('system_controller', 'my_volumio')
+    if (myVolumioPlugin != undefined && typeof myVolumioPlugin.reportBackendEvent === 'function') {
+      try {
+        return myVolumioPlugin.reportBackendEvent(event, properties)
+      } catch (e) {}
+    }
   }
 }
 

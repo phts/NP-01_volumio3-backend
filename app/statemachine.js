@@ -323,15 +323,18 @@ class CoreStateMachine {
     this.playbackStart = Date.now()
 
     var trackBlock = this.getTrack(this.currentPosition)
-
     if (trackBlock) {
       this.currentSongDuration = trackBlock.duration * 1000
 
       this.askedForPrefetch = false
       this.simulateStopStartDone = false
       this.prefetchDone = false
-
       setTimeout(this.increasePlaybackTimer.bind(this), 250)
+
+      var isLastTrack = this.checkIfLastTrack()
+      if (isLastTrack) {
+        this.commandRouter.addTracksForInfinityPlayback(trackBlock)
+      }
     }
     return libQ.resolve()
   }
@@ -348,7 +351,7 @@ class CoreStateMachine {
   getNextIndex() {
     var nextIndex = this.currentPosition + 1
 
-    var isLastTrack = this.playQueue.arrayQueue.length - 1 == this.currentPosition
+    var isLastTrack = this.checkIfLastTrack()
 
     // Check if Repeat mode is on and last track is played, note that Random and Consume overides Repeat
     if (this.currentRepeat) {
@@ -1513,6 +1516,16 @@ class CoreStateMachine {
     this.debounceTimer = setTimeout(() => {
       this.debouncing = false
     }, 1500)
+  }
+
+  checkIfLastTrack() {
+    var isLastTrack = this.playQueue.arrayQueue.length - 1 == this.currentPosition
+    return isLastTrack
+  }
+
+  triggerInfinityPlaybackAddition() {
+    var trackBlock = this.getTrack(this.currentPosition)
+    this.commandRouter.addTracksForInfinityPlayback(trackBlock)
   }
 }
 
