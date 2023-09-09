@@ -41,6 +41,17 @@ class PlatformSpecific {
     })
   }
 
+  fastReboot() {
+    return new Promise((resolve, reject) => {
+      exec('/usr/bin/sudo systemctl restart volumio', (error) => {
+        if (error) {
+          reject(error)
+        }
+        resolve()
+      })
+    })
+  }
+
   networkRestart() {
     var self = this
     exec(

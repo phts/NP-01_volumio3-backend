@@ -1135,6 +1135,10 @@ class CoreCommandRouter {
       })
   }
 
+  fastReboot() {
+    return this.platformspecific.fastReboot()
+  }
+
   networkRestart() {
     this.platformspecific.networkRestart()
     this.executeOnPlugin('system_controller', 'volumiodiscovery', 'onNetworkingRestart', '')

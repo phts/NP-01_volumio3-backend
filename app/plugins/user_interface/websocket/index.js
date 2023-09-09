@@ -814,6 +814,10 @@ function InterfaceWebUI(context) {
       return self.commandRouter.reboot()
     })
 
+    connWebSocket.on('fastReboot', function () {
+      return self.commandRouter.fastReboot()
+    })
+
     connWebSocket.on('getWirelessNetworks', function () {
       var selfConnWebSocket = this
       var wirelessNetworksCache = self.commandRouter.executeOnPlugin(
