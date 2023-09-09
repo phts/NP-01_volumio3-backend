@@ -71,6 +71,10 @@ function InterfaceWebUI(context) {
       return self.commandRouter.playNext(data)
     })
 
+    connWebSocket.on('insertAfterCurrent', function (data) {
+      return self.commandRouter.insertAfterCurrent(data)
+    })
+
     connWebSocket.on('replaceAndPlay', function (data) {
       return self.commandRouter.replaceAndPlay(data)
     })

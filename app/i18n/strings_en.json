@@ -104,6 +104,7 @@
     "PLAYER_RESTARTED": "Player successfully restarted",
     "PLAYLISTS": "Playlists",
     "PLAY_NEXT_ADDED": "Added to queue right after current track",
+    "INSERTED_AFTER_CURRENT": "Inserted to queue right after current track",
     "PLAY_TEXT": "Started playback of ",
     "PLAY_TITLE": "Play",
     "REMOVE_FAIL": "Could not remove",

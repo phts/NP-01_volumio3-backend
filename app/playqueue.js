@@ -202,7 +202,7 @@ class CorePlayQueue {
     }
   }
 
-  addQueueItems(arrayItems) {
+  addQueueItems(arrayItems, position = this.arrayQueue.length + 1) {
     var self = this
     var defer = libQ.defer()
     this.commandRouter.pushConsoleMessage('CorePlayQueue::addQueueItems')
@@ -246,10 +246,10 @@ class CorePlayQueue {
           if (self.compareTrackListByUri(queueLastElementsObj, addQueueElementsObj)) {
             firstItemIndex = self.arrayQueue.length - contentArray.length
           } else {
-            self.arrayQueue = self.arrayQueue.concat(contentArray)
+            self.arrayQueue.splice(position, 0, ...contentArray)
           }
         } else {
-          self.arrayQueue = self.arrayQueue.concat(contentArray)
+          self.arrayQueue.splice(position, 0, ...contentArray)
         }
 
         self.commandRouter.volumioPushQueue(self.arrayQueue)

@@ -996,10 +996,12 @@ class CoreStateMachine {
     }
   }
 
-  async playNext(data) {
-    this.commandRouter.pushConsoleMessage('CoreStateMachine::playNext ' + JSON.stringify(data))
-    await this.playQueue.removeItemsAfterIndex(this.currentPosition)
-    await this.playQueue.addQueueItems(data)
+  async playNext(data, keepTail) {
+    this.commandRouter.pushConsoleMessage(`CoreStateMachine::playNext(keepTail=${keepTail}) ${JSON.stringify(data)}`)
+    if (!keepTail) {
+      await this.playQueue.removeItemsAfterIndex(this.currentPosition)
+    }
+    await this.playQueue.addQueueItems(data, this.currentPosition + 1)
     this.setRandom(false)
     this.setRepeat(false, false)
   }
