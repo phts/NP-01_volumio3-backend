@@ -621,7 +621,7 @@ class CoreMusicLibrary {
     var response
 
     if (curState) {
-      data.uri = curState.uri
+      data.uri = data.uri || curState.uri
       response = this.commandRouter.executeOnPlugin('music_service', curState.service, 'goto', data)
     } else response = this.commandRouter.executeOnPlugin('music_service', 'mpd', 'goto', data)
     return response
