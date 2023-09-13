@@ -463,31 +463,35 @@ volumioAppearance.prototype.getConfigParam = function (key) {
 }
 
 volumioAppearance.prototype.setVolumio3UI = function (data) {
-  var self = this
+  if (!data) {
+    return
+  }
 
-  if (data && data.volumio3_ui.value === 'CONTEMPORARY') {
+  if (data.volumio3_ui.value === 'CONTEMPORARY') {
     try {
       if (fs.existsSync('/data/manifestUI')) {
         execSync('/usr/bin/touch /data/disableManifestUI')
       }
       execSync('/bin/rm -f /data/volumio2ui')
       execSync('/bin/rm -f  /data/manifestUI')
+      execSync('/bin/rm -f /data/phts-np-01-theme')
     } catch (e) {
-      self.logger.error(e)
+      this.logger.error(e)
     }
     process.env.VOLUMIO_3_UI = 'true'
-    self.commandRouter.reloadUi()
-  } else if (data && data.volumio3_ui.value === 'MANIFEST') {
+    this.commandRouter.reloadUi()
+  } else if (data.volumio3_ui.value === 'MANIFEST') {
     try {
       execSync('/usr/bin/touch /data/manifestUI')
       execSync('/bin/rm -f  /data/volumio2ui')
       execSync('/bin/rm -f  /data/disableManifestUI')
+      execSync('/bin/rm -f /data/phts-np-01-theme')
     } catch (e) {
-      self.logger.error(e)
+      this.logger.error(e)
     }
     process.env.VOLUMIO_3_UI = 'false'
-    self.commandRouter.reloadUi()
-  } else if (data && data.volumio3_ui.value === 'CLASSIC') {
+    this.commandRouter.reloadUi()
+  } else if (data.volumio3_ui.value === 'CLASSIC') {
     try {
       if (fs.existsSync('/data/manifestUI')) {
         execSync('/usr/bin/touch /data/disableManifestUI')
@@ -495,11 +499,25 @@ volumioAppearance.prototype.setVolumio3UI = function (data) {
 
       execSync('/bin/rm -f  /data/manifestUI')
       execSync('/usr/bin/touch /data/volumio2ui')
+      execSync('/bin/rm -f /data/phts-np-01-theme')
     } catch (e) {
-      self.logger.error(e)
+      this.logger.error(e)
     }
     process.env.VOLUMIO_3_UI = 'false'
-    self.commandRouter.reloadUi()
+    this.commandRouter.reloadUi()
+  } else if (data.volumio3_ui.value === 'PHTS_NP-01') {
+    try {
+      if (fs.existsSync('/data/manifestUI')) {
+        execSync('/usr/bin/touch /data/disableManifestUI')
+      }
+      execSync('/bin/rm -f /data/manifestUI')
+      execSync('/bin/rm -f /data/volumio2ui')
+      execSync('/usr/bin/touch /data/phts-np-01-theme')
+    } catch (e) {
+      this.logger.error(e)
+    }
+    process.env.VOLUMIO_3_UI = 'false'
+    this.commandRouter.reloadUi()
   }
 }
 

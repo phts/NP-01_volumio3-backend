@@ -250,6 +250,10 @@
             {
               "value": "MANIFEST",
               "label": "TRANSLATE.APPEARANCE.USER_INTERFACE_MANIFEST"
+            },
+            {
+              "value": "PHTS_NP-01",
+              "label": "PHTS NP-01"
             }
           ]
         }

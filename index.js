@@ -59,16 +59,14 @@ expressApp.get('/?*', function (req, res) {
   var userAgent = req.get('user-agent')
   if (process.env.NEW_WIZARD === 'true' && fs.existsSync(volumioWizardFlagFile)) {
     res.sendFile(path.join(__dirname, 'http', 'wizard', 'index.html'))
+  } else if (fs.existsSync(volumioManifestUIDir) && !fs.existsSync(volumioManifestUIDisabledFile)) {
+    res.sendFile(path.join(__dirname, 'http', 'www4', 'index.html'))
+  } else if (fs.existsSync('/data/phts-np-01-theme')) {
+    res.sendFile(path.join(__dirname, 'http', 'www-phts_np-01', 'index.html'))
+  } else if ((userAgent && userAgent.includes('volumiokiosk')) || process.env.VOLUMIO_3_UI === 'false') {
+    res.sendFile(path.join(__dirname, 'http', 'www', 'index.html'))
   } else {
-    if (fs.existsSync(volumioManifestUIDir) && !fs.existsSync(volumioManifestUIDisabledFile)) {
-      res.sendFile(path.join(__dirname, 'http', 'www4', 'index.html'))
-    } else {
-      if ((userAgent && userAgent.includes('volumiokiosk')) || process.env.VOLUMIO_3_UI === 'false') {
-        res.sendFile(path.join(__dirname, 'http', 'www', 'index.html'))
-      } else {
-        res.sendFile(path.join(__dirname, 'http', 'www3', 'index.html'))
-      }
-    }
+    res.sendFile(path.join(__dirname, 'http', 'www3', 'index.html'))
   }
 })
 

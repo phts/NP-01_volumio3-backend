@@ -276,6 +276,9 @@ ControllerSystem.prototype.getUIConfig = function () {
           } else if (process.env.VOLUMIO_3_UI === 'true') {
             uiValue = 'CONTEMPORARY'
             uiLabel = self.commandRouter.getI18nString('APPEARANCE.USER_INTERFACE_CONTEMPORARY')
+          } else if (fs.existsSync('/data/phts-np-01-theme')) {
+            uiValue = 'PHTS_NP-01'
+            uiLabel = 'PHTS NP-01'
           } else if (fs.existsSync('/data/volumio2ui')) {
             uiValue = 'CLASSIC'
             uiLabel = self.commandRouter.getI18nString('APPEARANCE.USER_INTERFACE_CLASSIC')

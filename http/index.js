@@ -15,7 +15,6 @@ var plugin = express()
 var background = express()
 var stream = express()
 var partnerlogo = express()
-/* eslint-disable */
 var plugindir = '/tmp/plugins'
 var backgrounddir = '/data/backgrounds'
 var volumio2UIFlagFile = '/data/volumio2ui'
@@ -23,6 +22,7 @@ var volumioManifestUIFlagFile = '/data/manifestUI'
 var volumioWizardFlagFile = '/data/wizard'
 var volumioManifestUIDisabledFile = '/data/disableManifestUI'
 var volumio3UIFolderPath = '/volumio/http/www3'
+const phtsNp01ThemeFlagFile = '/data/phts-np-01-theme'
 
 var volumioManifestUIDir = '/volumio/http/www4'
 
@@ -55,6 +55,7 @@ app.use(compression())
 // Checking if we use Volumio3 UI
 if (
   fs.existsSync(volumio2UIFlagFile) ||
+  fs.existsSync(phtsNp01ThemeFlagFile) ||
   (fs.existsSync(volumioManifestUIFlagFile) && !fs.existsSync(volumioManifestUIDisabledFile)) ||
   !fs.existsSync(volumio3UIFolderPath)
 ) {
@@ -66,22 +67,21 @@ if (
 var staticMiddlewareUI2 = express.static(path.join(__dirname, 'www'))
 var staticMiddlewareUI3 = express.static(path.join(__dirname, 'www3'))
 var staticMiddlewareManifestUI = express.static(path.join(__dirname, 'www4'))
+var staticMiddlewarePhtsNp01 = express.static(path.join(__dirname, 'www-phts_np-01'))
 var staticMiddlewareWizard = express.static(path.join(__dirname, 'wizard'))
 
 app.use(function (req, res, next) {
   var userAgent = req.get('user-agent')
   if (process.env.NEW_WIZARD === 'true' && fs.existsSync(volumioWizardFlagFile)) {
     staticMiddlewareWizard(req, res, next)
+  } else if (fs.existsSync(volumioManifestUIDir) && !fs.existsSync(volumioManifestUIDisabledFile)) {
+    staticMiddlewareManifestUI(req, res, next)
+  } else if (fs.existsSync(phtsNp01ThemeFlagFile)) {
+    staticMiddlewarePhtsNp01(req, res, next)
+  } else if ((userAgent && userAgent.includes('volumiokiosk')) || process.env.VOLUMIO_3_UI === 'false') {
+    staticMiddlewareUI2(req, res, next)
   } else {
-    if (fs.existsSync(volumioManifestUIDir) && !fs.existsSync(volumioManifestUIDisabledFile)) {
-      staticMiddlewareManifestUI(req, res, next)
-    } else {
-      if ((userAgent && userAgent.includes('volumiokiosk')) || process.env.VOLUMIO_3_UI === 'false') {
-        staticMiddlewareUI2(req, res, next)
-      } else {
-        staticMiddlewareUI3(req, res, next)
-      }
-    }
+    staticMiddlewareUI3(req, res, next)
   }
 })
 
@@ -95,7 +95,7 @@ app.use('/stream', stream)
 
 stream.use(express.static('/tmp/hls', {maxAge: 0}))
 
-stream.use(function (req, res, next) {
+stream.use(function (req, res) {
   res.status(404)
   res.send('Not found')
 })
@@ -103,7 +103,7 @@ stream.use(function (req, res, next) {
 app.use('/partnerlogo', partnerlogo)
 partnerlogo.use(express.static('/volumio/partnerlogo.png', {maxAge: 0}))
 
-partnerlogo.use(function (req, res, next) {
+partnerlogo.use(function (req, res) {
   res.status(404)
   res.send('Not found')
 })
@@ -120,7 +120,7 @@ dev.use(function (req, res, next) {
 // development error handler
 // will print stacktrace
 if (dev.get('env') === 'development') {
-  dev.use(function (err, req, res, next) {
+  dev.use(function (err, req, res) {
     res.status(err.status || 500)
     res.render('error', {
       message: err.message,
@@ -131,7 +131,7 @@ if (dev.get('env') === 'development') {
 
 // production error handler
 // no stacktraces leaked to user
-dev.use(function (err, req, res, next) {
+dev.use(function (err, req, res) {
   res.status(err.status || 500)
   res.render('error', {
     message: err.message,
@@ -139,7 +139,7 @@ dev.use(function (err, req, res, next) {
   })
 })
 
-app.route('/plugin-upload').post(function (req, res, next) {
+app.route('/plugin-upload').post(function (req, res) {
   this.fileData = null
 
   req.busboy.on('file', (fieldname, file, filename) => {
@@ -181,7 +181,7 @@ app.route('/plugin-upload').post(function (req, res, next) {
   })
 })
 
-app.route('/backgrounds-upload').post(function (req, res, next) {
+app.route('/backgrounds-upload').post(function (req, res) {
   this.fileData = null
 
   req.busboy.on('file', (fieldname, file, filename) => {
@@ -235,7 +235,7 @@ app.route('/backgrounds-upload').post(function (req, res, next) {
   })
 })
 
-app.route('/albumart-upload').post(function (req, res, next) {
+app.route('/albumart-upload').post(function (req, res) {
   var artist
   var album
   var filePath
