@@ -581,39 +581,43 @@ class PlaylistManager {
         } else if (service === 'spop') {
           var uriSplitted = uri.split(':')
           var spotifyItem = self.commandRouter.executeOnPlugin('music_service', 'spop', 'getTrack', uriSplitted[2])
-          spotifyItem.then(function (info) {
-            var entries = []
-            var track = info[0]
-            entries.push({
-              service: service,
-              uri: uri,
-              title: track.name,
-              artist: track.artist,
-              album: track.album,
-              albumart: track.albumart,
-            })
-            fs.readJson(filePath, function (err, data) {
-              if (err) {
-                defer.resolve({success: false})
-              } else {
-                if (!data) {
-                  data = []
+          spotifyItem
+            .then(function (info) {
+              var entries = []
+              var track = info[0]
+              entries.push({
+                service: service,
+                uri: uri,
+                title: track.name,
+                artist: track.artist,
+                album: track.album,
+                albumart: track.albumart,
+              })
+              fs.readJson(filePath, function (err, data) {
+                if (err) {
+                  defer.resolve({success: false})
+                } else {
+                  if (!data) {
+                    data = []
+                  }
+
+                  var output = data.concat(entries)
+
+                  self
+                    .saveJSONFile(folder, name, output)
+                    .then(function () {
+                      var favourites = self.commandRouter.checkFavourites({uri: path})
+                      defer.resolve(favourites)
+                    })
+                    .fail(function () {
+                      defer.resolve({success: false})
+                    })
                 }
-
-                var output = data.concat(entries)
-
-                self
-                  .saveJSONFile(folder, name, output)
-                  .then(function () {
-                    var favourites = self.commandRouter.checkFavourites({uri: path})
-                    defer.resolve(favourites)
-                  })
-                  .fail(function () {
-                    defer.resolve({success: false})
-                  })
-              }
+              })
             })
-          })
+            .fail((e) => {
+              self.logger.error('Spotify->getTrack failed: ' + e)
+            })
         } else {
           var explodedUri = self.commandRouter.executeOnPlugin('music_service', service, 'explodeUri', uri)
           explodedUri
