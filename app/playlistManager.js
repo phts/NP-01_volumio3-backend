@@ -617,6 +617,7 @@ class PlaylistManager {
             })
             .fail((e) => {
               self.logger.error('Spotify->getTrack failed: ' + e)
+              defer.resolve({success: false})
             })
         } else {
           var explodedUri = self.commandRouter.executeOnPlugin('music_service', service, 'explodeUri', uri)
