@@ -27,6 +27,9 @@ document.getElementById('button-sshdisable').onclick = function () {
 document.getElementById('button-clearconsole').onclick = function () {
   clearConsole()
 }
+document.getElementById('button-clearconsole2').onclick = function () {
+  clearConsole()
+}
 
 // Create listeners for websocket events--------------------------------
 socket.on('connect', function () {
