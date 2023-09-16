@@ -473,6 +473,7 @@ class PlaylistManager {
                     artist: item.artist,
                     album: item.album,
                     albumart: item.albumart,
+                    year: item.year,
                   })
                 }
               }
@@ -515,6 +516,7 @@ class PlaylistManager {
                     artist: item.artist,
                     album: item.album,
                     albumart: artUrl,
+                    year: item.year,
                   })
                 } else if (item.type == 'folder') {
                   // TODO: Deal with folders
@@ -591,6 +593,7 @@ class PlaylistManager {
               artist: track.artist,
               album: track.album,
               albumart: track.albumart,
+              year: track.year,
             })
             fs.readJson(filePath, function (err, data) {
               if (err) {
@@ -627,6 +630,7 @@ class PlaylistManager {
                 artist: track.artist,
                 album: track.album,
                 albumart: track.albumart,
+                year: track.year,
               })
               fs.readJson(filePath, function (err, data) {
                 if (err) {
@@ -913,6 +917,7 @@ class PlaylistManager {
         artist: data[i].artist,
         album: data[i].album,
         albumart: data[i].albumart,
+        year: data[i].year,
       })
     }
 

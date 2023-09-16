@@ -1284,6 +1284,7 @@ class ControllerMpd {
           album: ithdata.album,
           albumart: ithdata.albumart,
           uri: ithdata.uri,
+          year: ithdata.year,
         }
         response.navigation.lists[0].items.push(song)
       }
