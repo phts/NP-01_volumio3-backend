@@ -105,7 +105,7 @@ class CoreMusicLibrary {
         albums: ['albumuids', '#', {name: 'name', uid: 'uid'}],
         artists: ['artistuids', '#', {name: 'name', uid: 'uid'}],
         tracknumber: 'tracknumber',
-        date: 'date',
+        year: 'year',
       },
     ]
 
