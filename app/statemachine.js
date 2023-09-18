@@ -101,8 +101,8 @@ class CoreStateMachine {
         volatile: true,
         disableUiControls: this.volatileState.disableUiControls,
         service: this.volatileState.service,
-        year: null,
-        tracknumber: null,
+        year: this.volatileState.year,
+        tracknumber: this.volatileState.tracknumber,
       }
     } else if (this.isConsume) {
       // checking consumeState or the below code will throw an exception
@@ -151,8 +151,8 @@ class CoreStateMachine {
           updatedb: this.currentUpdate,
           volatile: false,
           service: this.consumeState.service,
-          year: null,
-          tracknumber: null,
+          year: this.consumeState.year,
+          tracknumber: this.consumeState.tracknumber,
         }
       } else {
         return this.getEmptyState()
