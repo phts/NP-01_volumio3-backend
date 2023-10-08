@@ -3,8 +3,6 @@
 var libQ = require('kew')
 var RandomQueue = require('./randomqueue')
 
-const DEFAULT_VOLUME = 75
-
 class CoreStateMachine {
   constructor(commandRouter) {
     this.unmanagedMode = false
@@ -261,16 +259,8 @@ class CoreStateMachine {
       this.currentRandom = false
       this.currentRepeat = false
       this.currentRepeatSingleSong = false
-      this.resetVolume()
       return this.playQueue.clearPlayQueue(sendEmptyState)
     })
-  }
-
-  resetVolume() {
-    if (this.currentDisableVolumeControl) {
-      return
-    }
-    if (this.currentVolume !== DEFAULT_VOLUME) this.commandRouter.volumiosetvolume(DEFAULT_VOLUME)
   }
 
   updateTrackBlock() {
