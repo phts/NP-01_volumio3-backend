@@ -261,9 +261,16 @@ class CoreStateMachine {
       this.currentRandom = false
       this.currentRepeat = false
       this.currentRepeatSingleSong = false
-      if (this.currentVolume !== DEFAULT_VOLUME) this.commandRouter.volumiosetvolume(DEFAULT_VOLUME)
+      this.resetVolume()
       return this.playQueue.clearPlayQueue(sendEmptyState)
     })
+  }
+
+  resetVolume() {
+    if (this.currentDisableVolumeControl) {
+      return
+    }
+    if (this.currentVolume !== DEFAULT_VOLUME) this.commandRouter.volumiosetvolume(DEFAULT_VOLUME)
   }
 
   updateTrackBlock() {
