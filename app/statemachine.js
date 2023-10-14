@@ -545,7 +545,12 @@ class CoreStateMachine {
         }
       }
     } else {
-      if (trackBlock != undefined && trackBlock.service !== sService && trackBlock.service !== 'upnp_browser') {
+      if (
+        trackBlock != undefined &&
+        trackBlock.service !== sService &&
+        trackBlock.service !== 'upnp_browser' &&
+        trackBlock.service !== 'podcast'
+      ) {
         this.commandRouter.pushConsoleMessage(
           'Received update from a service different from the one supposed to be playing music. Skipping notification.Current ' +
             trackBlock.service +
