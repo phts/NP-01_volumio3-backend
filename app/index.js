@@ -240,6 +240,11 @@ class CoreCommandRouter {
     return this.musicLibrary.updateBrowseSources(name, data)
   }
 
+  updateGlobalSearchableBrowseSources(data) {
+    this.pushConsoleMessage('CoreCommandRouter::updateGlobalSearchableBrowseSources')
+    return this.musicLibrary.updateGlobalSearchableBrowseSources(data)
+  }
+
   setSourceActive(data) {
     this.pushConsoleMessage('CoreCommandRouter::volumiosetSourceActive' + data)
     return this.musicLibrary.setSourceActive(data)

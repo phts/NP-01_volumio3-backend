@@ -222,9 +222,6 @@ ControllerAlsa.prototype.getUIConfig = function () {
             label: 'HDMI Out'
           });
         } else {
-          if (cards[i].id == '5') {
-            cards[i].name = 'USB: ' + cards[i].name;
-          }
           self.configManager.pushUIConfigParam(uiconf, 'sections[0].content[0].options', {
             value: cards[i].id,
             label: cards[i].name
@@ -232,7 +229,7 @@ ControllerAlsa.prototype.getUIConfig = function () {
         }
       }
 
-      if (i2soptions.length > 0) {
+      if (i2soptions.length > 0 && self.config.get('ignore_i2s', false) !== true) {
         if (i2sstatus.enabled) {
           self.configManager.setUIConfigParam(uiconf, 'sections[0].content[1].value', i2sstatus.enabled);
           self.configManager.setUIConfigParam(uiconf, 'sections[0].content[2].value', {
@@ -535,7 +532,7 @@ ControllerAlsa.prototype.getAdditionalUISections = function () {
     		var section = additionalUISections[i];
     		var pluginType = section.split('/')[0];
     		var pluginName = section.split('/')[1];
-      var additionalUISection = self.commandRouter.executeOnPlugin(pluginType, pluginName, 'getAdditionalUiSection');
+      var additionalUISection = self.commandRouter.executeOnPlugin(pluginType, pluginName, 'getAdditionalUiSection', 'audio');
       uiSectionsDefer.push(additionalUISection);
     	}
     libQ.all(uiSectionsDefer).then((uiSectionsResult) => {

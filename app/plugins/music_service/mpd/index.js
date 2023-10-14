@@ -642,7 +642,7 @@ class ControllerMpd {
       if (startup) {
         startup = false
         setTimeout(() => {
-          self.checkIfMpdRequiresRescan()
+          // self.checkIfMpdRequiresRescan()
         }, 2500)
         setTimeout(() => {
           self.checkUSBDrives()
@@ -1164,8 +1164,13 @@ class ControllerMpd {
           }
         }
         var conf13 = conf12.replace('${special_settings}', specialSettings)
+        var logLevel = 'default'
+        if (self.isAlsaDebugEnabled()) {
+          logLevel = 'verbose'
+        }
+        var conf14 = conf13.replace('${log_level}', logLevel)
 
-        fs.writeFile('/etc/mpd.conf', conf13, 'utf8', function (err) {
+        fs.writeFile('/etc/mpd.conf', conf14, 'utf8', function (err) {
           if (err) {
             self.logger.info('Could not write mpd.conf:' + err)
           }
@@ -1175,6 +1180,20 @@ class ControllerMpd {
       callback()
     } catch (err) {
       callback(err)
+    }
+  }
+
+  isAlsaDebugEnabled() {
+    var self = this
+
+    try {
+      if (fs.existsSync('/data/alsadebug')) {
+        return true
+      } else {
+        return false
+      }
+    } catch (e) {
+      return false
     }
   }
 
