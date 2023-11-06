@@ -617,16 +617,18 @@ class CoreMusicLibrary {
   }
 
   goto(data) {
-    var stateMachine = this.commandRouter.stateMachine
-    var curState = stateMachine.getTrack(stateMachine.currentPosition)
+    const stateMachine = this.commandRouter.stateMachine
+    const track = stateMachine.getTrack(stateMachine.currentPosition)
+    if (track) {
+      data.uri = track.uri
+      return this.commandRouter.executeOnPlugin('music_service', track.service, 'goto', data)
+    }
 
-    var response
-
-    if (curState) {
-      data.uri = curState.uri
-      response = this.commandRouter.executeOnPlugin('music_service', curState.service, 'goto', data)
-    } else response = this.commandRouter.executeOnPlugin('music_service', 'mpd', 'goto', data)
-    return response
+    const state = stateMachine.getState()
+    if (state.service === 'spop' && state.volatile) {
+      return this.commandRouter.executeOnPlugin('music_service', state.service, 'goto', data)
+    }
+    return this.commandRouter.executeOnPlugin('music_service', 'mpd', 'goto', data)
   }
 
   pushBrowseSources(data) {
