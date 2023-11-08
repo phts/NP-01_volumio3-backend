@@ -854,7 +854,10 @@ class CoreMusicLibrary {
       return false
     }
 
-    if (self.isEqualString(artist, artistToSearch) && self.isEqualString(album, albumToSearch)) {
+    if (
+      self.isEqualString(artist, artistToSearch) &&
+      (self.isEqualString(album, albumToSearch) || self.isStringIncluded(album, albumToSearch))
+    ) {
       return true
     } else if (item.uri.includes('tidal://album/') && self.isEqualString(album, albumToSearch)) {
       // workaround for Tidal not returning artist name in search results, to fix in browse performer
@@ -974,6 +977,21 @@ class CoreMusicLibrary {
     if (a.toLowerCase().trim() === b.toLowerCase().trim()) {
       return true
     } else {
+      return false
+    }
+  }
+
+  isStringIncluded(a, b) {
+    try {
+      if (
+        a.toLowerCase().trim().includes(b.toLowerCase().trim()) ||
+        b.toLowerCase().trim().includes(a.toLowerCase().trim())
+      ) {
+        return true
+      } else {
+        return false
+      }
+    } catch (e) {
       return false
     }
   }

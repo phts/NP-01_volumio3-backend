@@ -63,6 +63,10 @@ class CoreStateMachine {
         this.volatileState.trackType = ''
       }
 
+      if (this.volatileState.codec === undefined) {
+        this.volatileState.codec = ''
+      }
+
       if (this.volatileState.albumart === undefined) {
         this.volatileState.albumart = '/albumart'
       }
@@ -79,6 +83,7 @@ class CoreStateMachine {
         albumart: this.volatileState.albumart,
         uri: this.volatileState.uri,
         trackType: this.volatileState.trackType,
+        codec: this.volatileState.codec,
         seek: this.volatileState.seek,
         duration: this.volatileState.duration,
         samplerate: this.volatileState.samplerate,
@@ -174,6 +179,7 @@ class CoreStateMachine {
           albumart: trackBlock.albumart,
           uri: trackBlock.uri,
           trackType: trackBlock.trackType,
+          codec: trackBlock.codec,
           seek: this.currentSeek,
           duration: trackBlock.duration,
           samplerate: trackBlock.samplerate,
@@ -294,6 +300,7 @@ class CoreStateMachine {
       self.currentTrackBlock = []
       self.timeLastServiceStateUpdate = 0
       self.currentTrackType = null
+      self.currentCodec = null
       self.timerPlayback = null
       self.currentTitle = null
       self.currentArtist = null
@@ -709,6 +716,7 @@ class CoreStateMachine {
         this.currentSeek = stateService.seek
         this.currentDuration = stateService.duration
         this.currentTrackType = null
+        this.currentCodec = null
         this.currentTitle = null
         this.currentArtist = null
         this.currentAlbum = null
@@ -733,6 +741,7 @@ class CoreStateMachine {
         this.currentSeek = stateService.seek
         this.currentDuration = stateService.duration
         this.currentTrackType = null
+        this.currentCodec = null
         this.currentTitle = null
         this.currentArtist = null
         this.currentAlbum = null
