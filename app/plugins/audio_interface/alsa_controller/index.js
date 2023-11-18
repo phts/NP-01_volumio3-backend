@@ -163,10 +163,11 @@ ControllerAlsa.prototype.onVolumioStart = function () {
 
 ControllerAlsa.prototype.getUIConfig = function () {
   var self = this
-
   var defer = libQ.defer()
-
   var lang_code = this.commandRouter.sharedVars.get('language_code')
+  const i2sSwitchIndex = 0
+  const outputDeviceIndex = 1
+  const i2sDacIndex = 2
 
   self.commandRouter
     .i18nJson(
@@ -197,32 +198,32 @@ ControllerAlsa.prototype.getUIConfig = function () {
         var fullCardsList = cards
         cards = cardsWithoutI2SDAC
         outdevicename = self.getLabelForSelectedCard(fullCardsList, value)
-        self.configManager.setUIConfigParam(uiconf, 'sections[0].content[0].value.value', cardsWithoutI2SDAC[0].id)
+        self.configManager.setUIConfigParam(uiconf, `sections[0].content[${outputDeviceIndex}].value.value`, cardsWithoutI2SDAC[0].id)
         var outdevicenameWithoutI2SDAC = self.getLabelForSelectedCard(cardsWithoutI2SDAC, cardsWithoutI2SDAC[0].id)
-        self.configManager.setUIConfigParam(uiconf, 'sections[0].content[0].value.label', outdevicenameWithoutI2SDAC)
+        self.configManager.setUIConfigParam(uiconf, `sections[0].content[${outputDeviceIndex}].value.label`, outdevicenameWithoutI2SDAC)
       } else {
-        self.configManager.setUIConfigParam(uiconf, 'sections[0].content[0].value.value', value)
+        self.configManager.setUIConfigParam(uiconf, `sections[0].content[${outputDeviceIndex}].value.value`, value)
         var outdevicename = self.config.get('outputdevicename')
         if (outdevicename) {
-          self.configManager.setUIConfigParam(uiconf, 'sections[0].content[0].value.label', outdevicename)
+          self.configManager.setUIConfigParam(uiconf, `sections[0].content[${outputDeviceIndex}].value.label`, outdevicename)
         } else {
           outdevicename = self.getLabelForSelectedCard(cards, value)
-          self.configManager.setUIConfigParam(uiconf, 'sections[0].content[0].value.label', outdevicename)
+          self.configManager.setUIConfigParam(uiconf, `sections[0].content[${outputDeviceIndex}].value.label`, outdevicename)
         }
       }
 
       for (var i in cards) {
         if (cards[i].name === 'Audio Jack') {
-          self.configManager.pushUIConfigParam(uiconf, 'sections[0].content[0].options', {
+          self.configManager.pushUIConfigParam(uiconf, `sections[0].content[${outputDeviceIndex}].options`, {
             value: cards[i].id,
             label: 'Audio Jack',
           })
-          self.configManager.pushUIConfigParam(uiconf, 'sections[0].content[0].options', {
+          self.configManager.pushUIConfigParam(uiconf, `sections[0].content[${outputDeviceIndex}].options`, {
             value: cards[i].id,
             label: 'HDMI Out',
           })
         } else {
-          self.configManager.pushUIConfigParam(uiconf, 'sections[0].content[0].options', {
+          self.configManager.pushUIConfigParam(uiconf, `sections[0].content[${outputDeviceIndex}].options`, {
             value: cards[i].id,
             label: cards[i].name,
           })
@@ -231,31 +232,31 @@ ControllerAlsa.prototype.getUIConfig = function () {
 
       if (i2soptions.length > 0 && self.config.get('ignore_i2s', false) !== true) {
         if (i2sstatus.enabled) {
-          self.configManager.setUIConfigParam(uiconf, 'sections[0].content[1].value', i2sstatus.enabled)
-          self.configManager.setUIConfigParam(uiconf, 'sections[0].content[2].value', {
+          self.configManager.setUIConfigParam(uiconf, `sections[0].content[${i2sSwitchIndex}].value`, i2sstatus.enabled)
+          self.configManager.setUIConfigParam(uiconf, `sections[0].content[${i2sDacIndex}].value`, {
             value: i2sstatus.id,
             label: i2sstatus.name,
           })
         } else {
-          self.configManager.setUIConfigParam(uiconf, 'sections[0].content[1].value', false)
-          self.configManager.setUIConfigParam(uiconf, 'sections[0].content[2].value', {
+          self.configManager.setUIConfigParam(uiconf, `sections[0].content[${i2sSwitchIndex}].value`, false)
+          self.configManager.setUIConfigParam(uiconf, `sections[0].content[${i2sDacIndex}].value`, {
             value: i2soptions[0].value,
             label: i2soptions[0].label,
           })
         }
 
-        self.configManager.setUIConfigParam(uiconf, 'sections[0].content[1].id', 'i2s')
-        self.configManager.setUIConfigParam(uiconf, 'sections[0].content[1].hidden', false)
+        self.configManager.setUIConfigParam(uiconf, `sections[0].content[${i2sSwitchIndex}].id`, 'i2s')
+        self.configManager.setUIConfigParam(uiconf, `sections[0].content[${i2sSwitchIndex}].hidden`, false)
         self.configManager.pushUIConfigParam(uiconf, 'sections[0].saveButton.data', 'i2s')
         self.configManager.pushUIConfigParam(uiconf, 'sections[0].saveButton.data', 'i2sid')
-        self.configManager.setUIConfigParam(uiconf, 'sections[0].content[1].label', 'I2S DAC')
-        self.configManager.setUIConfigParam(uiconf, 'sections[0].content[1].element', 'switch')
-        self.configManager.setUIConfigParam(uiconf, 'sections[0].content[2].id', 'i2sid')
-        self.configManager.setUIConfigParam(uiconf, 'sections[0].content[2].element', 'select')
-        self.configManager.setUIConfigParam(uiconf, 'sections[0].content[2].label', 'DAC Model')
+        self.configManager.setUIConfigParam(uiconf, `sections[0].content[${i2sSwitchIndex}].label`, 'I2S DAC')
+        self.configManager.setUIConfigParam(uiconf, `sections[0].content[${i2sSwitchIndex}].element`, 'switch')
+        self.configManager.setUIConfigParam(uiconf, `sections[0].content[${i2sDacIndex}].id`, 'i2sid')
+        self.configManager.setUIConfigParam(uiconf, `sections[0].content[${i2sDacIndex}].element`, 'select')
+        self.configManager.setUIConfigParam(uiconf, `sections[0].content[${i2sDacIndex}].label`, 'DAC Model')
 
         for (var i in i2soptions) {
-          self.configManager.pushUIConfigParam(uiconf, 'sections[0].content[2].options', {
+          self.configManager.pushUIConfigParam(uiconf, `sections[0].content[${i2sDacIndex}].options`, {
             value: i2soptions[i].value,
             label: i2soptions[i].label,
           })
@@ -263,7 +264,7 @@ ControllerAlsa.prototype.getUIConfig = function () {
       }
 
       if (volumioDeviceName === 'primo') {
-        uiconf.sections[0].content[1].hidden = true
+        uiconf.sections[0].content[i2sSwitchIndex].hidden = true
       }
 
       if (process.env.AUDIO_OUTPUT_SELECTION === 'false') {
