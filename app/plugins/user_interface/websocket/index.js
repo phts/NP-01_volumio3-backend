@@ -1595,8 +1595,11 @@ function InterfaceWebUI(context) {
     })
 
     connWebSocket.on('setDeviceName', function (data) {
-      var options = {player_name: data.name}
-      self.commandRouter.executeOnPlugin('system_controller', 'system', 'saveGeneralSettings', options)
+      var selfConnWebSocket = this
+      if (data && data.name && data.name.length) {
+        var options = {player_name: data.name}
+        var name = self.commandRouter.executeOnPlugin('system_controller', 'system', 'saveGeneralSettings', options)
+      }
     })
 
     connWebSocket.on('getOutputDevices', function () {

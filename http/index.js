@@ -15,6 +15,7 @@ var plugin = express()
 var background = express()
 var stream = express()
 var partnerlogo = express()
+var status = express()
 var plugindir = '/tmp/plugins'
 var backgrounddir = '/data/backgrounds'
 var volumio2UIFlagFile = '/data/volumio2ui'
@@ -23,8 +24,8 @@ var volumioWizardFlagFile = '/data/wizard'
 var volumioManifestUIDisabledFile = '/data/disableManifestUI'
 var volumio3UIFolderPath = '/volumio/http/www3'
 const phtsNp01ThemeFlagFile = '/data/phts-np-01-theme'
-
 var volumioManifestUIDir = '/volumio/http/www4'
+process.env.VOLUMIO_SYSTEM_STATUS = 'starting'
 
 var allowCrossDomain = function (req, res, next) {
   res.header('Access-Control-Allow-Origin', '*')
@@ -106,6 +107,13 @@ partnerlogo.use(express.static('/volumio/partnerlogo.png', {maxAge: 0}))
 partnerlogo.use(function (req, res) {
   res.status(404)
   res.send('Not found')
+})
+
+// System Status API
+app.use('/status', status)
+
+status.use(function (req, res, next) {
+  res.send(process.env.VOLUMIO_SYSTEM_STATUS)
 })
 
 // catch 404 and forward to error handler

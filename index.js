@@ -84,6 +84,7 @@ process.on('uncaughtException', (error) => {
   } else {
     errorMessage = 'Unknown'
   }
+  process.env.VOLUMIO_SYSTEM_STATUS = 'error'
   execSync('/usr/bin/node /volumio/crashreport.js "' + errorMessage + '"')
   if (process.env.EXIT_ON_EXCEPTION === 'true') {
     process.exit(1)

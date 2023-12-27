@@ -64,6 +64,7 @@ class CoreCommandRouter {
     // plugins may need to be fully active before sound can play properly
     pluginPromise.then(() => {
       this.pushConsoleMessage('BOOT COMPLETED')
+      process.env.VOLUMIO_SYSTEM_STATUS = 'ready'
       metrics.log('CommandRouter')
       this.setStartupVolume()
       this.startupSound()
