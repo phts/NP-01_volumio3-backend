@@ -6,8 +6,8 @@
   "scripts": {
     "preinstall": "",
     "start": "nodejs ./index.js",
-    "lint": "semistandard \"./**/*.js\" --fix --verbose",
-    "lint-staged": "lint-staged",
+    "format": "prettier --write '**/*.{json,md}' && npm run lint -- --fix",
+    "lint": "eslint .",
     "lint-JSON": "jsonlint -qD ./app/plugins",
     "test": "npm install --only=dev --no-package-lock && ./node_modules/.bin/mocha --reporter spec",
     "addLangString": "node ./utils/addlangstring.js"
@@ -65,11 +65,18 @@
     "winston": "^3.2.1",
     "xmlbuilder": "^10.1.1"
   },
+  "optionalDependencies": {
+    "inotify": "https://github.com/ashthespy/node-inotify.git",
+    "mdns": "^2.5.1",
+    "udev": "https://github.com/volumio/node-udev.git"
+  },
   "devDependencies": {
+    "@phts/eslint-config": "^2.0.0",
+    "@phts/prettier-config": "^1.2.0",
     "@prantlf/jsonlint": "^10.2.0",
-    "lint-staged": "^7.2.2",
+    "eslint": "^8.35.0",
     "mocha": "^3.2.0",
-    "semistandard": "^14.2.0"
+    "prettier": "^2.8.4"
   },
   "description": "Audiophile Music Player/Streamer",
   "repository": {
@@ -78,17 +85,5 @@
   },
   "bugs": {
     "url": "https://github.com/volumio/volumio3-backend/issues"
-  },
-  "semistandard": {
-    "ignore": [
-      "app/plugins/music_service/airplay_emulation/shairport-sync-reader/*",
-      "app/plugins/system_controller/network/lib/*",
-      "app/plugins/system_controller/network/wireless.js",
-      "app/plugins/music_service/mpd/lib/*",
-      "http/dev/assets/*",
-      "http/dev/dev.js",
-      "http/www/*",
-      "http/www3/*"
-    ]
   }
 }

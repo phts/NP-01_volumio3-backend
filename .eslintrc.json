@@ -1,0 +1,24 @@
+{
+  "extends": ["@phts", "@phts/eslint-config/addons/node", "@phts/eslint-config/addons/prettier"],
+  "globals": {
+    "metrics": true
+  },
+  "rules": {
+    "import/order": "off",
+    "import/newline-after-import": "off",
+    "import/no-absolute-path": "off",
+    "camelcase": "off",
+    "eqeqeq": "warn",
+    "new-cap": "warn",
+    "no-console": "warn",
+    "no-path-concat": "warn",
+    "no-redeclare": "warn",
+    "no-use-before-define": "warn",
+    "no-useless-call": "warn",
+    "no-var": "off",
+    "one-var": "off",
+    "prefer-const": "warn",
+    "spaced-comment": "off",
+    "strict": "off"
+  }
+}
