@@ -1,5 +1,5 @@
 {
-  "extends": ["@phts", "@phts/eslint-config/addons/node", "@phts/eslint-config/addons/prettier"],
+  "extends": ["@phts", "@phts/eslint-config/addons/node"],
   "globals": {
     "metrics": true
   },
@@ -11,6 +11,7 @@
     "eqeqeq": "warn",
     "new-cap": "warn",
     "no-console": "warn",
+    "no-empty": "warn",
     "no-path-concat": "warn",
     "no-redeclare": "warn",
     "no-use-before-define": "warn",
@@ -21,5 +22,15 @@
     "prefer-const": "warn",
     "spaced-comment": "off",
     "strict": "off"
-  }
+  },
+  "overrides": [
+    {
+      "files": "http/**/*.js",
+      "env": {"browser": true}
+    },
+    {
+      "files": "*",
+      "extends": "@phts/eslint-config/addons/prettier"
+    }
+  ]
 }
