@@ -226,7 +226,7 @@ volumioAppearance.prototype.generateThumbnails = function () {
         if (files[i].indexOf('thumbnail-') !== 0 && !map['thumbnail-' + files[i]]) {
           var f = files[i]
           self.logger.info('Creating Thumbnail for file ' + f + ' : ' + backgroundPath + '/thumbnail-' + f)
-          let defer = libQ.defer()
+          const defer = libQ.defer()
           defers.push(defer)
           Jimp.read(backgroundPath + '/' + f)
             .then(function (image) {

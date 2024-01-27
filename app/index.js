@@ -1394,9 +1394,9 @@ CoreCommandRouter.prototype.volumioRepeat = function (repeat, repeatSingle) {
 
 CoreCommandRouter.prototype.volumioToggleRandomRepeat = function () {
   const {random, repeat, repeatSingle} = this.stateMachine.getState()
-  let newRepeat = !(repeat && repeatSingle)
-  let newRepeatSingle = repeat && !repeatSingle
-  let newRandom = !newRepeat && !newRepeatSingle ? !random : random
+  const newRepeat = !(repeat && repeatSingle)
+  const newRepeatSingle = repeat && !repeatSingle
+  const newRandom = !newRepeat && !newRepeatSingle ? !random : random
   return libQ.all([this.stateMachine.setRepeat(newRepeat, newRepeatSingle), this.stateMachine.setRandom(newRandom)])
 }
 

@@ -1862,7 +1862,7 @@ function InterfaceWebUI(context) {
       self.commandRouter.executeOnPlugin('miscellanea', 'metavolumio', 'setInfinityPlayback', data)
       var returnedData = self.commandRouter.executeOnPlugin('miscellanea', 'metavolumio', 'getInfinityPlayback', '')
       if (returnedData && returnedData.enabled !== undefined) {
-        let status = returnedData.enabled
+        const status = returnedData.enabled
           ? self.commandRouter.getI18nString('COMMON.ENABLED')
           : self.commandRouter.getI18nString('COMMON.DISABLED')
         self.printToastMessage('success', self.commandRouter.getI18nString('TRACK_INFO_BAR.INFINITY_PLAY'), status)
@@ -2003,10 +2003,10 @@ InterfaceWebUI.prototype.emitMessageToSpecificClient = function (id, emit, paylo
 
 InterfaceWebUI.prototype.logClientConnection = function (client) {
   try {
-    let socketUserAgent = client.handshake.headers['user-agent'] || 'unknown'
-    let socketHost = client.handshake.headers.host
-    let socketOrigin = client.handshake.address.split(':').pop()
-    let connectedClientsNumber = this.libSocketIO.engine.clientsCount
+    const socketUserAgent = client.handshake.headers['user-agent'] || 'unknown'
+    const socketHost = client.handshake.headers.host
+    const socketOrigin = client.handshake.address.split(':').pop()
+    const connectedClientsNumber = this.libSocketIO.engine.clientsCount
     this.logger.verbose(
       'New Socket.io Connection to ' +
         socketHost +

@@ -480,7 +480,7 @@ CoreStateMachine.prototype.pushState = function (source) {
 CoreStateMachine.prototype.saveCurrentState = function (state) {
   var self = this
 
-  let newStateToString = JSON.stringify(state)
+  const newStateToString = JSON.stringify(state)
   if (self.lastSavedStateToString !== newStateToString) {
     self.lastSavedStateToString = newStateToString
     return this.commandRouter.executeOnPlugin('system_controller', 'volumiodiscovery', 'saveDeviceInfo', state)
@@ -1480,7 +1480,7 @@ CoreStateMachine.prototype.unSetVolatile = function () {
 
 CoreStateMachine.prototype.reportCappedSamplerate = function (samplerate) {
   try {
-    let sampleRateNumber = parseInt(samplerate.replace('  kHz', ''))
+    const sampleRateNumber = parseInt(samplerate.replace('  kHz', ''))
     if (sampleRateNumber > 192) {
       return '192 kHz'
     } else {

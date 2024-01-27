@@ -568,7 +568,7 @@ PluginManager.prototype.getPluginCategories = function () {
     }
   }
   if (self.myVolumioPluginManager !== undefined) {
-    let myVolumioCategories = self.myVolumioPluginManager.getPluginCategories()
+    const myVolumioCategories = self.myVolumioPluginManager.getPluginCategories()
     categories.concat(myVolumioCategories)
   }
 
@@ -589,7 +589,7 @@ PluginManager.prototype.getPluginNames = function (category) {
   }
 
   if (self.myVolumioPluginManager !== undefined) {
-    let myVolumioNames = self.myVolumioPluginManager.getPluginNames()
+    const myVolumioNames = self.myVolumioPluginManager.getPluginNames()
     names.concat(myVolumioNames)
   }
 
@@ -1361,11 +1361,11 @@ PluginManager.prototype.listPluginsBrokenByNewVersion = function (newVolumioVers
   var plugins = self.getPluginsMatrix()
 
   for (var i = 0; i < plugins.length; i++) {
-    let category = plugins[i].cName
+    const category = plugins[i].cName
 
     for (var j = 0; j < plugins[i].catPlugin.length; j++) {
-      let plugin = plugins[i].catPlugin[j]
-      let folder = self.findPluginFolder(category, plugin.name)
+      const plugin = plugins[i].catPlugin[j]
+      const folder = self.findPluginFolder(category, plugin.name)
 
       var package_json = self.getPackageJson(folder)
 

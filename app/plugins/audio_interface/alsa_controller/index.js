@@ -198,17 +198,33 @@ ControllerAlsa.prototype.getUIConfig = function () {
         var fullCardsList = cards
         cards = cardsWithoutI2SDAC
         outdevicename = self.getLabelForSelectedCard(fullCardsList, value)
-        self.configManager.setUIConfigParam(uiconf, `sections[0].content[${outputDeviceIndex}].value.value`, cardsWithoutI2SDAC[0].id)
+        self.configManager.setUIConfigParam(
+          uiconf,
+          `sections[0].content[${outputDeviceIndex}].value.value`,
+          cardsWithoutI2SDAC[0].id
+        )
         var outdevicenameWithoutI2SDAC = self.getLabelForSelectedCard(cardsWithoutI2SDAC, cardsWithoutI2SDAC[0].id)
-        self.configManager.setUIConfigParam(uiconf, `sections[0].content[${outputDeviceIndex}].value.label`, outdevicenameWithoutI2SDAC)
+        self.configManager.setUIConfigParam(
+          uiconf,
+          `sections[0].content[${outputDeviceIndex}].value.label`,
+          outdevicenameWithoutI2SDAC
+        )
       } else {
         self.configManager.setUIConfigParam(uiconf, `sections[0].content[${outputDeviceIndex}].value.value`, value)
         var outdevicename = self.config.get('outputdevicename')
         if (outdevicename) {
-          self.configManager.setUIConfigParam(uiconf, `sections[0].content[${outputDeviceIndex}].value.label`, outdevicename)
+          self.configManager.setUIConfigParam(
+            uiconf,
+            `sections[0].content[${outputDeviceIndex}].value.label`,
+            outdevicename
+          )
         } else {
           outdevicename = self.getLabelForSelectedCard(cards, value)
-          self.configManager.setUIConfigParam(uiconf, `sections[0].content[${outputDeviceIndex}].value.label`, outdevicename)
+          self.configManager.setUIConfigParam(
+            uiconf,
+            `sections[0].content[${outputDeviceIndex}].value.label`,
+            outdevicename
+          )
         }
       }
 
@@ -1250,7 +1266,7 @@ ControllerAlsa.prototype.getAlsaCards = function () {
       var id = aplaycard.id
       var alsacard = aplaycard.alsacard
       if (!ignoredCards.includes(name)) {
-        data: for (var n = 0; n < carddata.cards.length; n++) {
+        for (var n = 0; n < carddata.cards.length; n++) {
           var ignore = false
           var cardname = carddata.cards[n].name.toString().trim()
           if (cardname === name) {
@@ -2300,9 +2316,9 @@ ControllerAlsa.prototype.internalUpdateALSAConfigFile = function () {
       // Read the snippets into memory
       var pendingReads = []
       for (var i = 0; i < snippetData.length; i++) {
-        let defer = libQ.defer()
+        const defer = libQ.defer()
         pendingReads.push(defer.promise)
-        let snippetDatum = snippetData[i]
+        const snippetDatum = snippetData[i]
 
         fs.readFile(snippetDatum.configFile, 'utf8', (failure, snippet) => {
           if (failure) {
@@ -2361,7 +2377,7 @@ ControllerAlsa.prototype.internalUpdateALSAConfigFile = function () {
       return asoundcontent
     })
     .then((asoundcontent) => {
-      let defer = libQ.defer()
+      const defer = libQ.defer()
       fs.readFile('/etc/asound.conf', 'utf8', function (err, data) {
         if (data === asoundcontent) {
           // Data is unchanged, no need to update anything
@@ -2402,14 +2418,14 @@ ControllerAlsa.prototype.getPluginALSAContributions = function () {
   var plugins = this.commandRouter.pluginManager.getPluginsMatrix()
 
   for (var i = 0; i < plugins.length; i++) {
-    let category = plugins[i].cName
+    const category = plugins[i].cName
 
     for (var j = 0; j < plugins[i].catPlugin.length; j++) {
-      let plugin = plugins[i].catPlugin[j]
+      const plugin = plugins[i].catPlugin[j]
 
       if (this.commandRouter.pluginManager.isEnabled(category, plugin.name)) {
         // Check to see if there is an ALSA contribution from this plugin
-        let folder = self.commandRouter.pluginManager.findPluginFolder(category, plugin.name)
+        const folder = self.commandRouter.pluginManager.findPluginFolder(category, plugin.name)
 
         // Folder will be truthy if found
         if (folder) {
@@ -2462,7 +2478,7 @@ ControllerAlsa.prototype.searchFolderForPluginALSAContributions = function (plug
 
   // Check to see if the plugin wants to contribute
   if (fs.existsSync(folder)) {
-    let dirDefer = libQ.defer()
+    const dirDefer = libQ.defer()
 
     fs.readdir(folder, function (err, files) {
       if (err) {
