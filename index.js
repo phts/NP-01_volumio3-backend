@@ -1,9 +1,9 @@
-var path = require('path');
-var fs = require('fs-extra');
+var path = require('path')
+var fs = require('fs-extra')
 var dotenv = require('dotenv').config({ path: path.join(__dirname, '.env')}); // eslint-disable-line
-var execSync = require('child_process').execSync;
-var expressInstance = require('./http/index.js');
-var expressApp = expressInstance.app;
+var execSync = require('child_process').execSync
+var expressInstance = require('./http/index.js')
+var expressApp = expressInstance.app
 /* eslint-disable */
 global.metrics = {
   start: {},
@@ -48,7 +48,7 @@ expressApp.use(function (err, req, res, next) {
   res.sendFile(path.join(__dirname, '/app/plugins/miscellanea/albumart/default.png'));
 });
 
-var commandRouter = new (require('./app/index.js'))(httpServer); // eslint-disable-line
+var commandRouter = new (require('./app/index.js'))(httpServer);  
 
 var volumioManifestUIFlagFile = '/data/manifestUI';
 var volumioManifestUIDisabledFile = '/data/disableManifestUI';

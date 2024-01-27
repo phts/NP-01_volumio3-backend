@@ -15,11 +15,7 @@
       },
       "saveButton": {
         "label": "TRANSLATE.COMMON.SAVE",
-        "data": [
-          "player_name",
-          "startup_sound",
-          "advanced_settings"
-        ]
+        "data": ["player_name", "startup_sound", "advanced_settings"]
       },
       "content": [
         {
@@ -83,9 +79,7 @@
       },
       "saveButton": {
         "label": "TRANSLATE.COMMON.SAVE",
-        "data": [
-          "hdmi_enabled"
-        ]
+        "data": ["hdmi_enabled"]
       },
       "content": [
         {
@@ -112,11 +106,7 @@
       },
       "saveButton": {
         "label": "TRANSLATE.COMMON.SAVE",
-        "data": [
-          "automatic_updates",
-          "automatic_updates_start_time",
-          "automatic_updates_stop_time"
-        ]
+        "data": ["automatic_updates", "automatic_updates_start_time", "automatic_updates_stop_time"]
       },
       "content": [
         {
@@ -129,7 +119,7 @@
             "message": "updateCheck",
             "data": "search-for-upgrade"
           }
-        },        
+        },
         {
           "id": "factory",
           "element": "button",
@@ -157,24 +147,22 @@
           "element": "select",
           "description": "TRANSLATE.SYSTEM.AUTOMATIC_UPDATES_START_TIME_DOC",
           "label": "TRANSLATE.SYSTEM.AUTOMATIC_UPDATES_START_TIME",
-          "value":  {
-            "value":0,
+          "value": {
+            "value": 0,
             "label": "0"
           },
-          "options": [
-          ]
+          "options": []
         },
         {
           "id": "automatic_updates_stop_time",
           "element": "select",
           "description": "TRANSLATE.SYSTEM.AUTOMATIC_UPDATES_STOP_TIME_DOC",
           "label": "TRANSLATE.SYSTEM.AUTOMATIC_UPDATES_STOP_TIME",
-          "value":  {
-            "value":0,
+          "value": {
+            "value": 0,
             "label": "0"
           },
-          "options": [
-          ]
+          "options": []
         }
       ]
     },
@@ -217,9 +205,7 @@
       },
       "saveButton": {
         "label": "TRANSLATE.COMMON.SAVE",
-        "data": [
-          "allow_ui_statistics"
-        ]
+        "data": ["allow_ui_statistics"]
       },
       "content": [
         {
@@ -236,21 +222,19 @@
       "element": "section",
       "label": "TRANSLATE.APPEARANCE.USER_INTERFACE_LAYOUT_DESIGN",
       "icon": "fa-language",
-      "onSave": {"type":"controller", "endpoint":"miscellanea/appearance", "method":"setVolumio3UI"},
-      "hidden":false,
+      "onSave": {"type": "controller", "endpoint": "miscellanea/appearance", "method": "setVolumio3UI"},
+      "hidden": false,
       "saveButton": {
         "label": "TRANSLATE.COMMON.SAVE",
-        "data": [
-          "volumio3_ui"
-        ]
+        "data": ["volumio3_ui"]
       },
       "content": [
         {
           "id": "volumio3_ui",
           "element": "select",
-          "doc":"TRANSLATE.APPEARANCE.USER_INTERFACE_LAYOUT_DESIGN_DOC",
+          "doc": "TRANSLATE.APPEARANCE.USER_INTERFACE_LAYOUT_DESIGN_DOC",
           "label": "TRANSLATE.APPEARANCE.USER_INTERFACE_LAYOUT_DESIGN",
-          "value":  {
+          "value": {
             "value": "CONTEMPORARY",
             "label": "TRANSLATE.APPEARANCE.USER_INTERFACE_CONTEMPORARY"
           },
@@ -270,6 +254,6 @@
           ]
         }
       ]
-    }    
+    }
   ]
 }
