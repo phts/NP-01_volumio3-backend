@@ -2347,6 +2347,10 @@ ControllerAlsa.prototype.internalUpdateALSAConfigFile = function () {
       asoundcontent += 'pcm.volumioOutput {\n'
       asoundcontent += '    type plug\n'
       asoundcontent += '    slave.pcm "volumioHw"\n'
+      if (card === 'vc4hdmi0' || card === 'vc4hdmi1') {
+        asoundcontent += '    type "iec958"\n'
+        asoundcontent += '    slave.format "IEC958_SUBFRAME_LE"\n'
+      }
       asoundcontent += '}\n\n'
 
       asoundcontent += 'pcm.volumioHw {\n'

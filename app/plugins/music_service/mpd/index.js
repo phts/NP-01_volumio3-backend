@@ -624,6 +624,13 @@ ControllerMpd.prototype.onVolumioStart = function () {
   dsd_autovolume = self.config.get('dsd_autovolume', false)
   self.getPlaybackMode()
 
+  return libQ.resolve()
+}
+
+ControllerMpd.prototype.onStart = function () {
+  var self = this
+
+  self.logger.info('ControllerMpd::onStart: Initializing MPD')
   return self.mpdInit()
 }
 

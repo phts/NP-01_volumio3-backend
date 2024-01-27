@@ -190,8 +190,13 @@ PlaylistManager.prototype.getFavouritesContent = function (name) {
   return self.commonGetPlaylistContent(self.favouritesPlaylistFolder, 'favourites')
 }
 
-PlaylistManager.prototype.addToFavourites = function (service, uri, title) {
+PlaylistManager.prototype.addToFavourites = function (data) {
   var self = this
+
+  var service = data.service
+  var uri = data.uri
+  var title = data.title
+  var albumart = data.albumart || null
 
   if (title) {
     self.commandRouter.pushToastMessage(
@@ -208,7 +213,7 @@ PlaylistManager.prototype.addToFavourites = function (service, uri, title) {
   }
 
   if (service === 'webradio') {
-    return self.commonAddToPlaylist(self.favouritesPlaylistFolder, 'radio-favourites', service, uri, title)
+    return self.commonAddToPlaylist(self.favouritesPlaylistFolder, 'radio-favourites', service, uri, title, albumart)
   } else {
     var plugin = this.commandRouter.pluginManager.getPlugin('music_service', service)
     if (plugin && typeof plugin.addToFavourites === typeof Function) {
@@ -399,7 +404,7 @@ PlaylistManager.prototype.playMyWebRadio = function () {
 }
 
 //  COMMON methods
-PlaylistManager.prototype.commonAddToPlaylist = function (folder, name, service, uri, title) {
+PlaylistManager.prototype.commonAddToPlaylist = function (folder, name, service, uri, title, albumart) {
   var self = this
 
   var defer = libQ.defer()
@@ -579,13 +584,16 @@ PlaylistManager.prototype.commonAddToPlaylist = function (folder, name, service,
             if (!data) {
               data = []
             }
-
-            data.push({
+            var webradioItem = {
               service: service,
               uri: uri,
               title: title,
-              icon: 'fa-microphone',
-            })
+              icon: 'fa fa-microphone',
+            }
+            if (albumart) {
+              webradioItem.albumart = albumart
+            }
+            data.push(webradioItem)
 
             self
               .saveJSONFile(folder, name, data)

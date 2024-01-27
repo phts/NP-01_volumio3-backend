@@ -476,7 +476,9 @@ volumioAppearance.prototype.setVolumio3UI = function (data) {
       self.logger.error(e)
     }
     process.env.VOLUMIO_3_UI = 'true'
-    self.commandRouter.reloadUi()
+    setTimeout(() => {
+      self.commandRouter.reloadUi()
+    }, 2000)
   } else if (data && data.volumio3_ui.value === 'MANIFEST') {
     try {
       execSync('/usr/bin/touch /data/manifestUI')
@@ -486,7 +488,9 @@ volumioAppearance.prototype.setVolumio3UI = function (data) {
       self.logger.error(e)
     }
     process.env.VOLUMIO_3_UI = 'false'
-    self.commandRouter.reloadUi()
+    setTimeout(() => {
+      self.commandRouter.reloadUi()
+    }, 2000)
   } else if (data && data.volumio3_ui.value === 'CLASSIC') {
     try {
       if (fs.existsSync('/data/manifestUI')) {
@@ -499,7 +503,9 @@ volumioAppearance.prototype.setVolumio3UI = function (data) {
       self.logger.error(e)
     }
     process.env.VOLUMIO_3_UI = 'false'
-    self.commandRouter.reloadUi()
+    setTimeout(() => {
+      self.commandRouter.reloadUi()
+    }, 2000)
   }
 }
 
