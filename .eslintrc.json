@@ -14,6 +14,7 @@
     "no-path-concat": "warn",
     "no-redeclare": "warn",
     "no-use-before-define": "warn",
+    "no-unused-vars": "warn",
     "no-useless-call": "warn",
     "no-var": "off",
     "one-var": "off",

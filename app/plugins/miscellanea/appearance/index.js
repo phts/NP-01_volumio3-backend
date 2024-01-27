@@ -479,8 +479,10 @@ volumioAppearance.prototype.setVolumio3UI = function (data) {
       this.logger.error(e)
     }
     process.env.VOLUMIO_3_UI = 'true'
-    this.commandRouter.reloadUi()
-  } else if (data.volumio3_ui.value === 'MANIFEST') {
+    setTimeout(() => {
+      this.commandRouter.reloadUi()
+    }, 2000)
+  } else if (data && data.volumio3_ui.value === 'MANIFEST') {
     try {
       execSync('/usr/bin/touch /data/manifestUI')
       execSync('/bin/rm -f  /data/volumio2ui')
@@ -490,8 +492,10 @@ volumioAppearance.prototype.setVolumio3UI = function (data) {
       this.logger.error(e)
     }
     process.env.VOLUMIO_3_UI = 'false'
-    this.commandRouter.reloadUi()
-  } else if (data.volumio3_ui.value === 'CLASSIC') {
+    setTimeout(() => {
+      this.commandRouter.reloadUi()
+    }, 2000)
+  } else if (data && data.volumio3_ui.value === 'CLASSIC') {
     try {
       if (fs.existsSync('/data/manifestUI')) {
         execSync('/usr/bin/touch /data/disableManifestUI')
@@ -517,7 +521,9 @@ volumioAppearance.prototype.setVolumio3UI = function (data) {
       this.logger.error(e)
     }
     process.env.VOLUMIO_3_UI = 'false'
-    this.commandRouter.reloadUi()
+    setTimeout(() => {
+      this.commandRouter.reloadUi()
+    }, 2000)
   }
 }
 

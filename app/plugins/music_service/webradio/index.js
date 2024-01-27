@@ -755,9 +755,14 @@ ControllerWebradio.prototype.listMyWebRadio = function (uri) {
         artist: '',
         album: '',
         title: ithdata.name,
-        uri: ithdata.uri,
-        icon: 'fa fa-microphone'
+        uri: ithdata.uri
       };
+
+      if (ithdata.albumart) {
+        song.albumart = ithdata.albumart;
+      } else {
+        song.icon = 'fa fa-microphone';
+      }
 
       response.navigation.lists[0].items.push(song);
     }
@@ -810,9 +815,15 @@ ControllerWebradio.prototype.listRadioFavourites = function (uri) {
         service: 'webradio',
         type: 'webradio',
         title: ithdata.title,
-        icon: 'fa fa-microphone',
+        // artist: ithdata.artist,
+        // album: ithdata.album,
         uri: ithdata.uri
       };
+      if (ithdata.albumart) {
+        song.albumart = ithdata.albumart;
+      } else {
+        song.icon = 'fa fa-microphone';
+      }
 
       response.navigation.lists[0].items.push(song);
     }

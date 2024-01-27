@@ -629,7 +629,7 @@ function InterfaceWebUI(context) {
 
     connWebSocket.on('addToFavourites', function (data) {
       var selfConnWebSocket = this
-      var returnedData = self.commandRouter.playListManager.addToFavourites(data.service, data.uri, data.title)
+      var returnedData = self.commandRouter.playListManager.addToFavourites(data)
       returnedData
         .then(function (data) {
           if (data !== undefined) {

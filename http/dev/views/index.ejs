@@ -4,10 +4,9 @@
 		<script src="./assets/clipboard.min.js"></script>
 		<title><%= title %></title>
 		<style>
-			.div-console {
+			.div-console, #div-serial-monitor {
 				background-color: #f5f5f5;
 				border-radius: 4px;
-				border: 1px solid #ccc;
 				border: 1px solid black;
 				color: #333;
 				display: block;
@@ -23,6 +22,9 @@
 			}
 			#div-console {
 				height: 95vh;
+			}
+			#div-serial-monitor-container {
+				display: none;
 			}
 			#div-browser li, #div-playqueue li {
 				clear: both;
@@ -53,7 +55,6 @@
 		<h3>Plugins Test Mode</h3>
 		<button id='button-plugintesttrue' class='control-websocket' disabled>TRUE</button>
 		<button id='button-plugintestfalse' class='control-websocket' disabled>FALSE</button>
-		</div>
 
 		<h3>SSH</h3>
 		<button id='button-sshenable' class='control-websocket' disabled>ENABLE</button>
@@ -81,6 +82,24 @@
 		<h3>Play Queue</h3>
 		<ol id='div-playqueue' start='0'></ol>
 
+		<div id='div-serial-monitor-container'>
+		<h3>Send Serial Message</h3>
+		<span id="log-message"></span>
+		<form class="serial-form">
+			<input id="form-serial-message" type="text"  style="border: 1px solid black; width: 600px;"/>
+			<button id="bug-form-button" type="bug-form-submit">Send</button>
+		</form>
+
+		<h3>Serial Monitor</h3>
+		<button id='button-clearserialconsole'>Clear</button>
+		<div id='div-serial-monitor'>
+			<pre id='serial-monitor'></pre>
+		</div>
+		<button id='button-serial-monitor-enable' class='control-websocket' disabled>ENABLE</button>
+		<button id='button-serial-monitor-disable' class='control-websocket' disabled>DISABLE</button>
+
+
+		</div>
 		<script src="./assets/socket.io-2.0.3.js"></script>
 		<script src="./dev.js"></script>
 
