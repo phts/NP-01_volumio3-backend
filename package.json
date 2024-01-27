@@ -6,6 +6,7 @@
   "scripts": {
     "preinstall": "",
     "start": "nodejs ./index.js",
+    "format": "prettier --write '**/*.{json,md}' && npm run lint -- --fix",
     "lint": "eslint .",
     "lint-JSON": "jsonlint -qD ./app/plugins",
     "test": "npm install --only=dev --no-package-lock && ./node_modules/.bin/mocha --reporter spec",
@@ -75,17 +76,5 @@
   },
   "bugs": {
     "url": "https://github.com/volumio/volumio3-backend/issues"
-  },
-  "semistandard": {
-    "ignore": [
-      "app/plugins/music_service/airplay_emulation/shairport-sync-reader/*",
-      "app/plugins/system_controller/network/lib/*",
-      "app/plugins/system_controller/network/wireless.js",
-      "app/plugins/music_service/mpd/lib/*",
-      "http/dev/assets/*",
-      "http/dev/dev.js",
-      "http/www/*",
-      "http/www3/*"
-    ]
   }
 }
