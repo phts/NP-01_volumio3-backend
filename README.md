@@ -11,6 +11,26 @@ Noticeable changes:
 - Improve stability, performance and fixed bugs
 - [...and more][commits]
 
+## Sync with original repo
+
+```sh
+git remote add v https://github.com/volumio/volumio3-backend.git
+git fetch v
+
+git checkout volumio-master-formatted
+git merge v/master
+# in case of conflicts:
+  git checkout v/master -- "**/*"
+
+npm run format
+git add .
+git commit
+
+git checkout master
+git merge volumio-master-formatted
+# fix conflicts, run format and commit
+```
+
 [volumio3-backend]: https://github.com/volumio/volumio3-backend
 [PHTS NP-01]: https://tsaryk.com/NP-01
 [commits]: https://github.com/volumio/volumio3-backend/compare/master...phts:NP-01_volumio3-backend:master
