@@ -265,6 +265,10 @@
             {
               "value": "PHTS_NP-01",
               "label": "PHTS NP-01"
+            },
+            {
+              "value": "PHTS_NP-01 (dev)",
+              "label": "PHTS NP-01 (dev)"
             }
           ]
         }

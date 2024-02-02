@@ -285,6 +285,9 @@ ControllerSystem.prototype.getUIConfig = function () {
           } else if (fs.existsSync('/data/phts-np-01-theme')) {
             uiValue = 'PHTS_NP-01'
             uiLabel = 'PHTS NP-01'
+          } else if (fs.existsSync('/data/phts-np-01-dev-theme')) {
+            uiValue = 'PHTS_NP-01 (dev)'
+            uiLabel = 'PHTS NP-01 (dev)'
           } else if (fs.existsSync('/data/volumio2ui')) {
             uiValue = 'CLASSIC'
             uiLabel = self.commandRouter.getI18nString('APPEARANCE.USER_INTERFACE_CLASSIC')

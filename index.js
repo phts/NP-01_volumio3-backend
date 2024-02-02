@@ -63,6 +63,8 @@ expressApp.get('/?*', function (req, res) {
     res.sendFile(path.join(__dirname, 'http', 'www4', 'index.html'))
   } else if (fs.existsSync('/data/phts-np-01-theme')) {
     res.sendFile(path.join(__dirname, 'http', 'www-phts_np-01', 'index.html'))
+  } else if (fs.existsSync('/data/phts-np-01-dev-theme')) {
+    res.sendFile(path.join(__dirname, 'http', 'www-phts_np-01-dev', 'index.html'))
   } else if ((userAgent && userAgent.includes('volumiokiosk')) || process.env.VOLUMIO_3_UI === 'false') {
     res.sendFile(path.join(__dirname, 'http', 'www', 'index.html'))
   } else {

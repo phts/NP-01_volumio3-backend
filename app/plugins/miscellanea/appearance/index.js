@@ -475,6 +475,7 @@ volumioAppearance.prototype.setVolumio3UI = function (data) {
       execSync('/bin/rm -f /data/volumio2ui')
       execSync('/bin/rm -f  /data/manifestUI')
       execSync('/bin/rm -f /data/phts-np-01-theme')
+      execSync('/bin/rm -f /data/phts-np-01-dev-theme')
     } catch (e) {
       this.logger.error(e)
     }
@@ -488,6 +489,7 @@ volumioAppearance.prototype.setVolumio3UI = function (data) {
       execSync('/bin/rm -f  /data/volumio2ui')
       execSync('/bin/rm -f  /data/disableManifestUI')
       execSync('/bin/rm -f /data/phts-np-01-theme')
+      execSync('/bin/rm -f /data/phts-np-01-dev-theme')
     } catch (e) {
       this.logger.error(e)
     }
@@ -504,6 +506,7 @@ volumioAppearance.prototype.setVolumio3UI = function (data) {
       execSync('/bin/rm -f  /data/manifestUI')
       execSync('/usr/bin/touch /data/volumio2ui')
       execSync('/bin/rm -f /data/phts-np-01-theme')
+      execSync('/bin/rm -f /data/phts-np-01-dev-theme')
     } catch (e) {
       this.logger.error(e)
     }
@@ -517,6 +520,23 @@ volumioAppearance.prototype.setVolumio3UI = function (data) {
       execSync('/bin/rm -f /data/manifestUI')
       execSync('/bin/rm -f /data/volumio2ui')
       execSync('/usr/bin/touch /data/phts-np-01-theme')
+      execSync('/bin/rm -f /data/phts-np-01-dev-theme')
+    } catch (e) {
+      this.logger.error(e)
+    }
+    process.env.VOLUMIO_3_UI = 'false'
+    setTimeout(() => {
+      this.commandRouter.reloadUi()
+    }, 2000)
+  } else if (data.volumio3_ui.value === 'PHTS_NP-01 (dev)') {
+    try {
+      if (fs.existsSync('/data/manifestUI')) {
+        execSync('/usr/bin/touch /data/disableManifestUI')
+      }
+      execSync('/bin/rm -f /data/manifestUI')
+      execSync('/bin/rm -f /data/volumio2ui')
+      execSync('/bin/rm -f /data/phts-np-01-theme')
+      execSync('/usr/bin/touch /data/phts-np-01-dev-theme')
     } catch (e) {
       this.logger.error(e)
     }

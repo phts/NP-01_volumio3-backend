@@ -24,6 +24,7 @@ var volumioWizardFlagFile = '/data/wizard'
 var volumioManifestUIDisabledFile = '/data/disableManifestUI'
 var volumio3UIFolderPath = '/volumio/http/www3'
 const phtsNp01ThemeFlagFile = '/data/phts-np-01-theme'
+const phtsNp01DevThemeFlagFile = '/data/phts-np-01-dev-theme'
 var volumioManifestUIDir = '/volumio/http/www4'
 process.env.VOLUMIO_SYSTEM_STATUS = 'starting'
 
@@ -57,6 +58,7 @@ app.use(compression())
 if (
   fs.existsSync(volumio2UIFlagFile) ||
   fs.existsSync(phtsNp01ThemeFlagFile) ||
+  fs.existsSync(phtsNp01DevThemeFlagFile) ||
   (fs.existsSync(volumioManifestUIFlagFile) && !fs.existsSync(volumioManifestUIDisabledFile)) ||
   !fs.existsSync(volumio3UIFolderPath)
 ) {
@@ -69,6 +71,7 @@ var staticMiddlewareUI2 = express.static(path.join(__dirname, 'www'))
 var staticMiddlewareUI3 = express.static(path.join(__dirname, 'www3'))
 var staticMiddlewareManifestUI = express.static(path.join(__dirname, 'www4'))
 var staticMiddlewarePhtsNp01 = express.static(path.join(__dirname, 'www-phts_np-01'))
+var staticMiddlewarePhtsNp01Dev = express.static(path.join(__dirname, 'www-phts_np-01-dev'))
 var staticMiddlewareWizard = express.static(path.join(__dirname, 'wizard'))
 
 app.use(function (req, res, next) {
@@ -79,6 +82,8 @@ app.use(function (req, res, next) {
     staticMiddlewareManifestUI(req, res, next)
   } else if (fs.existsSync(phtsNp01ThemeFlagFile)) {
     staticMiddlewarePhtsNp01(req, res, next)
+  } else if (fs.existsSync(phtsNp01DevThemeFlagFile)) {
+    staticMiddlewarePhtsNp01Dev(req, res, next)
   } else if ((userAgent && userAgent.includes('volumiokiosk')) || process.env.VOLUMIO_3_UI === 'false') {
     staticMiddlewareUI2(req, res, next)
   } else {
