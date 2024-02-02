@@ -58,12 +58,12 @@ function InterfaceWebUI(context) {
     })
 
     connWebSocket.on('addToQueue', function (data) {
-      self.commandRouter.addQueueItems(data).then(function () {
-        var item = data.uri
+      return self.commandRouter.addQueueItems(data).then(() => {
+        let msg = data.uri
         if (data.title) {
-          item = data.title
+          msg = data.title
         }
-        self.printToastMessage('success', self.commandRouter.getI18nString('COMMON.ADD_QUEUE_TITLE'), item)
+        self.printToastMessage('success', self.commandRouter.getI18nString('COMMON.ADD_QUEUE_TITLE'), msg)
       })
     })
 
