@@ -106,6 +106,7 @@ CoreStateMachine.prototype.getState = function () {
       service: this.volatileState.service,
       year: this.volatileState.year,
       tracknumber: this.volatileState.tracknumber,
+      queueTotal: this.playQueue.arrayQueue.length,
     }
   } else if (this.isConsume) {
     // checking consumeState or the below code will throw an exception
@@ -156,6 +157,7 @@ CoreStateMachine.prototype.getState = function () {
         service: this.consumeState.service,
         year: this.consumeState.year,
         tracknumber: this.consumeState.tracknumber,
+        queueTotal: this.playQueue.arrayQueue.length,
       }
     } else {
       return this.getEmptyState()
@@ -200,6 +202,7 @@ CoreStateMachine.prototype.getState = function () {
         service: trackBlock.service,
         year: trackBlock.year,
         tracknumber: trackBlock.tracknumber,
+        queueTotal: this.playQueue.arrayQueue.length,
       }
     }
   }
@@ -232,6 +235,7 @@ CoreStateMachine.prototype.getEmptyState = function () {
     consume: this.currentConsume,
     year: null,
     tracknumber: null,
+    queueTotal: 0,
   }
 }
 
