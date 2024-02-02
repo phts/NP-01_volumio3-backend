@@ -25,6 +25,7 @@ var stickingMusicLibrary = false
 var collectionStats = {}
 
 function parseMpdOutput(lines, startFrom) {
+  console.log('parseMpdOutput', JSON.stringify(lines, null, 2))
   const map = {
     Album: 'album',
     AlbumArtist: 'albumartist',
@@ -441,6 +442,7 @@ ControllerMpd.prototype.parsePlaylist = function () {}
 ControllerMpd.prototype.parseState = function (objState) {
   var self = this
   self.logger.verbose('ControllerMpd::parseState')
+  console.log(JSON.stringify(objState, null, 2))
 
   // Pull track duration out of status message
   var nDuration = null
