@@ -44,6 +44,7 @@ function InterfaceWebUI(context) {
     })
 
     connWebSocket.on('getQueue', function () {
+      console.log('!!!!!getQueue')
       var selfConnWebSocket = this
       var queue = self.commandRouter.volumioGetQueue()
       return self.pushQueue(queue, selfConnWebSocket)
@@ -58,11 +59,14 @@ function InterfaceWebUI(context) {
     })
 
     connWebSocket.on('addToQueue', function (data) {
+      console.log('!!!!!!!!!!addToQueue', data)
       return self.commandRouter.addQueueItems(data).then(() => {
+        console.log('!!!!!!!!!!addQueueItems then')
         let msg = data.uri
         if (data.title) {
           msg = data.title
         }
+        this.emit('pushEnqueue', data)
         self.printToastMessage('success', self.commandRouter.getI18nString('COMMON.ADD_QUEUE_TITLE'), msg)
       })
     })
@@ -620,9 +624,11 @@ function InterfaceWebUI(context) {
     })
 
     connWebSocket.on('enqueue', function (data) {
+      console.log('!!!!!!!!!!enqueue', data)
       var selfConnWebSocket = this
       var returnedData = self.commandRouter.playListManager.enqueue(data.name)
       returnedData.then(function (data) {
+        console.log('!!!!!!!!!!enqueue then', data)
         selfConnWebSocket.emit('pushEnqueue', data)
       })
     })
@@ -1437,10 +1443,12 @@ function InterfaceWebUI(context) {
     })
 
     connWebSocket.on('moveQueue', function (data) {
+      console.log('!!!!!moveQueue', data)
       var selfConnWebSocket = this
       var returnedData = self.commandRouter.volumioMoveQueue(data.from, data.to)
       if (returnedData != undefined) {
         returnedData.then(function (data) {
+          console.log('!!!!!moveQueue then', data)
           selfConnWebSocket.emit('pushQueue', data)
         })
       } else self.logger.error('Error on moving item in list')
@@ -1880,6 +1888,7 @@ InterfaceWebUI.prototype.printConsoleMessage = function (message) {
 
 // Receive player queue updates from commandRouter and broadcast to all connected clients
 InterfaceWebUI.prototype.pushQueue = function (queue, connWebSocket) {
+  console.log('!!!!!pushQueue', queue, connWebSocket)
   // If a specific client is given, push to just that client
   if (connWebSocket) {
     return libQ.fcall(connWebSocket.emit.bind(connWebSocket), 'pushQueue', queue)
