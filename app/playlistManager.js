@@ -188,24 +188,11 @@ PlaylistManager.prototype.getFavouritesContent = function (name) {
 PlaylistManager.prototype.addToFavourites = function (data) {
   var self = this
 
-  var service = data.service
-  var uri = data.uri
-  var title = data.title
-  var albumart = data.albumart || null
-
-  if (title) {
-    self.commandRouter.pushToastMessage(
-      'success',
-      self.commandRouter.getI18nString('PLAYLIST.ADDED_TITLE'),
-      title + self.commandRouter.getI18nString('PLAYLIST.ADDED_TO_FAVOURITES')
-    )
-  } else {
-    self.commandRouter.pushToastMessage(
-      'success',
-      self.commandRouter.getI18nString('PLAYLIST.ADDED_TITLE'),
-      uri + self.commandRouter.getI18nString('PLAYLIST.ADDED_TO_FAVOURITES')
-    )
-  }
+  self.commandRouter.pushToastMessage(
+    'success',
+    self.commandRouter.getI18nString('PLAYLIST.ADDED_TO_FAVOURITES'),
+    title || uri
+  )
 
   if (service === 'webradio') {
     return self.commonAddToPlaylist(self.favouritesPlaylistFolder, 'radio-favourites', service, uri, title, albumart)
