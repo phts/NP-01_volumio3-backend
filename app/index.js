@@ -2244,3 +2244,7 @@ CoreCommandRouter.prototype.reportBackendEvent = function (event, properties) {
     } catch (e) {}
   }
 }
+
+CoreCommandRouter.prototype.toggleStopAfterCurrent = function () {
+  return this.stateMachine.toggleStopAfterCurrent()
+}

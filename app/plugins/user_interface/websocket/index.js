@@ -1916,6 +1916,10 @@ function InterfaceWebUI(context) {
       }
       self.broadcastMessage('pushInfinityPlayback', returnedData)
     })
+
+    connWebSocket.on('toggleStopAfterCurrent', function () {
+      self.commandRouter.toggleStopAfterCurrent()
+    })
   })
 }
 

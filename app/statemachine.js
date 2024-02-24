@@ -2,6 +2,7 @@
 
 var libQ = require('kew')
 var RandomQueue = require('./randomqueue')
+const {getTrackBlockId} = require('./helpers')
 
 module.exports = CoreStateMachine
 function CoreStateMachine(commandRouter) {
@@ -23,6 +24,7 @@ function CoreStateMachine(commandRouter) {
   this.currentDisableVolumeControl = false
   this.lastSavedStateToString = '{}'
   this.isConsume = false
+  this.stopAfterCurrent = false
 
   /**
    * This variable contains the consume state to return when getState is being invoked
@@ -107,6 +109,7 @@ CoreStateMachine.prototype.getState = function () {
       year: this.volatileState.year,
       tracknumber: this.volatileState.tracknumber,
       queueTotal: this.playQueue.arrayQueue.length,
+      stopAfterCurrent: this.stopAfterCurrent,
     }
   } else if (this.isConsume) {
     // checking consumeState or the below code will throw an exception
@@ -158,6 +161,7 @@ CoreStateMachine.prototype.getState = function () {
         year: this.consumeState.year,
         tracknumber: this.consumeState.tracknumber,
         queueTotal: this.playQueue.arrayQueue.length,
+        stopAfterCurrent: this.stopAfterCurrent,
       }
     } else {
       return this.getEmptyState()
@@ -203,6 +207,7 @@ CoreStateMachine.prototype.getState = function () {
         year: trackBlock.year,
         tracknumber: trackBlock.tracknumber,
         queueTotal: this.playQueue.arrayQueue.length,
+        stopAfterCurrent: this.stopAfterCurrent,
       }
     }
   }
@@ -236,6 +241,7 @@ CoreStateMachine.prototype.getEmptyState = function () {
     year: null,
     tracknumber: null,
     queueTotal: 0,
+    stopAfterCurrent: false,
   }
 }
 
@@ -321,6 +327,7 @@ CoreStateMachine.prototype.resetVolumioState = function () {
     self.currentMute = null
     self.currentUpdate = false
     self.getCurrentVolume()
+    self.stopAfterCurrent = false
   })
 }
 
@@ -589,6 +596,7 @@ CoreStateMachine.prototype.syncState = function (stateService, sService) {
   this.currentUpdate = stateService.updatedb
   this.commandRouter.pushConsoleMessage('CoreStateMachine::syncState   stateService ' + stateService.status)
   this.commandRouter.pushConsoleMessage('CoreStateMachine::syncState   currentStatus ' + this.currentStatus)
+  const trackBlockId = getTrackBlockId(trackBlock)
 
   if (stateService.status === 'play') {
     if (this.currentStatus === 'play') {
@@ -710,6 +718,11 @@ CoreStateMachine.prototype.syncState = function (stateService, sService) {
             if (stateService.albumart !== undefined && trackBlock.albumart === undefined) {
               trackBlock.albumart = stateService.albumart
             }
+
+            const newTrackBlockId = getTrackBlockId(trackBlock)
+            if (this.stopAfterCurrent && trackBlockId !== newTrackBlockId) {
+              this.commandRouter.volumioPause()
+            }
           }
         }
       }
@@ -785,6 +798,11 @@ CoreStateMachine.prototype.syncState = function (stateService, sService) {
       if (this.isConsume) {
         this.consumeState.status = 'stop'
         this.consumeState.seek = 0
+      }
+
+      if (this.stopAfterCurrent) {
+        this.commandRouter.volumioPause()
+        return
       }
 
       // Checking repeat status
@@ -907,6 +925,7 @@ CoreStateMachine.prototype.getTrack = function (position) {
 
 CoreStateMachine.prototype.play = function (index) {
   var self = this
+  this.stopAfterCurrent = false
 
   this.commandRouter.pushConsoleMessage('CoreStateMachine::play index ' + index || self.currentPosition)
 
@@ -1076,6 +1095,8 @@ CoreStateMachine.prototype.seek = function (position) {
 
 CoreStateMachine.prototype.next = function (fromUser) {
   this.commandRouter.pushConsoleMessage('CoreStateMachine::next')
+  this.stopAfterCurrent = false
+
   if (fromUser) {
     if (this.debouncing) {
       this.commandRouter.pushConsoleMessage('CoreStateMachine::next: still debouncing, exit')
@@ -1131,6 +1152,7 @@ CoreStateMachine.prototype.next = function (fromUser) {
 
 CoreStateMachine.prototype.pause = function () {
   this.commandRouter.pushConsoleMessage('CoreStateMachine::pause')
+  this.stopAfterCurrent = false
 
   if (this.currentStatus === 'play') {
     this.currentStatus = 'pause'
@@ -1170,6 +1192,7 @@ CoreStateMachine.prototype.servicePause = function () {
 CoreStateMachine.prototype.stop = function () {
   var self = this
   this.commandRouter.pushConsoleMessage('CoreStateMachine::stop')
+  this.stopAfterCurrent = false
 
   if (this.isConsume && this.consumeState.service === 'tidal') {
     this.commandRouter.getMusicPlugin(this.consumeState.service).seek(0)
@@ -1220,6 +1243,8 @@ CoreStateMachine.prototype.serviceStop = function () {
 
 CoreStateMachine.prototype.previous = function (fromUser) {
   this.commandRouter.pushConsoleMessage('CoreStateMachine::previous')
+  this.stopAfterCurrent = false
+
   if (fromUser) {
     if (this.debouncing) {
       this.commandRouter.pushConsoleMessage('CoreStateMachine::previous: still debouncing, exit')
@@ -1508,4 +1533,15 @@ CoreStateMachine.prototype.checkIfLastTrack = function () {
 CoreStateMachine.prototype.triggerInfinityPlaybackAddition = function () {
   var trackBlock = this.getTrack(this.currentPosition)
   this.commandRouter.addTracksForInfinityPlayback(trackBlock)
+}
+
+CoreStateMachine.prototype.toggleStopAfterCurrent = function () {
+  const {status} = this.getState()
+  if (status !== 'play') {
+    this.stopAfterCurrent = false
+  } else {
+    this.stopAfterCurrent = !this.stopAfterCurrent
+  }
+  this.pushState()
+  return this.stopAfterCurrent
 }
