@@ -68,7 +68,7 @@ ControllerSystem.prototype.onVolumioStart = function () {
     process.env.NEW_WIZARD = 'false'
   }
 
-  return libQ.all(self.deviceDetect())
+  return libQ.all([self.deviceDetect(), self.getUSBBootCapable()])
 }
 
 ControllerSystem.prototype.onStart = function () {
@@ -110,6 +110,7 @@ ControllerSystem.prototype.getUIConfig = function () {
   var lang_code = self.commandRouter.sharedVars.get('language_code')
   var showLanguageSelector = self.getAdditionalConf('miscellanea', 'appearance', 'language_on_system_page', false)
   var device = self.config.get('device', '')
+  var usbdevice = self.config.get('usbboot', '')
   var showDiskInstaller = self.config.get('show_disk_installer', true)
   self.commandRouter
     .i18nJson(
@@ -146,17 +147,41 @@ ControllerSystem.prototype.getUIConfig = function () {
       if (
         device != undefined &&
         device.length > 0 &&
-        (device === 'Tinkerboard' || device === 'x86') &&
+        (device === 'Tinkerboard' || device === 'x86' || device === 'Raspberry PI') &&
         showDiskInstaller
       ) {
         var hwdevice = device
+        var usbbootdevice = usbdevice
         var disks = self.getDisks()
         if (disks != undefined) {
           disks
             .then(function (result) {
               if (result.available.length > 0) {
-                uiconf.sections[4].hidden = false
                 var disklist = result.available
+                var blacklisted = ('1sda', '1sdb', '1sdc', '1sdd')
+                // Check if the device has boot from USB capability
+                if (usbbootdevice === '') {
+                  uiconf.sections[4].hidden = true
+                } else if (usbbootdevice === 'bootusb') {
+                  // Prevent listing devices other than NVMe as a target.
+                  // var disksToRemove = disklist.filter(x => x.name === 'eMMC/SD');
+                  var disksToRemove = disklist.filter((x) => x.name !== 'NVMe')
+                  disksToRemove.forEach((x) =>
+                    disklist.splice(
+                      disklist.findIndex((n) => n === x),
+                      1
+                    )
+                  )
+                  console.log('Disk list : ', disklist)
+                  if (disklist.length > 0) {
+                    uiconf.sections[4].hidden = false
+                  } else {
+                    // Installer should not be offered for cloning
+                    uiconf.sections[4].hidden = true
+                  }
+                } else {
+                  uiconf.sections[4].hidden = false
+                }
                 for (var i in disklist) {
                   var device = disklist[i]
                   var label = self.commandRouter.getI18nString('SYSTEM.INSTALL_TO_DISK') + ' ' + device.name
@@ -319,6 +344,63 @@ ControllerSystem.prototype.getUIConfig = function () {
     })
 
   return defer.promise
+}
+
+ControllerSystem.prototype.getUSBBootCapable = function (data) {
+  var self = this
+  var defer = libQ.defer()
+  var usbboot = ''
+  var usbbootSBCname = ''
+  exec('cat /proc/cpuinfo | grep Revision', {uid: 1000, gid: 1000}, function (error, stdout, stderr) {
+    if (error !== null) {
+      self.logger.info('Cannot read proc/cpuinfo: ' + error)
+      defer.resolve('unknown')
+    } else {
+      var revisionLine = stdout.split(':')
+      if (revisionLine[1] !== undefined) {
+        var revisionparam = revisionLine[1].replace(/\s/g, '')
+      } else {
+        var revisionparam = stdout.replace(/\s/g, '')
+      }
+      var usbbootlist = fs.readJson(
+        '/volumio/app/plugins/system_controller/system/usbbootcapable.json',
+        {encoding: 'utf8', throws: false},
+        function (err, usbbootlist) {
+          if (usbbootlist && usbbootlist.usbboot) {
+            for (var i = 0; i < usbbootlist.usbboot.length; i++) {
+              if (usbbootlist.usbboot[i].revision == revisionparam) {
+                usbboot = usbbootlist.usbboot[i].permitted
+                // usbbootSBCname is used only by self.logger.info
+                usbbootSBCname = usbbootlist.usbboot[i].name
+                self.USBBootCheck(usbboot)
+                defer.resolve(usbboot)
+                self.logger.info('USB Boot Capable - System SBC Revision found in cpuinfo:  ' + revisionparam)
+                self.logger.info('USB Boot Capable - Found matching device in SBC capable list: ' + usbbootSBCname)
+                return
+              }
+            }
+          } else {
+            defer.resolve('unknown')
+          }
+        }
+      )
+      //self.logger.info('USB Boot ::'+revisionparam+'::');
+    }
+  })
+  return defer.promise
+}
+
+ControllerSystem.prototype.USBBootCheck = function (data) {
+  var self = this
+  var usbboot = config.get('usbboot')
+
+  if (usbboot == undefined) {
+    self.logger.info('USB Boot Capable - Checking Install to Disk functions for: ' + data)
+    self.config.set('usbboot', data)
+  } else if (usbboot != data) {
+    self.logger.info('USB Boot Capable change detected - Checking Install to Disk functions for: ' + data)
+    self.config.set('usbboot', data)
+  }
 }
 
 ControllerSystem.prototype.capitalize = function () {
@@ -1066,7 +1148,7 @@ ControllerSystem.prototype.installToDisk = function (data) {
 
   var hwdevice = data.hwdevice
 
-  if (hwdevice !== 'x86') {
+  if (hwdevice !== 'x86' && hwdevice !== 'Raspberry PI') {
     // Tinker processing
     self.notifyInstallToDiskStatus({progress: 0, status: 'started'})
     var ddsizeRaw = execSync('/bin/lsblk -b | grep -w ' + data.from + " | awk '{print $4}' | head -n1", {
@@ -1175,30 +1257,60 @@ ControllerSystem.prototype.installToDisk = function (data) {
     self.notifyInstallToDiskStatus({progress: 0, status: 'started'})
     execSync('/bin/echo "0" > /tmp/install_progress', {uid: 1000, gid: 1000, encoding: 'utf8'})
 
-    try {
-      var fastinstall = exec(
-        '/usr/bin/sudo /usr/local/bin/x86Installer.sh ' +
-          target +
-          ' ' +
-          boot_type +
-          ' ' +
-          boot_start +
-          ' ' +
-          boot_end +
-          ' ' +
-          volumio_end +
-          ' ' +
-          boot_part +
-          ' ' +
-          volumio_part +
-          ' ' +
-          data_part,
-        {uid: 1000, gid: 1000, encoding: 'utf8'}
-      )
-    } catch (e) {
-      error = true
-      self.logger.info('Install to disk failed')
-      self.notifyInstallToDiskStatus({progress: 0, status: 'error', error: 'Cannot install on new Disk'})
+    if (hwdevice === 'x86') {
+      try {
+        var fastinstall = exec(
+          '/usr/bin/sudo /usr/local/bin/x86Installer.sh ' +
+            target +
+            ' ' +
+            boot_type +
+            ' ' +
+            boot_start +
+            ' ' +
+            boot_end +
+            ' ' +
+            volumio_end +
+            ' ' +
+            boot_part +
+            ' ' +
+            volumio_part +
+            ' ' +
+            data_part,
+          {uid: 1000, gid: 1000, encoding: 'utf8'}
+        )
+      } catch (e) {
+        error = true
+        self.logger.info('Install to disk failed')
+        self.notifyInstallToDiskStatus({progress: 0, status: 'error', error: 'Cannot install on new Disk'})
+      }
+    }
+
+    if (hwdevice === 'Raspberry PI') {
+      try {
+        var fastinstall = exec(
+          '/usr/bin/sudo /usr/local/bin/PiInstaller.sh ' +
+            target +
+            ' ' +
+            boot_type +
+            ' ' +
+            boot_start +
+            ' ' +
+            boot_end +
+            ' ' +
+            volumio_end +
+            ' ' +
+            boot_part +
+            ' ' +
+            volumio_part +
+            ' ' +
+            data_part,
+          {uid: 1000, gid: 1000, encoding: 'utf8'}
+        )
+      } catch (e) {
+        error = true
+        self.logger.info('Install to disk failed')
+        self.notifyInstallToDiskStatus({progress: 0, status: 'error', error: 'Cannot install on new Disk'})
+      }
     }
 
     var installProgress = exec('usr/bin/tail -f /tmp/install_progress')
