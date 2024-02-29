@@ -234,23 +234,9 @@ CorePlayQueue.prototype.addQueueItems = function (arrayItems, position = this.ar
         }
       }
 
-      if (self.arrayQueue.length > 0 && self.arrayQueue.length >= contentArray.length) {
-        var queueLastElementsObj = self.arrayQueue.slice(Math.max(self.arrayQueue.length - contentArray.length, 0))
-        var addQueueElementsObj = contentArray
-        // If the array we are adding to queue is equal to the last elements of the queue, we don't add it and send index as first item of array we want to add
-        if (self.compareTrackListByUri(queueLastElementsObj, addQueueElementsObj)) {
-          firstItemIndex = self.arrayQueue.length - contentArray.length
-        } else {
-          self.arrayQueue.splice(position, 0, ...contentArray)
-        }
-      } else {
-        self.arrayQueue.splice(position, 0, ...contentArray)
-      }
-
+      self.arrayQueue.splice(position, 0, ...contentArray)
       self.commandRouter.volumioPushQueue(self.arrayQueue)
       self.saveQueue()
-    })
-    .then(function () {
       self.stateMachine.updateTrackBlock()
       defer.resolve({firstItemIndex: firstItemIndex})
     })
