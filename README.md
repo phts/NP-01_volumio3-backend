@@ -4,11 +4,22 @@ This is a modification of original [volumio3-backend] which is used by [PHTS NP-
 
 Noticeable changes:
 
-- "Play next" command [[9120a3a](https://github.com/volumio/volumio3-backend/commit/9120a3a7f980bfc346914507c0aebeecea6981a2)]
-- Add year, track number into player state
-- New CLI and websocket commands
-- Reset volume, repeat and random state on queue clear (playing other album)
-- Improve stability, performance and fixed bugs
+- New commands:
+  - "Play next"
+  - "Add to queue after current"
+  - "Fast reboot" to restart only volumio service
+- Add more data into player state to let UI and plugins show them:
+  - Year
+  - Track number (instead of physically insert it into track title)
+  - Amount of queue items
+- Display bitrate and sample rate correctly
+- Fix and improve player action behavior:
+  - Reset volume, repeat and random state on queue clear (e.g. playing other album) and after reboot
+  - Fix previous/next buttons behavior
+  - Support "go to artist/album" for Spotify Connect mode
+- Improve UX of dev page
+- Improve translations and toast message texts
+- Improve stability, performance and fix a lot of bugs
 - [...and more][commits]
 
 ## Sync with original repo
