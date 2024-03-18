@@ -42,9 +42,28 @@ git merge volumio-master-formatted
 # fix conflicts, run format and commit
 ```
 
+## Deploy
+
+```sh
+bash scripts/deploy.sh [--restart]
+```
+
+:warning: Before deployment all required changes should be committed and pushed.
+
+### Prerequisites
+
+1. Configure `ssh` host `volumio` pointing to your device
+2. ```sh
+   ssh volumio
+   cd /volumio
+   git remote add np-01 https://github.com/phts/NP-01_volumio3-backend.git
+   ```
+
 [volumio3-backend]: https://github.com/volumio/volumio3-backend
 [PHTS NP-01]: https://tsaryk.com/NP-01
 [commits]: https://github.com/volumio/volumio3-backend/compare/master...phts:NP-01_volumio3-backend:master
+
+---
 
 <details>
 <summary>README from original repo</summary>
