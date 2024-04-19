@@ -1920,6 +1920,11 @@ function InterfaceWebUI(context) {
     connWebSocket.on('toggleStopAfterCurrent', function () {
       self.commandRouter.toggleStopAfterCurrent()
     })
+
+    connWebSocket.on('log', function ({type, msg}) {
+      const method = type || 'info'
+      self.logger[method](`WS log: [${method}] ${msg}`)
+    })
   })
 }
 
