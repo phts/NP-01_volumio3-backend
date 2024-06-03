@@ -33,5 +33,5 @@ spotify-login.txt
 .idea
 *.iml
 .DS_Store
-
 package-lock.json
+.vscode/
