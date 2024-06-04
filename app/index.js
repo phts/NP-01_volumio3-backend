@@ -449,6 +449,12 @@ CoreCommandRouter.prototype.addQueueItems = function (arrayItems) {
   return this.stateMachine.addQueueItems(arrayItems)
 }
 
+CoreCommandRouter.prototype.playNextItems = function (arrayItems) {
+  this.pushConsoleMessage('CoreCommandRouter::volumioplayNextItems')
+
+  return this.stateMachine.playNextItems(arrayItems)
+}
+
 CoreCommandRouter.prototype.preLoadItems = function (items) {
   try {
     this.stateMachine.preLoadItems(items)
@@ -2118,6 +2124,11 @@ CoreCommandRouter.prototype.getMenuItems = function () {
       } else {
         var menuItems = menuItemsJson['menuItems']
       }
+
+      if (!fs.existsSync('/data/manifestUI')) {
+        menuItems = menuItems.filter((item) => item.id !== 'browse')
+      }
+
       defer.resolve(menuItems)
     })
   return defer.promise
@@ -2407,6 +2418,16 @@ CoreCommandRouter.prototype.registerStandByHandler = function (data) {
     self.standByHandler = data
   } else {
     self.logger.erorr('Failed to register Standby handler, missing data')
+  }
+}
+
+CoreCommandRouter.prototype.getShutdownOrStandbyMode = function () {
+  var self = this
+
+  if (self.standByHandler && self.standByHandler.category && self.standByHandler.name && self.standByHandler.method) {
+    return 'standby'
+  } else {
+    return 'shutdown'
   }
 }
 

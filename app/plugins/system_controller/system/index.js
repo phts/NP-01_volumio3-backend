@@ -50,6 +50,9 @@ ControllerSystem.prototype.onVolumioStart = function () {
 
   var autoUpdate = self.config.get('autoUpdate')
   if (autoUpdate == undefined) {
+    if (process.env.IS_VOLUMIO_PRODUCT === 'true') {
+      process.env.AUTO_UPDATE_AUTOMATIC_INSTALL = 'true'
+    }
     self.config.addConfigValue('autoUpdate', 'boolean', process.env.AUTO_UPDATE_AUTOMATIC_INSTALL === 'true')
   } else {
     if (autoUpdate) {
@@ -162,28 +165,29 @@ ControllerSystem.prototype.getUIConfig = function () {
             .then(function (result) {
               if (result.available.length > 0) {
                 var disklist = result.available
-                var blacklisted = ('1sda', '1sdb', '1sdc', '1sdd')
-                // Check if the device has boot from USB capability
-                if (usbbootdevice === '') {
-                  uiconf.sections[4].hidden = true
-                } else if (usbbootdevice === 'bootusb') {
-                  // Prevent listing devices other than NVMe as a target.
-                  // var disksToRemove = disklist.filter(x => x.name === 'eMMC/SD');
-                  var disksToRemove = disklist.filter((x) => x.name !== 'NVMe')
-                  disksToRemove.forEach((x) =>
-                    disklist.splice(
-                      disklist.findIndex((n) => n === x),
-                      1
-                    )
-                  )
-                  console.log('Disk list : ', disklist)
-                  if (disklist.length > 0) {
-                    uiconf.sections[4].hidden = false
-                  } else {
-                    // Installer should not be offered for cloning
+                if (hwdevice === 'Raspberry PI') {
+                  var blacklisted = ('sda', 'sdb', 'sdc', 'sdd')
+                  // Check if the device has boot from USB capability
+                  if (usbbootdevice === '') {
                     uiconf.sections[4].hidden = true
+                  } else if (usbbootdevice === 'bootusb') {
+                    // Prevent listing devices other than NVMe as a target.
+                    var disksToRemove = disklist.filter((x) => x.name !== 'NVMe')
+                    disksToRemove.forEach((x) =>
+                      disklist.splice(
+                        disklist.findIndex((n) => n === x),
+                        1
+                      )
+                    )
+                    console.log('Disk list : ', disklist)
+                    if (disklist.length > 0) {
+                      uiconf.sections[4].hidden = false
+                    } else {
+                      // Installer should not be offered for cloning
+                      uiconf.sections[4].hidden = true
+                    }
                   }
-                } else {
+                } else if (disklist.length > 0) {
                   uiconf.sections[4].hidden = false
                 }
                 for (var i in disklist) {
@@ -303,6 +307,9 @@ ControllerSystem.prototype.getUIConfig = function () {
             label: currentTimezone,
           })
 
+          if (process.env.ALLOW_LEGACY_UIS_SELECTION === 'false') {
+            uiconf.sections[8].hidden = true
+          }
           var uiValue = ''
           var uiLabel = ''
           if (fs.existsSync('/data/disableManifestUI') === false) {
@@ -385,7 +392,7 @@ ControllerSystem.prototype.getUSBBootCapable = function (data) {
       //self.logger.info('USB Boot ::'+revisionparam+'::');
     }
   })
-  return defer.promise
+  return
 }
 
 ControllerSystem.prototype.USBBootCheck = function (data) {

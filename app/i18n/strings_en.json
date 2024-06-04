@@ -63,6 +63,7 @@
     "ADD_QUEUE_TEXT_1": "Added ",
     "ADD_QUEUE_TEXT_2": " to queue",
     "ADD_QUEUE_TITLE": "Add to queue",
+    "PLAY_NEXT_TITLE": "Play next",
     "ALBUM": "Album",
     "ALBUMS": "Albums",
     "ARTIST": "Artist",
@@ -151,7 +152,8 @@
     "SHUTDOWN": "Shutdown",
     "SLEEP": "Sleep",
     "SOURCES": "Sources",
-    "SYSTEM": "System"
+    "SYSTEM": "System",
+    "MUSIC": "Music"
   },
   "MYVOLUMIO": {
     "ENABLE_YOUR_DEVICE_TO_USE_THIS_FUNCTIONALITY": "To use this functionality, please enable MyVolumio on this device from your device list",
@@ -448,7 +450,12 @@
     "HDMI_I2S_MODE_PROTOCOL": "HDMI I2S Mode Protocol",
     "HDMI_I2S_MODE_DOC": "Set the HDMI I2S Protocol. This setting is only available for some some I2S DACs, if in doubt of what to choose, consult your DAC's manual or its manufacturer",
     "SHOW_MOUSE_POINTER_DOC": "Show or hide the mouse pointer on the screen",
-    "SHOW_MOUSE_POINTER": "Show Mouse Pointer"
+    "SHOW_MOUSE_POINTER": "Show Mouse Pointer",
+    "DAC_FILTER": "DAC Filter",
+    "DAC_FILTER_DOC": "Select the DAC Filter, which suppress unwanted information from the signal and shape it to specific waveforms",
+    "ADVANCED_AUDIO_SETTINGS": "Advanced Audio Settings",
+    "POWER_OVERLOAD_PROTECTION_TITLE": "Overload",
+    "POWER_OVERLOAD_PROTECTION_MESSAGE": "Power reduction"
   },
   "UPDATER": {
     "CHECKING_FOR_UPDATES": "Checking for Updates",
