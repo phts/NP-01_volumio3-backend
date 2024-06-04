@@ -26,7 +26,11 @@
   "overrides": [
     {
       "files": "http/**/*.js",
-      "env": {"browser": true}
+      "env": {"browser": true},
+      "globals": {
+        "Clipboard": true,
+        "io": true
+      }
     },
     {
       "files": "*",

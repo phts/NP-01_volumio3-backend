@@ -89,20 +89,20 @@ PlaylistManager.prototype.getPlaylistContent = function (name) {
   return self.commonGetPlaylistContent(self.playlistFolder, name)
 }
 
-PlaylistManager.prototype.addToPlaylist = function (name, service, uri) {
+PlaylistManager.prototype.addToPlaylist = function (name, service, uri, albumTitle) {
   this.commandRouter.pushToastMessage(
     'success',
     `${this.commandRouter.getI18nString('PLAYLIST.ADDED_TO_PLAYLIST')} "${name}"`,
-    uri
+    albumTitle || uri
   )
-  return this.commonAddToPlaylist(this.playlistFolder, name, service, uri)
+  return this.commonAddToPlaylist(this.playlistFolder, name, service, uri, albumTitle)
 }
 
 PlaylistManager.prototype.addItemsToPlaylist = function (name, data) {
   var self = this
 
   // self.commandRouter.pushConsoleMessage('Adding uri '+uri+' to playlist '+name);
-  return self.commonAddToPlaylist(self.playlistFolder, name, service, uri)
+  return self.commonAddToPlaylist(self.playlistFolder, name)
 }
 
 PlaylistManager.prototype.removeFromPlaylist = function (name, service, uri) {
@@ -185,7 +185,7 @@ PlaylistManager.prototype.getFavouritesContent = function (name) {
   return self.commonGetPlaylistContent(self.favouritesPlaylistFolder, 'favourites')
 }
 
-PlaylistManager.prototype.addToFavourites = function (data) {
+PlaylistManager.prototype.addToFavourites = function ({service, uri, title, albumart}) {
   var self = this
 
   self.commandRouter.pushToastMessage(

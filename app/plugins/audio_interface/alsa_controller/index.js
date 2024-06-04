@@ -293,7 +293,6 @@ ControllerAlsa.prototype.getUIConfig = function () {
       if (overrideMixerType !== undefined) {
         activemixer_type = overrideMixerType
       }
-
       self.configManager.setUIConfigParam(uiconf, 'sections[3].content[0].element', 'select')
       self.configManager.setUIConfigParam(
         uiconf,
@@ -424,6 +423,11 @@ ControllerAlsa.prototype.getUIConfig = function () {
       value = self.getAdditionalConf('music_service', 'mpd', 'dop', false)
       if (volumioDeviceName === 'primo' && outdevicename === 'Analog RCA Output') {
         value = true
+        uiconf.sections[2].content[0].hidden = true
+      }
+
+      if (outdevicename.toLowerCase().includes('pdif')) {
+        value = false
         uiconf.sections[2].content[0].hidden = true
       }
       self.configManager.setUIConfigParam(uiconf, 'sections[2].content[0].value.value', value)
@@ -795,7 +799,7 @@ ControllerAlsa.prototype.getDSPDACOptions = function (data) {
               var dspvalue = line[3]
                 .replace(/Item0:/g, '')
                 .replace(' ', '')
-                .replace(/\'/g, '')
+                .replace(/'/g, '')
                 .replace(/\s+/, '')
               // console.log('--'+dspvalue+'--')
               dspcontrols.push({name: dspname, options: dspoptsarray, value: dspvalue})
@@ -813,7 +817,20 @@ ControllerAlsa.prototype.saveAlsaOptions = function (data) {
   var defer = libQ.defer()
   var uiPush = true
 
-  //console.log('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' + JSON.stringify(data));
+  self.logger.info('Preparing to save Alsa Options, stopping services first')
+  var state = self.commandRouter.volumioGetState()
+  if (state && state.status != undefined) {
+    if (state.status !== 'stop' || state.status !== 'pause') {
+      if (state.trackType == 'webradio') {
+        self.commandRouter.volumioStop()
+      } else {
+        self.commandRouter.volumioPause()
+      }
+    }
+  }
+
+  self.logger.info('Saving Audio Output to: ' + JSON.stringify(data))
+
   if (data.output_device.label != undefined) {
     data.output_device.label = data.output_device.label.replace('USB: ', '')
   }
@@ -1260,6 +1277,7 @@ ControllerAlsa.prototype.getAlsaCards = function () {
 
   try {
     var aplaycards = self.getAplayInfo()
+    // eslint-disable-next-line no-labels
     aplay: for (var k = 0; k < aplaycards.length; k++) {
       var aplaycard = aplaycards[k]
       var name = aplaycard.name
@@ -1303,6 +1321,7 @@ ControllerAlsa.prototype.getAlsaCards = function () {
               name = carddata.cards[n].prettyname
               cards.push({id: id, alsacard: alsacard, name: name})
             }
+            // eslint-disable-next-line no-labels
             continue aplay
           }
         }
@@ -1453,6 +1472,7 @@ ControllerAlsa.prototype.setDefaultMixer = function (device) {
       self.logger.info('Found match in i2s Card Database: setting mixer ' + defaultmixer + ' for card ' + cardname)
     }
   } else {
+    // eslint-disable-next-line no-labels
     search: for (var n = 0; n < carddata.cards.length; n++) {
       if (carddata.cards[n].multidevice) {
         for (var j = 0; j < carddata.cards[n].devices.length; j++) {
@@ -1469,6 +1489,7 @@ ControllerAlsa.prototype.setDefaultMixer = function (device) {
               )
               self.commandRouter.sharedVars.set('alsa.outputdevicemixer', defaultmixer)
             }
+            // eslint-disable-next-line no-labels
             break search
           }
         }
@@ -1480,6 +1501,7 @@ ControllerAlsa.prototype.setDefaultMixer = function (device) {
             'Found match in Cards Database: setting mixer ' + defaultmixer + ' for card ' + currentcardname
           )
           self.commandRouter.sharedVars.set('alsa.outputdevicemixer', defaultmixer)
+          // eslint-disable-next-line no-labels
           break search
         }
       }
@@ -1941,6 +1963,7 @@ ControllerAlsa.prototype.updateVolumeSettings = function () {
     deviceVolumeOverride.pluginName
   ) {
     if (deviceVolumeOverride.card.toString() === valdevice.toString()) {
+      process.env.FORCE_VOLUME_OPTIONS_VISIBILITY = true
       self.logger.info('Applying Volume Override')
       settings.volumeOverride = true
       settings.pluginType = deviceVolumeOverride.pluginType
@@ -1960,6 +1983,8 @@ ControllerAlsa.prototype.updateVolumeSettings = function () {
       overrideMixerType = undefined
       overrideAvoidSoftwareMixer = false
     }
+  } else {
+    process.env.FORCE_VOLUME_OPTIONS_VISIBILITY = false
   }
 
   return self.commandRouter.volumioUpdateVolumeSettings(settings)
@@ -2139,13 +2164,7 @@ ControllerAlsa.prototype.checkAudioDeviceAvailable = function () {
     var found = false
     for (var i in cards) {
       var currentCard = cards[i]
-      if (
-        currentCard &&
-        currentCard.id &&
-        currentCard.name &&
-        currentCard.id === outdev &&
-        currentCard.name === outdevName
-      ) {
+      if (currentCard && currentCard.id && currentCard.name && currentCard.id === outdev) {
         found = true
       }
     }

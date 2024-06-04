@@ -16,6 +16,8 @@ function InterfaceWebUI(context) {
   /** Init SocketIO listener */
   self.libSocketIO = require('socket.io')(self.context.websocketServer)
 
+  self.logger.info('Starting Socket.io Server version ' + require('socket.io/package').version)
+
   /** On Client Connection, listen for various types of clients requests */
   self.libSocketIO.on('connection', function (connWebSocket) {
     self.logClientConnection(connWebSocket)
@@ -62,13 +64,27 @@ function InterfaceWebUI(context) {
         var item = data.uri
         if (data.title) {
           item = data.title
+        } else if (data.album) {
+          item = data.album
         }
         self.printToastMessage('success', self.commandRouter.getI18nString('COMMON.ADD_QUEUE_TITLE'), item)
       })
     })
 
     connWebSocket.on('playNext', function (data) {
-      return self.commandRouter.playNext(data)
+      if (data === null || data === undefined) {
+        console.error('Invalid data: null or undefined')
+        return
+      }
+      self.commandRouter.playNextItems(data).then(function () {
+        var item = data.uri
+        if (data.title) {
+          item = data.title
+        } else if (data.album) {
+          item = data.album
+        }
+        self.printToastMessage('success', self.commandRouter.getI18nString('COMMON.PLAY_NEXT_TITLE'), item)
+      })
     })
 
     connWebSocket.on('insertAfterCurrent', function (data) {
@@ -578,7 +594,12 @@ function InterfaceWebUI(context) {
 
     connWebSocket.on('addToPlaylist', function (data) {
       var selfConnWebSocket = this
-      var returnedData = self.commandRouter.playListManager.addToPlaylist(data.name, data.service, data.uri)
+      var returnedData = self.commandRouter.playListManager.addToPlaylist(
+        data.name,
+        data.service,
+        data.uri,
+        data.albumTitle
+      )
       returnedData.then(function (data) {
         var returnedListData = self.commandRouter.playListManager.listPlaylist()
         returnedListData.then(function (listdata) {
@@ -892,18 +913,16 @@ function InterfaceWebUI(context) {
         'getAutoUpdateCheckEnabled'
       )
       if (autoUpdateCheckCloudEnabled != undefined) {
-        autoUpdateCheckCloudEnabled
-          .then(function (result) {
-            if (result) {
-              var updateMessage = self.commandRouter.executeOnPlugin(
-                'system_controller',
-                'updater_comm',
-                'getUpdateMessageCache'
-              )
-              selfConnWebSocket.emit('updateReadyCache', updateMessage)
-            }
-          })
-          .fail(function () {})
+        autoUpdateCheckCloudEnabled.then(function (result) {
+          if (result) {
+            var updateMessage = self.commandRouter.executeOnPlugin(
+              'system_controller',
+              'updater_comm',
+              'getUpdateMessageCache'
+            )
+            selfConnWebSocket.emit('updateReadyCache', updateMessage)
+          }
+        })
       }
     })
 
@@ -1311,18 +1330,26 @@ function InterfaceWebUI(context) {
       if (returnedData != undefined) {
         returnedData.then(function (AvailablePlugins) {
           if (AvailablePlugins.NotAuthorized) {
-            selfConnWebSocket.emit('openModal', {
+            var modalButtons = [
+              {
+                name: self.commandRouter.getI18nString('COMMON.CLOSE'),
+                class: 'btn btn-warning',
+                emit: 'closeModals',
+                payload: '',
+              },
+              {
+                name: self.commandRouter.getI18nString('COMMON.LOGIN'),
+                class: 'btn btn-info',
+                state: 'myvolumio.access',
+                payload: '',
+              },
+            ]
+            var modalContent = {
               title: self.commandRouter.getI18nString('PLUGINS.PLUGIN_LOGIN'),
               message: self.commandRouter.getI18nString('PLUGINS.PLUGIN_LOGIN_MESSAGE'),
-              buttons: [
-                {
-                  name: self.commandRouter.getI18nString('COMMON.CLOSE'),
-                  class: 'btn btn-info',
-                  emit: 'closeModals',
-                  payload: '',
-                },
-              ],
-            })
+              buttons: modalButtons,
+            }
+            selfConnWebSocket.emit('openModal', modalContent)
           } else {
             selfConnWebSocket.emit('pushAvailablePlugins', AvailablePlugins)
           }
@@ -1456,6 +1483,26 @@ function InterfaceWebUI(context) {
           selfConnWebSocket.emit('pushUiSettings', data)
         })
       } else self.logger.error('Cannot get UI Settings')
+    })
+
+    connWebSocket.on('getOnboardingWizard', function () {
+      var selfConnWebSocket = this
+
+      var returnedData = self.commandRouter.executeOnPlugin('miscellanea', 'wizard', 'getOnboardingWizard', '')
+      if (returnedData != undefined) {
+        returnedData.then(function (data) {
+          if (data) {
+            selfConnWebSocket.emit('firstOnboardingWizard', data)
+          } else {
+            self.logger.error('No data to send for onboarding wizard')
+          }
+        })
+      } else self.logger.error('Cannot get onboarding wizard')
+    })
+
+    connWebSocket.on('setOnboardingWizardFalse', function () {
+      self.commandRouter.executeOnPlugin('miscellanea', 'wizard', 'setOnboardingWizardFalse', '')
+      self.commandRouter.broadcastMessage('closeOnboardingWizard', '')
     })
 
     connWebSocket.on('getBackgrounds', function () {
@@ -1860,6 +1907,13 @@ function InterfaceWebUI(context) {
       selfConnWebSocket.emit('pushInfinityPlayback', returnedData)
     })
 
+    connWebSocket.on('getShutdownOrStandbyMode', function () {
+      var selfConnWebSocket = this
+
+      var returnedData = self.commandRouter.getShutdownOrStandbyMode()
+      selfConnWebSocket.emit('pushShutdownOrStandbyMode', returnedData)
+    })
+
     connWebSocket.on('setInfinityPlayback', function (data) {
       self.commandRouter.executeOnPlugin('miscellanea', 'metavolumio', 'setInfinityPlayback', data)
       var returnedData = self.commandRouter.executeOnPlugin('miscellanea', 'metavolumio', 'getInfinityPlayback', '')
@@ -2008,6 +2062,8 @@ InterfaceWebUI.prototype.logClientConnection = function (client) {
     const socketUserAgent = client.handshake.headers['user-agent'] || 'unknown'
     const socketHost = client.handshake.headers.host
     const socketOrigin = client.handshake.address.split(':').pop()
+    const transport = client.handshake.query.transport
+    const engineVersion = client.handshake.query.EIO
     const connectedClientsNumber = this.libSocketIO.engine.clientsCount
     this.logger.verbose(
       'New Socket.io Connection to ' +
@@ -2016,6 +2072,10 @@ InterfaceWebUI.prototype.logClientConnection = function (client) {
         socketOrigin +
         ' UA: ' +
         socketUserAgent +
+        ' Engine version: ' +
+        engineVersion +
+        ' Transport: ' +
+        transport +
         ' Total Clients: ' +
         connectedClientsNumber
     )

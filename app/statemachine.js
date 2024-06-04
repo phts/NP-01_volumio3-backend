@@ -250,6 +250,13 @@ CoreStateMachine.prototype.addQueueItems = function (arrayItems) {
   return this.playQueue.addQueueItems(arrayItems)
 }
 
+CoreStateMachine.prototype.playNextItems = function (arrayItems) {
+  this.commandRouter.pushConsoleMessage('CoreStateMachine::playNextItems')
+  var currentItemPosition = this.currentPosition
+  var infoToPlayNext = {currentItemPosition: currentItemPosition, playNext: arrayItems}
+  return this.playQueue.playNextItems(infoToPlayNext)
+}
+
 CoreStateMachine.prototype.preLoadItems = function (item) {
   this.playQueue.preLoadItems(item)
 }
@@ -1440,9 +1447,6 @@ CoreStateMachine.prototype.moveQueueItem = function (from, to) {
 CoreStateMachine.prototype.setConsumeUpdateService = function (value, ignoremeta, upnp) {
   this.commandRouter.pushConsoleMessage('CoreStateMachine::setConsumeUpdateService ' + value)
 
-  var defer = libQ.defer()
-  defer.resolve({})
-
   this.consumeUpdateService = value
   this.isConsume = value != undefined
   this.consumeState.service = value
@@ -1458,7 +1462,7 @@ CoreStateMachine.prototype.setConsumeUpdateService = function (value, ignoremeta
     this.isUpnp = false
   }
 
-  return defer.promise
+  return libQ.resolve({})
 }
 
 CoreStateMachine.prototype.sanitizeUri = function (uri) {

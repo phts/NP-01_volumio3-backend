@@ -289,7 +289,7 @@ RESTApiPlayback.prototype.playbackGetState = function (req, res) {
   if (response != undefined) {
     res.json(response)
   } else {
-    res.json(notFound)
+    res.json({notFound: true})
   }
 }
 

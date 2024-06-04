@@ -61,7 +61,7 @@ function PluginManager(ccommand, server) {
   for (var l in file) {
     if (file[l].match(/VOLUMIO_VARIANT/i)) {
       var str = file[l].split('=')
-      variant = str[1].replace(/\"/gi, '')
+      variant = str[1].replace(/"/gi, '')
       // TEMPORARY UNTIL MYVOLUMIO GETS MERGED
       if (variant === 'myvolumio' || variant === 'volumiobuster') {
         variant = 'volumio'
@@ -73,15 +73,15 @@ function PluginManager(ccommand, server) {
     }
     if (file[l].match(/VOLUMIO_HARDWARE/i)) {
       var str = file[l].split('=')
-      device = str[1].replace(/\"/gi, '')
+      device = str[1].replace(/"/gi, '')
     }
     if (file[l].match(/VOLUMIO_VERSION/i)) {
       var str = file[l].split('=')
-      volumioVersion = str[1].replace(/\"/gi, '')
+      volumioVersion = str[1].replace(/"/gi, '')
     }
     if (file[l].match(/VERSION_CODENAME/i)) {
       var str = file[l].split('=')
-      os = str[1].replace(/\"/gi, '')
+      os = str[1].replace(/"/gi, '')
     }
   }
 
