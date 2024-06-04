@@ -28,7 +28,8 @@
       "files": "http/**/*.js",
       "env": {"browser": true},
       "globals": {
-        "Clipboard": true
+        "Clipboard": true,
+        "io": true
       }
     },
     {

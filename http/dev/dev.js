@@ -2,8 +2,8 @@ var socket = io()
 var playerState = {}
 var timeLastStateUpdate = 0
 var timerPlayback = null
-var libraryHistory = new Array()
-var playlistHistory = new Array()
+var libraryHistory = []
+var playlistHistory = []
 var nLibraryHistoryPosition = 0
 var nPlaylistHistoryPosition = 0
 
@@ -90,9 +90,9 @@ socket.on('connect', function () {
 })
 
 socket.on('disconnect', function () {
-  libraryHistory = new Array()
+  libraryHistory = []
   nLibraryHistoryPosition = 0
-  playlistHistory = new Array()
+  playlistHistory = []
   nPlaylistHistoryPosition = 0
   clearPlayQueue()
   // clearBrowseView();
@@ -178,17 +178,17 @@ function showSerialConsole() {
 }
 
 function enableControls() {
-  arrayWebsocketControls = document.getElementsByClassName('control-websocket')
+  const arrayWebsocketControls = document.getElementsByClassName('control-websocket')
 
-  for (i = 0; i < arrayWebsocketControls.length; i++) {
+  for (let i = 0; i < arrayWebsocketControls.length; i++) {
     arrayWebsocketControls[i].disabled = false
   }
 }
 
 function disableControls() {
-  arrayWebsocketControls = document.getElementsByClassName('control-websocket')
+  const arrayWebsocketControls = document.getElementsByClassName('control-websocket')
 
-  for (i = 0; i < arrayWebsocketControls.length; i++) {
+  for (let i = 0; i < arrayWebsocketControls.length; i++) {
     arrayWebsocketControls[i].disabled = true
   }
 }

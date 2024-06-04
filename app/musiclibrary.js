@@ -232,7 +232,7 @@ CoreMusicLibrary.prototype.addQueueUids = function (arrayUids) {
 CoreMusicLibrary.prototype.makeQueueItem = function (objTrack) {
   var self = this
 
-  for (i = 0; i < self.servicePriority.length; i++) {
+  for (let i = 0; i < self.servicePriority.length; i++) {
     if (self.servicePriority[i] in objTrack.uris) {
       var objQueueItem = objTrack.uris[self.servicePriority[i]]
       objQueueItem.service = self.servicePriority[i]
@@ -1069,16 +1069,12 @@ CoreMusicLibrary.prototype.getPriorityWeightsToItems = function (service) {
   switch (service) {
     case 'mpd':
       return 0
-      break
     case 'tidal':
       return 5
-      break
     case 'qobuz':
       return 4
-      break
     case 'spop':
       return 6
-      break
     default:
       return 10
   }

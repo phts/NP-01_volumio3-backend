@@ -425,7 +425,7 @@ ControllerMpd.prototype.parseTrackInfo = function (objTrackInfo) {
   } else {
     var file = objTrackInfo.file
     if (file !== undefined) {
-      var filetitle = file.replace(/^.*\/(?=[^\/]*$)/, '')
+      var filetitle = file.replace(/^.*\/(?=[^/]*$)/, '')
 
       resp.title = filetitle
     }
@@ -481,7 +481,7 @@ ControllerMpd.prototype.parsePlaylist = function (objQueue) {
   // objQueue is in form {'0': 'file: http://uk4.internet-radio.com:15938/', '1': 'file: http://2363.live.streamtheworld.com:80/KUSCMP128_SC'}
   // We want to convert to a straight array of trackIds
   return libQ.fcall(libFast.map, Object.keys(objQueue), function (currentKey) {
-    return convertUriToTrackId(objQueue[currentKey])
+    return null //this method does not exist convertUriToTrackId(objQueue[currentKey])
   })
 }
 
@@ -1610,9 +1610,7 @@ ControllerMpd.prototype.lsInfo = function (uri) {
                   genre = self.searchFor(lines, i + 1, 'Genre:')
                 }
 
-                if (title) {
-                  title = title
-                } else {
+                if (!title) {
                   title = name
                 }
                 var albumart = self.getAlbumArt('', self.getParentFolder('/mnt/' + path), 'music')
@@ -1695,9 +1693,7 @@ ControllerMpd.prototype.listallFolder = function (uri) {
               'fa-tags'
             )
 
-            if (title) {
-              title = title
-            } else {
+            if (!title) {
               title = name
             }
             list.push({
@@ -2220,9 +2216,7 @@ ControllerMpd.prototype.explodeUri = function (uri) {
                 }
                 var time = parseInt(self.searchFor(lines, i + 1, 'Time:'))
 
-                if (title) {
-                  title = title
-                } else {
+                if (!title) {
                   title = name
                 }
 
@@ -2283,9 +2277,7 @@ ControllerMpd.prototype.explodeUri = function (uri) {
                 }
                 var time = parseInt(self.searchFor(lines, i + 1, 'Time:'))
 
-                if (title) {
-                  title = title
-                } else {
+                if (!title) {
                   title = name
                 }
 
@@ -2367,9 +2359,7 @@ ControllerMpd.prototype.explodeUri = function (uri) {
             )
             var time = parseInt(self.searchFor(lines, i + 1, 'Time:'))
 
-            if (title) {
-              title = title
-            } else {
+            if (!title) {
               title = name
             }
             list.push({
@@ -2478,9 +2468,7 @@ ControllerMpd.prototype.explodeUri = function (uri) {
             var albumart = self.getAlbumArt({artist: artist, album: album}, self.getParentFolder('/mnt/' + path))
             var time = parseInt(self.searchFor(lines, i + 1, 'Time:'))
 
-            if (title) {
-              title = title
-            } else {
+            if (!title) {
               title = name
             }
 
@@ -2654,9 +2642,7 @@ ControllerMpd.prototype.exploderArtist = function (err, msg, defer) {
         var albumart = self.getAlbumArt({artist: artist, album: album}, self.getParentFolder('/mnt/' + path))
         var time = parseInt(self.searchFor(lines, i + 1, 'Time:'))
 
-        if (title) {
-          title = title
-        } else {
+        if (!title) {
           title = name
         }
         list.push({
@@ -2784,9 +2770,7 @@ ControllerMpd.prototype.scanFolder = function (uri) {
               }
               var time = parseInt(self.searchFor(lines, i + 1, 'Time:'))
 
-              if (title) {
-                title = title
-              } else {
+              if (!title) {
                 title = name
               }
               self.commandRouter.logger.info('ALBUMART ' + self.getAlbumArt({artist: artist, album: album}, uri))
@@ -2873,9 +2857,7 @@ ControllerMpd.prototype.explodeISOFile = function (uri) {
             }
             var time = parseInt(self.searchFor(lines, i + 1, 'Time:'))
 
-            if (title) {
-              title = title
-            } else {
+            if (!title) {
               title = name
             }
             self.commandRouter.logger.info(
@@ -3398,9 +3380,7 @@ ControllerMpd.prototype.listAlbumSongs = function (uri, index, previous) {
           genre = self.searchFor(lines, i + 1, 'Genre:')
           albumTrackType = trackType
 
-          if (title) {
-            title = title
-          } else {
+          if (!title) {
             title = name
           }
           response.navigation.lists[0].items.push({
@@ -3646,9 +3626,7 @@ ControllerMpd.prototype.parseListAlbum = function (err, msg, defer, response, ur
         }
         var albumart = self.getAlbumArt({artist: artist, album: album}, self.getParentFolder(path), 'dot-circle-o')
 
-        if (title) {
-          title = title
-        } else {
+        if (!title) {
           title = name
         }
 
@@ -3834,9 +3812,7 @@ ControllerMpd.prototype.listGenre = function (curUri) {
             }
             var albumart = self.getAlbumArt({artist: artist, album: album}, self.getParentFolder(path), 'dot-circle-o')
 
-            if (title) {
-              title = title
-            } else {
+            if (!title) {
               title = name
             }
 

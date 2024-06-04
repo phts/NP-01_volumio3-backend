@@ -283,7 +283,7 @@ app.route('/albumart-upload').post(function (req, res, next) {
       return res.status(500)
     }
     console.log('Uploading albumart: ' + this.filename)
-    extension = this.filename.split('.').pop().toLowerCase()
+    const extension = this.filename.split('.').pop().toLowerCase()
     var allowedExtensions = ['jpg', 'jpeg', 'png']
     if (allowedExtensions.indexOf(extension) > -1) {
       this.filename = 'cover' + '.' + extension
@@ -332,7 +332,7 @@ app.route('/albumart-upload').post(function (req, res, next) {
         })
       }
     } else {
-      console.log('Albumart file format not allowed ' + filename)
+      console.log('Albumart file format not allowed ' + this.filename)
     }
   })
 })

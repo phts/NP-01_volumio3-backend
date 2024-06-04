@@ -285,7 +285,7 @@ CoreCommandRouter.prototype.serviceUpdateTracklist = function (sService) {
 }
 
 // Start WirelessScan
-CoreCommandRouter.prototype.volumiowirelessscan = function () {
+CoreCommandRouter.prototype.volumiowirelessscan = function (sService) {
   this.pushConsoleMessage('CoreCommandRouter::StartWirelessScan')
   var thisPlugin = this.pluginManager.getPlugin('music_service', sService)
   return thisPlugin.scanWirelessNetworks()

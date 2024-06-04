@@ -111,7 +111,7 @@ PlaylistManager.prototype.addItemsToPlaylist = function (name, data) {
   var self = this
 
   // self.commandRouter.pushConsoleMessage('Adding uri '+uri+' to playlist '+name);
-  return self.commonAddToPlaylist(self.playlistFolder, name, service, uri)
+  return self.commonAddToPlaylist(self.playlistFolder, name)
 }
 
 PlaylistManager.prototype.removeFromPlaylist = function (name, service, uri) {

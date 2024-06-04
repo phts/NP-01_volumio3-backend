@@ -474,7 +474,11 @@ function InterfaceWebUI(context) {
             selfConnWebSocket.emit('pushBackup', result)
           })
           .fail(function () {
-            self.printToastMessage('error', self.commandRouter.getI18nString(COMMON.ERROR), 'Could not retrieve backup')
+            self.printToastMessage(
+              'error',
+              self.commandRouter.getI18nString('COMMON.ERROR'),
+              'Could not retrieve backup'
+            )
           })
       }
     })
@@ -488,7 +492,7 @@ function InterfaceWebUI(context) {
         .fail(function () {
           self.printToastMessage(
             'error',
-            self.commandRouter.getI18nString(COMMON.ERROR),
+            self.commandRouter.getI18nString('COMMON.ERROR'),
             'Could not restore configuration'
           )
         })
@@ -1025,20 +1029,16 @@ function InterfaceWebUI(context) {
         'getAutoUpdateCheckEnabled'
       )
       if (autoUpdateCheckCloudEnabled != undefined) {
-        autoUpdateCheckCloudEnabled
-          .then(function (result) {
-            if (result) {
-              var updateMessage = self.commandRouter.executeOnPlugin(
-                'system_controller',
-                'updater_comm',
-                'getUpdateMessageCache'
-              )
-              selfConnWebSocket.emit('updateReadyCache', updateMessage)
-            }
-          })
-          .fail(function () {
-            defer.resolve()
-          })
+        autoUpdateCheckCloudEnabled.then(function (result) {
+          if (result) {
+            var updateMessage = self.commandRouter.executeOnPlugin(
+              'system_controller',
+              'updater_comm',
+              'getUpdateMessageCache'
+            )
+            selfConnWebSocket.emit('updateReadyCache', updateMessage)
+          }
+        })
       }
     })
 
