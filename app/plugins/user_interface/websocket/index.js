@@ -72,19 +72,7 @@ function InterfaceWebUI(context) {
     })
 
     connWebSocket.on('playNext', function (data) {
-      if (data === null || data === undefined) {
-        console.error('Invalid data: null or undefined')
-        return
-      }
-      self.commandRouter.playNextItems(data).then(function () {
-        var item = data.uri
-        if (data.title) {
-          item = data.title
-        } else if (data.album) {
-          item = data.album
-        }
-        self.printToastMessage('success', self.commandRouter.getI18nString('COMMON.PLAY_NEXT_TITLE'), item)
-      })
+      return self.commandRouter.playNext(data)
     })
 
     connWebSocket.on('insertAfterCurrent', function (data) {

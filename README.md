@@ -5,7 +5,7 @@ This is a modification of original [volumio3-backend] which is used by [PHTS NP-
 Noticeable changes:
 
 - New commands:
-  - "Play next"
+  - "Play next" (already implemented in original repo but keeping my own solution)
   - "Add to queue after current"
   - "Fast reboot" to restart only volumio service
 - Add more data into player state to let UI and plugins show them:
