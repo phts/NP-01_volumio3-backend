@@ -61,7 +61,7 @@ function PluginManager(ccommand, server) {
   for (var l in file) {
     if (file[l].match(/VOLUMIO_VARIANT/i)) {
       var str = file[l].split('=')
-      variant = str[1].replace(/"/gi, '')
+      variant = str[1].replace(/\"/gi, '')
       // TEMPORARY UNTIL MYVOLUMIO GETS MERGED
       if (variant === 'myvolumio' || variant === 'volumiobuster') {
         variant = 'volumio'
@@ -73,15 +73,15 @@ function PluginManager(ccommand, server) {
     }
     if (file[l].match(/VOLUMIO_HARDWARE/i)) {
       var str = file[l].split('=')
-      device = str[1].replace(/"/gi, '')
+      device = str[1].replace(/\"/gi, '')
     }
     if (file[l].match(/VOLUMIO_VERSION/i)) {
       var str = file[l].split('=')
-      volumioVersion = str[1].replace(/"/gi, '')
+      volumioVersion = str[1].replace(/\"/gi, '')
     }
     if (file[l].match(/VERSION_CODENAME/i)) {
       var str = file[l].split('=')
-      os = str[1].replace(/"/gi, '')
+      os = str[1].replace(/\"/gi, '')
     }
   }
 
@@ -2215,8 +2215,8 @@ PluginManager.prototype.getMyMusicPlugins = function () {
         plugin.enabled = plugin.active
       }
     }
+    plugin.prettyName = self.translateMyMusicPluginString(plugin.prettyName)
   }
-
   defer.resolve(self.myMusicPlugins)
   return defer.promise
 }
@@ -2267,6 +2267,32 @@ PluginManager.prototype.enableDisableMyMusicPlugin = function (data) {
       .fail(function (e) {})
   }
   return defer.promise
+}
+
+PluginManager.prototype.translateMyMusicPluginString = function (pluginPrettyName) {
+  var self = this
+
+  switch (pluginPrettyName) {
+    case 'Bluetooth Input Playback':
+      return self.coreCommand.getI18nString('MUSIC_SOURCES.BLUETOOTH_INPUT_PLAYBACK')
+      break
+    case 'Multiroom Playback':
+      return self.coreCommand.getI18nString('MUSIC_SOURCES.MULTIROOM_PLAYBACK')
+      break
+    case 'UPNP Renderer':
+      return self.coreCommand.getI18nString('MUSIC_SOURCES.UPNP_RENDERER')
+      break
+    case 'Music Metadata Discovery':
+      return self.coreCommand.getI18nString('MUSIC_SOURCES.MUSIC_METADATA_DISCOVERY')
+    case 'Digital and Analog Inputs':
+      return self.coreCommand.getI18nString('MUSIC_SOURCES.DIGITAL_INPUTS')
+      break
+    case 'DLNA Browser':
+      return self.coreCommand.getI18nString('MUSIC_SOURCES.DLNA_BROWSER')
+      break
+    default:
+      return pluginPrettyName
+  }
 }
 
 PluginManager.prototype.checkConfigFileEmpty = function (destConfigurationFile) {

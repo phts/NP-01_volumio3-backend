@@ -14,7 +14,10 @@ function InterfaceWebUI(context) {
   self.lastPushedBrowseLibraryObject = {}
 
   /** Init SocketIO listener */
-  self.libSocketIO = require('socket.io')(self.context.websocketServer)
+  self.libSocketIO = require('socket.io')(self.context.websocketServer, {
+    perMessageDeflate: false,
+    maxHttpBufferSize: 1e7,
+  })
 
   self.logger.info('Starting Socket.io Server version ' + require('socket.io/package').version)
 
@@ -418,11 +421,7 @@ function InterfaceWebUI(context) {
             selfConnWebSocket.emit('pushBackup', result)
           })
           .fail(function () {
-            self.printToastMessage(
-              'error',
-              self.commandRouter.getI18nString('COMMON.ERROR'),
-              'Could not retrieve backup'
-            )
+            self.printToastMessage('error', self.commandRouter.getI18nString(COMMON.ERROR), 'Could not retrieve backup')
           })
       }
     })
@@ -434,7 +433,7 @@ function InterfaceWebUI(context) {
         .fail(function () {
           self.printToastMessage(
             'error',
-            self.commandRouter.getI18nString('COMMON.ERROR'),
+            self.commandRouter.getI18nString(COMMON.ERROR),
             'Could not restore configuration'
           )
         })
@@ -901,16 +900,20 @@ function InterfaceWebUI(context) {
         'getAutoUpdateCheckEnabled'
       )
       if (autoUpdateCheckCloudEnabled != undefined) {
-        autoUpdateCheckCloudEnabled.then(function (result) {
-          if (result) {
-            var updateMessage = self.commandRouter.executeOnPlugin(
-              'system_controller',
-              'updater_comm',
-              'getUpdateMessageCache'
-            )
-            selfConnWebSocket.emit('updateReadyCache', updateMessage)
-          }
-        })
+        autoUpdateCheckCloudEnabled
+          .then(function (result) {
+            if (result) {
+              var updateMessage = self.commandRouter.executeOnPlugin(
+                'system_controller',
+                'updater_comm',
+                'getUpdateMessageCache'
+              )
+              selfConnWebSocket.emit('updateReadyCache', updateMessage)
+            }
+          })
+          .fail(function () {
+            defer.resolve()
+          })
       }
     })
 

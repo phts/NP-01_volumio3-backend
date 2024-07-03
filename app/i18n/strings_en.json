@@ -451,7 +451,10 @@
     "DAC_FILTER_DOC": "Select the DAC Filter, which suppress unwanted information from the signal and shape it to specific waveforms",
     "ADVANCED_AUDIO_SETTINGS": "Advanced Audio Settings",
     "POWER_OVERLOAD_PROTECTION_TITLE": "Overload",
-    "POWER_OVERLOAD_PROTECTION_MESSAGE": "Power reduction"
+    "POWER_OVERLOAD_PROTECTION_MESSAGE": "Power reduction",
+    "DISPLAY_ZOOM_FACTOR": "Display Zoom Factor",
+    "DISPLAY_ZOOM_FACTOR_DOC": "Allow to change the display Zoom factor to increase the size of displayed elements",
+    "DISPLAY_UI": "User Interface Display"
   },
   "UPDATER": {
     "CHECKING_FOR_UPDATES": "Checking for Updates",
@@ -569,5 +572,15 @@
   },
   "TRACK_INFO_BAR": {
     "INFINITY_PLAY": "Infinity play"
+  },
+  "MUSIC_SOURCES": {
+    "BLUETOOTH_INPUT_PLAYBACK": "Bluetooth Input Playback",
+    "MULTIROOM_PLAYBACK": "Multiroom Playback",
+    "UPNP_RENDERER": "UPNP Renderer",
+    "MUSIC_METADATA_DISCOVERY": "Music Metadata Discovery",
+    "CD_PLAYBACK_AND_RIPPING": "CD Playback and Ripping",
+    "DIGITAL_AND_ANALOG_INPUTS": "Digital and Analog Inputs",
+    "DIGITAL_INPUTS": "Digital Inputs",
+    "DLNA_BROWSER": "DLNA Browser"
   }
 }
