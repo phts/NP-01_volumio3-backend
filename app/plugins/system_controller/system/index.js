@@ -45,7 +45,9 @@ ControllerSystem.prototype.onVolumioStart = function () {
   var uuid = this.config.get('uuid')
   if (uuid == undefined) {
     self.logger.info('No id defined. Creating one')
-    self.config.addConfigValue('uuid', 'string', uuidv4())
+    var newuuid = uuidv4()
+    self.config.addConfigValue('uuid', 'string', newuuid)
+    uuid = newuuid
   }
 
   var autoUpdate = self.config.get('autoUpdate')
@@ -150,6 +152,14 @@ ControllerSystem.prototype.getUIConfig = function () {
         var cursorEnabled = true
       }
       self.configManager.setUIConfigParam(uiconf, 'sections[1].content[1].value', cursorEnabled)
+
+      var zoomFactor = self.config.get('display_zoom', '1.2')
+      self.configManager.setUIConfigParam(uiconf, 'sections[0].content[2].value.value', zoomFactor)
+      self.configManager.setUIConfigParam(
+        uiconf,
+        'sections[1].content[2].value.label',
+        self.getLabelForSelect(self.configManager.getValue(uiconf, 'sections[1].content[2].options'), zoomFactor)
+      )
 
       if (
         device != undefined &&
@@ -664,19 +674,19 @@ ControllerSystem.prototype.getSystemVersion = function () {
   for (var l = 0; l < nLines; l++) {
     if (file[l].match(/VOLUMIO_VERSION/i)) {
       str = file[l].split('=')
-      releaseinfo.systemversion = str[1].replace(/"/gi, '')
+      releaseinfo.systemversion = str[1].replace(/\"/gi, '')
     }
     if (file[l].match(/VOLUMIO_BUILD_DATE/i)) {
       str = file[l].split('=')
-      releaseinfo.builddate = str[1].replace(/"/gi, '')
+      releaseinfo.builddate = str[1].replace(/\"/gi, '')
     }
     if (file[l].match(/VOLUMIO_VARIANT/i)) {
       str = file[l].split('=')
-      releaseinfo.variant = str[1].replace(/"/gi, '')
+      releaseinfo.variant = str[1].replace(/\"/gi, '')
     }
     if (file[l].match(/VOLUMIO_HARDWARE/i)) {
       str = file[l].split('=')
-      releaseinfo.hardware = str[1].replace(/"/gi, '')
+      releaseinfo.hardware = str[1].replace(/\"/gi, '')
     }
   }
 
@@ -1075,12 +1085,13 @@ ControllerSystem.prototype.installToDisk = function () {
     )
     .then(self.ddToDisk.bind(self))
     .then(function (e) {
-      const currentMessage = 'Unpacking plugin'
+      currentMessage = 'Unpacking plugin'
+      advancedlog = advancedlog + '<br>' + currentMessage
       self.pushMessage('installPluginStatus', {
         progress: 40,
         message: currentMessage,
         title: modaltitle,
-        advancedLog: currentMessage,
+        advancedLog: advancedlog,
       })
       return e
     })
@@ -1393,6 +1404,15 @@ ControllerSystem.prototype.saveHDMISettings = function (data) {
   }
   execSync('/bin/echo ' + kioskArgs + ' > /data/kioskargs', {uid: 1000, gid: 1000, encoding: 'utf8'})
 
+  if (data['display_zoom'] !== undefined) {
+    self.config.set('display_zoom', data['display_zoom'].value)
+    execSync('/bin/echo "SCALE_FACTOR=' + data['display_zoom'].value + '" > /data/browserargs', {
+      uid: 1000,
+      gid: 1000,
+      encoding: 'utf8',
+    })
+  }
+
   var action = 'enable'
   var immediate = 'restart'
   if (!data['hdmi_enabled']) {
@@ -1414,7 +1434,7 @@ ControllerSystem.prototype.saveHDMISettings = function (data) {
         self.logger.info(action + ' volumio-kiosk service success')
         self.commandRouter.pushToastMessage(
           'success',
-          self.commandRouter.getI18nString('SYSTEM.HDMI_UI'),
+          self.commandRouter.getI18nString('SYSTEM.DISPLAY_UI'),
           self.commandRouter.getI18nString('SYSTEM.SYSTEM_CONFIGURATION_UPDATE_SUCCESS')
         )
       }
@@ -1683,7 +1703,7 @@ ControllerSystem.prototype.enableLiveLog = function (data) {
 ControllerSystem.prototype.getHwuuidEth = function () {
   var self = this
 
-  var anonid
+  var anonid = undefined
   try {
     var macaddr = fs.readFileSync('/sys/class/net/eth0/address', 'utf8')
     anonid = macaddr.toString().replace(':', '')
@@ -1694,7 +1714,7 @@ ControllerSystem.prototype.getHwuuidEth = function () {
 ControllerSystem.prototype.getHwuuidWlan = function () {
   var self = this
 
-  var anonid
+  var anonid = undefined
   try {
     var macaddr = fs.readFileSync('/sys/class/net/wlan0/address', 'utf8')
     anonid = macaddr.toString().replace(':', '')
