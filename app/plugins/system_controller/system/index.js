@@ -8,6 +8,7 @@ var spawn = require('child_process').spawn
 var exec = require('child_process').exec
 var spawn = require('child_process').spawn
 var crypto = require('crypto')
+var os = require('os')
 var calltrials = 0
 var additionalSVInfo
 var additionalDeviceVolumioProperties = {}
@@ -67,11 +68,10 @@ ControllerSystem.prototype.onVolumioStart = function () {
   this.commandRouter.sharedVars.addConfigValue('system.name', 'string', self.config.get('playerName'))
 
   process.env.ADVANCED_SETTINGS_MODE = this.config.get('advanced_settings_mode', true)
-  if (fs.existsSync('/volumio/http/wizard')) {
-    process.env.NEW_WIZARD = 'true'
-  } else {
-    process.env.NEW_WIZARD = 'false'
-  }
+
+  setTimeout(() => {
+    self.updateVersionHistoryFile()
+  }, 30000)
 
   return libQ.all([self.deviceDetect(), self.getUSBBootCapable()])
 }
@@ -316,27 +316,21 @@ ControllerSystem.prototype.getUIConfig = function () {
           if (process.env.ALLOW_LEGACY_UIS_SELECTION === 'false') {
             uiconf.sections[8].hidden = true
           }
-          var uiValue = ''
-          var uiLabel = ''
-          if (fs.existsSync('/data/disableManifestUI') === false) {
-            uiValue = 'MANIFEST'
-            uiLabel = self.commandRouter.getI18nString('APPEARANCE.USER_INTERFACE_MANIFEST')
-          } else if (process.env.VOLUMIO_3_UI === 'true') {
-            uiValue = 'CONTEMPORARY'
-            uiLabel = self.commandRouter.getI18nString('APPEARANCE.USER_INTERFACE_CONTEMPORARY')
-          } else if (fs.existsSync('/data/phts-np-01-theme')) {
-            uiValue = 'PHTS_NP-01'
-            uiLabel = 'PHTS NP-01'
-          } else if (fs.existsSync('/data/phts-np-01-dev-theme')) {
-            uiValue = 'PHTS_NP-01 (dev)'
-            uiLabel = 'PHTS NP-01 (dev)'
-          } else if (fs.existsSync('/data/volumio2ui')) {
-            uiValue = 'CLASSIC'
-            uiLabel = self.commandRouter.getI18nString('APPEARANCE.USER_INTERFACE_CLASSIC')
-          }
+
+          var uiValue = process.env.VOLUMIO_ACTIVE_UI_NAME
+          var uiLabel = process.env.VOLUMIO_ACTIVE_UI_PRETTY_NAME
+          var availableUIs = self.commandRouter.executeOnPlugin('miscellanea', 'appearance', 'getAvailableUIs')
           self.configManager.setUIConfigParam(uiconf, 'sections[8].content[0].value.value', uiValue)
           self.configManager.setUIConfigParam(uiconf, 'sections[8].content[0].value.label', uiLabel)
-          if (uiValue === 'CLASSIC' || uiValue === 'CONTEMPORARY') {
+          for (var i in availableUIs) {
+            var ui = availableUIs[i]
+            self.configManager.pushUIConfigParam(uiconf, 'sections[8].content[0].options', {
+              value: ui.uiName,
+              label: ui.uiPrettyName,
+            })
+          }
+
+          if (uiValue === 'classic' || uiValue === 'contemporary') {
             uiconf.sections[9] = {coreSection: 'ui-settings'}
           }
           var additionalConfs = self.getAdditionalUISections()
@@ -350,13 +344,14 @@ ControllerSystem.prototype.getUIConfig = function () {
               }
               defer.resolve(uiconf)
             })
-            .fail(() => {
+            .fail((e) => {
+              self.logger.error('Failed to retrieve System UI Config: ' + e)
               defer.resolve(uiconf)
             })
         })
     })
     .fail(function (error) {
-      self.logger.info(error)
+      self.logger.error(error)
       defer.reject(new Error())
     })
 
@@ -1730,7 +1725,9 @@ ControllerSystem.prototype.initializeFirstStart = function () {
   // We set default value to false if config not found, so this setting won't affect devices updating from previous versions
   var isFirstStart = self.config.get('first_start', false)
   if (isFirstStart) {
-    execSync('/usr/bin/touch /data/wizard')
+    if (process.env.NEW_WIZARD === 'true') {
+      process.env.SHOW_NEW_WIZARD = 'true'
+    }
     var playerName = self.config.get('playerName')
     var sysShortID = self.getHwuuid().toUpperCase().substring(0, 5)
     var newPlayerName = playerName + '-' + sysShortID
@@ -2472,6 +2469,35 @@ ControllerSystem.prototype.addAdditionalUISections = function (data) {
       additionalUISections.push(data)
     }
   }
+}
+
+ControllerSystem.prototype.updateVersionHistoryFile = function () {
+  var self = this
+  var historyFilePath = '/data/updatesHistoryFile'
+
+  self.getSystemVersion().then(function (currentVersionInfoJSON) {
+    try {
+      var currentVersionInfoString = JSON.stringify(currentVersionInfoJSON)
+      fs.readFile(historyFilePath, 'utf8', (err, data) => {
+        if (err) {
+          var fileContent = ''
+        } else {
+          var fileContent = data.toString()
+        }
+        if (!fileContent.includes(currentVersionInfoString)) {
+          var currentVersionContent =
+            '---' + os.EOL + new Date().toString() + os.EOL + currentVersionInfoString + os.EOL + '---'
+          fs.appendFile(historyFilePath, currentVersionContent, function (err) {
+            if (err) {
+              self.logger.error('Failed to update update history file: ' + e)
+            }
+          })
+        }
+      })
+    } catch (e) {
+      self.logger.error('Failed to update update history file: ' + e)
+    }
+  })
 }
 
 ControllerSystem.prototype.getAdditionalUISections = function () {

@@ -1,0 +1,27 @@
+[
+  {
+    "uiPrettyName": "Manifest",
+    "uiName": "manifest",
+    "uiPath": "/volumio/http/www4"
+  },
+  {
+    "uiPrettyName": "Contemporary",
+    "uiName": "contemporary",
+    "uiPath": "/volumio/http/www3"
+  },
+  {
+    "uiPrettyName": "Classic",
+    "uiName": "classic",
+    "uiPath": "/volumio/http/www"
+  },
+  {
+    "uiPrettyName": "PHTS NP-01",
+    "uiName": "PHTS_NP-01",
+    "uiPath": "/volumio/http/www-phts_np-01"
+  },
+  {
+    "uiPrettyName": "PHTS NP-01 (dev)",
+    "uiName": "PHTS_NP-01 (dev)",
+    "uiPath": "/volumio/http/www-phts_np-01-dev"
+  }
+]

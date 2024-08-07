@@ -1851,7 +1851,7 @@ CoreCommandRouter.prototype.getMenuItems = function () {
         var menuItems = menuItemsJson['menuItems']
       }
 
-      if (!fs.existsSync('/data/manifestUI')) {
+      if (process.env.VOLUMIO_ACTIVE_UI_NAME !== 'manifest') {
         menuItems = menuItems.filter((item) => item.id !== 'browse')
       }
 
@@ -2247,4 +2247,8 @@ CoreCommandRouter.prototype.reportBackendEvent = function (event, properties) {
 
 CoreCommandRouter.prototype.toggleStopAfterCurrent = function () {
   return this.stateMachine.toggleStopAfterCurrent()
+}
+
+CoreCommandRouter.prototype.registerThirdPartyUI = function (data) {
+  this.executeOnPlugin('miscellanea', 'appearance', 'registerThirdPartyUI', data)
 }
