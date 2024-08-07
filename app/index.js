@@ -285,7 +285,7 @@ CoreCommandRouter.prototype.serviceUpdateTracklist = function (sService) {
 }
 
 // Start WirelessScan
-CoreCommandRouter.prototype.volumiowirelessscan = function (sService) {
+CoreCommandRouter.prototype.volumiowirelessscan = function () {
   this.pushConsoleMessage('CoreCommandRouter::StartWirelessScan')
   var thisPlugin = this.pluginManager.getPlugin('music_service', sService)
   return thisPlugin.scanWirelessNetworks()
@@ -2125,7 +2125,7 @@ CoreCommandRouter.prototype.getMenuItems = function () {
         var menuItems = menuItemsJson['menuItems']
       }
 
-      if (!fs.existsSync('/data/manifestUI')) {
+      if (process.env.VOLUMIO_ACTIVE_UI_NAME !== 'manifest') {
         menuItems = menuItems.filter((item) => item.id !== 'browse')
       }
 
@@ -2558,4 +2558,10 @@ CoreCommandRouter.prototype.reportBackendEvent = function (event, properties) {
       return myVolumioPlugin.reportBackendEvent(event, properties)
     } catch (e) {}
   }
+}
+
+CoreCommandRouter.prototype.registerThirdPartyUI = function (data) {
+  var self = this
+
+  this.executeOnPlugin('miscellanea', 'appearance', 'registerThirdPartyUI', data)
 }

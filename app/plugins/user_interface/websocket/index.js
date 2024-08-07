@@ -420,12 +420,19 @@ function InterfaceWebUI(context) {
               })
             }
           })
-          .fail(function () {
-            self.printToastMessage(
-              'error',
-              self.commandRouter.getI18nString('COMMON.ERROR'),
-              self.commandRouter.getI18nString('COMMON.NO_RESULTS')
-            )
+          .fail(function (e) {
+            if (e && e.errorMessage) {
+              self.printToastMessage(
+                'error',
+                self.commandRouter.getI18nString('COMMON.NO_RESULTS') + ': ' + e.errorMessage
+              )
+            } else {
+              self.printToastMessage(
+                'error',
+                self.commandRouter.getI18nString('COMMON.ERROR'),
+                self.commandRouter.getI18nString('COMMON.NO_RESULTS')
+              )
+            }
           })
       }
     })
